@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>CS:GO Chat Generator</title>
+		<style>
+			select, input {
+				display: block;
+			}
+		</style>
+		<script>
+			var VoiceLines = {
+				"Affirmative" : "Affirmative",
+				"Agree": "Agree",
+				"Radio Affirmitive": "Radio.Affirmitive",
+				"Radio 10": "Radio.Num10"
+			};
+
+			let Colors = {
+				"Team Color": "",
+				"White": "",
+				"Grey": "",
+				"Light Red": "",
+				"Dark Red": "",
+				"Grey": "",
+				"Pale Red": "",
+				"Orchid": "",
+				"Gold": "",
+				"Light Green": "",
+				"Lime": "",
+				"Green": "",
+				"Blue": "",
+				"Dark Blue": ""
+			};
+
+			function copy() {
+
+			}
+			function copyRadioCommand() {
+				var copyText = document.getElementById("result");
+				copyText.select();
+				copyText.setSelectionRange(0, 99999);
+				document.execCommand("copy");
+			}
+
+			function addOptionsToId(id, obj) {
+				// for (let i = 0; i < obj.length; i++){
+				// 	let radioOption = document.createElement("option");
+				// 	radioOption.innerHTML = obj[i];
+				// 	radioOption.value = i;
+				// 	document.getElementById(id).add(radioOption);
+				// }
+
+				Object.keys(obj).forEach(name => {
+					let radioOption = document.createElement("option");
+					radioOption.innerHTML = name;
+					radioOption.value = name;
+					document.getElementById(id).add(radioOption);
+				});
+			}
+
+		</script>
+	</head>
+	<body>
+
+		<!--
+		❌✔️
+		❌	Radio commands kiezen
+		❌	Dropdown menu kleuren
+		❌	Text invoer
+		❌	Kopieren van command met button
+
+		❌	+ Knop voor nieuwe color en text
+		❌	Knife of rare checkbox
+		❌	StatTrak trademark checkbox
+		❌	Weapon checkbox
+		❌	Met of zonder player indicator (cirkel voor text)
+		-->
+
+		<label>Choose voice line: </label>
+		<select name="radio" id="voiceLine" onchange="selectionChangedRadio(this)"></select>
+		<label>Choose your color: </label>
+		<select name="color" id="colorDropdown" onchange="selectionChangedColor(this)"></select>
+		<input type="checkbox" id="linebreakCheck" onclick="selectionChangedLBreak(this)">
+		<label for="linebreakCheck">Start on new line?</label>
+		<input type="checkbox" id="playerIndicatorCheck" onclick="selectionPlayerIndicator(this)">
+		<label for="playerIndicatorCheck">Player indicator? (Competitive only)</label>
+		<input type="text" placeholder="Your custom text here..." oninput="selectionChangedText(this)">
+		<input type="checkbox" id="knifeCheck" onclick="selectionChangedKnife(this)">
+		<label for="knifeCheck">Knife?</label>
+		<input type="checkbox" id="stCheck" onclick="selectionChangedStatTrak(this)">
+		<label for="stCheck">StatTrak™?</label>
+		<input type="checkbox" id="weaponCheck" onclick="selectionWeaponChecked(this)" >
+		<label for="weaponCheck">Weapon?: </label>
+		<input type="text" id="weaponText" placeholder="Your Weapon | Of Choice" oninput="selectionChangedWeaponText(this)">
+		<label>Weapon color: </label>
+		<select name="weaponColor" id="weaponColorDropdown" onchange="selectionChangedWeaponColor(this)"></select>
+		<button value="Copy Radio Command" onclick="copyRadioCommand()">Copy Radio Command</button>
+		<input type="text" id="result" placeholder="Result Radio Command" size="100" readonly></p>
+
+		<script>
+			(function() {
+				addOptionsToId("voiceLine", VoiceLines);
+				addOptionsToId("colorDropdown", Colors);
+				addOptionsToId("colorDropdown", Colors);
+			})();
+		</script>
+	</body>
+</html>
