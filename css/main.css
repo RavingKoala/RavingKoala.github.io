@@ -1,0 +1,142 @@
+:root {
+	--bg-color: #212529;
+	--surface-color: #ffffff0f;
+	--text-color: #e2e2e2;
+	--primary-color: #00b7e5;
+	--primary-text-color: --text-color;
+	--secondary-color: #e52e00;
+	--secondary-text-color: --text-color;
+}
+/*** fonts ***/
+@font-face {
+	font-family: "Fira Sans";
+	src: url("resource/font/FiraSans-Bold.ttf") format("truetype");
+}
+
+/*** Layouts ***/
+
+.center {
+	display: flex;
+	justify-content: center;
+	text-align: center;
+}
+
+.container {
+	background-color: var(--surface-color);
+	padding: 10vh 10vw;
+	margin: 0 20vw;
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+}
+
+.items {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.items > * {
+	flex: 1 1 150px;
+}
+
+/*** Objects ***/
+* {
+	box-sizing: border-box;
+	font-family: "Fira Sans";
+	font-weight: 700;
+}
+
+html {
+	height: 100%;
+}
+
+body {
+	min-height: 100%;
+	display: flex;
+	justify-content: center;
+	padding: none;
+	margin: none;
+}
+a {
+	color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	padding: 4px 0.3em;
+	border-bottom: var(--text-color) 3px solid;
+}
+
+h1 {
+	font-size: 48px;
+}
+
+.title {
+	display: flex;
+	align-content: center;
+}
+
+button {
+	border: none;
+	border-radius: 15px;
+	padding: 1em 2em;
+	margin: 1em;
+	box-shadow: inset -4px -6px 10px rgba(0, 0, 0, 0.47),
+		inset 6px 5px 6px rgba(255, 255, 255, 0.32);
+	font-size: 24px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+button:active {
+	box-shadow: inset 4px 6px 10px rgba(0, 0, 0, 0.47),
+		inset -6px -5px 6px rgba(255, 255, 255, 0.32);
+}
+
+span.label {
+	position: relative;
+	top: calc(-1em + 8px);
+	right: calc(-2em + 14px);
+	padding: 5px 10px;
+	filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.25));
+	border-radius: 12px;
+	font-size: 12px;
+}
+
+.version {
+	display: none;
+}
+
+/*** Colors ***/
+
+.bg-dark {
+	background-color: #212529;
+}
+
+.text-white {
+	color: var(--text-color);
+}
+
+.primary {
+	background-color: var(--primary-color);
+	color: var(--primary-text-color);
+}
+
+.primary-text {
+	color: var(--primary-color);
+}
+
+.secondary {
+	background-color: var(--secondary-color);
+	color: var(--secondary-text-color);
+}
+
+.secondary-text {
+	color: var(--secondary-color);
+}
