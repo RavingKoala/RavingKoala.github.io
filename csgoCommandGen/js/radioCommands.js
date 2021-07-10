@@ -49,10 +49,29 @@ function addOptionsToId(id, obj) {
 	});
 }
 
-function appendUpdateListener() {
-	for (let i = 0; i < arguments.length; i++) {
-		let element = arguments[i];
+function appendUpdateListener(elements, onAction) {
+	if (typeof elements !== "object" || typeof onAction !== "string")
+		return Error("Wrong arguments to AppendUpdateListener");
+
+	for (let i = 0; i < elements.length; i++) {
+		let element = elements[i];
+		element.addEventListener(onAction, generateCommand);
 	}
 }
 
 /*** interactive UI commands ***/
+
+function generateCommand() {
+	// check all inputs
+	console.log("update command");
+}
+
+function getValueFromId(id) {
+	let element = document.getElementById(id);
+	return element.value;
+}
+
+function isCheckedFromId(id) {
+	let element = document.getElementById(id);
+	return element.checked;
+}

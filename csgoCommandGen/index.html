@@ -20,81 +20,184 @@
 	<body>
 
 		<!--
-		❌✔️
-		❌	Radio commands kiezen
-		❌	Dropdown menu kleuren
-		❌	Text invoer
-		❌	Kopieren van command met button
+			❌✔️
+			❌	Radio commands kiezen
+			❌	Dropdown menu kleuren
+			❌	Text invoer
+			❌	Kopieren van command met button
 
-		❌	+ Knop voor nieuwe color en text
-		❌	Knife of rare checkbox
-		❌	StatTrak trademark checkbox
-		❌	Weapon checkbox
-		❌	Met of zonder player indicator (cirkel voor text)
+			❌	+ Knop voor nieuwe color en text
+			❌	Knife of rare checkbox
+			❌	StatTrak trademark checkbox
+			❌	Weapon checkbox
+			❌	Met of zonder player indicator (cirkel voor text)
 		-->
 		<div class="container">
-			<div class="row row-cols-1">
-				<div class="input-group mb-3">
-					<label class="input-group-text">Choose voice line: </label>
-					<select name="radio" id="voiceLine" class="form-select" onchange="selectionChangedRadio(this)"></select>
+			<div class="row row-cols-1 row-cols-lg-2">
+				<div class="col">
+					<div class="input-group mb-2">
+						<label class="input-group-text" for="voiceLine">Choose voice line: </label>
+						<select name="radio" id="voiceLine" class="form-select"></select>
+					</div>
+
+
+					<div class="input-group mb-2">
+						<label class="input-group-text">name</label>
+						<input type="text" id="playerName" class="form-control" placeholder="Player name" maxlength="40" aria-label="playerName">
+					</div>
+
+					<div class="input-group mb-2">
+						<label class="input-group-text">name color</label>
+						<select name="playerName" id="playerNameDropdown" class="form-select"></select>
+					</div>
+
+					<div class="input-group mb-2">
+						<label class="input-group-text">message</label>
+						<input type="text" id="message" class="form-control" placeholder="eg. &quot;has received in trade: &quot;" maxlength="40" aria-label="message">
+					</div>
 				</div>
 
-				<div class="input-group mb-3">
-					<label class="input-group-text">Choose your color: </label>
-					<select name="color" id="colorDropdown" class="form-select" onchange="selectionChangedColor(this)"></select>
-				</div>
+				<div class="col">
+					<div class="input-group my-1">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="weaponCheck">
+							<label class="form-check-label" for="weaponCheck">
+								Weapon?
+							</label>
+						</div>
+					</div>
 
-				<div class="btn-group flex-wrap mb-3" role="group" aria-label="Basic checkbox toggle button group">
-					<input class="btn-check" type="checkbox" id="linebreakCheck" autocomplete="off" onclick="selectionChangedLBreak(this)">
-					<label class="btn btn-outline-primary" for="linebreakCheck">Start on new line?</label>
+					<div class="input-group my-1">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="linebreakCheck">
+							<label class="form-check-label" for="linebreakCheck">
+								Knife?
+							</label>
+						</div>
+					</div>
 
-					<input class="btn-check" type="checkbox" id="playerIndicatorCheck" autocomplete="off" onclick="selectionPlayerIndicator(this)">
-					<label class="btn btn-outline-primary" for="playerIndicatorCheck">Player indicator? (Competitive only)</label>
+					<div class="input-group my-1">
+						<div class="form-check">
+							<input class="form-check-input " type="checkbox" id="stCheck">
+							<label class="form-check-label" for="stCheck">
+								StatTrak™
+							</label>
+						</div>
+					</div>
 
-					<input class="btn-check" type="checkbox" id="knifeCheck" autocomplete="off" onclick="selectionChangedKnife(this)">
-					<label class="btn btn-outline-primary" for="knifeCheck">Knife?</label>
+					<div class="input-group mb-2">
+						<input type="text" id="weaponText" class="form-control" placeholder="weapon Name" maxlength="40" aria-label="weaponText">
+					</div>
 
-					<input class="btn-check" type="checkbox" id="stCheck" autocomplete="off" onclick="selectionChangedStatTrak(this)">
-					<label class="btn btn-outline-primary" for="stCheck">Checkbox 4</label>
-				</div>
-
-				<div class="input-group mb-3">
-					<input type="text" id="customText" class="form-control" placeholder="Your custom text here..."  maxlength="40" oninput="selectionChangedText(this)">
-				</div>
-
-				<div class="input-group mb-3">
-					<input type="text" id="weaponText" class="form-control" placeholder="weapon Name" maxlength="40" aria-label="weaponText" oninput="selectionChangedWeaponText(this)">
-				</div>
-
-				<div class="input-group mb-3">
-					<label class="input-group-text">Weapon color: </label>
-					<select name="weaponColor" id="weaponColorDropdown" class="form-select" onchange="selectionChangedWeaponColor(this)"></select>
-				</div>
-
-				<div class="input-group mb-3">
-					<button class="input-group-text" onclick="copyRadioCommand()">Copy</button>
-					<input type="text" id="result" class="form-control" placeholder="Result Radio Command"></p>
+					<div class="input-group mb-2">
+						<label class="input-group-text">Weapon color: </label>
+						<select name="weaponColor" id="weaponColorDropdown" class="form-select" onchange="selectionChangedWeaponColor()"></select>
+					</div>
 				</div>
 
 				<input type="hidden" name="copyClipboard" id="copyClipboardDOM">
 
 			</div>
-			<ul class="list-group">
-				<li class="list-group-item">command</li>
-				<li class="list-group-item">A second item</li>
-				<li class="list-group-item">A third item</li>
-				<li class="list-group-item">A fourth item</li>
-				<li class="list-group-item">And a fifth one</li>
-			</ul>
+
+			<div class="input-group mt-4 mb-2">
+				<input type="text" id="result" class="form-control" placeholder="Result Radio Command">
+				<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+			</div>
+
+			<input type="hidden" name="copyClipboard" id="copyClipboardDOM">
+
+
+			<div class="card mt-4">
+				<div class="card-header">
+					Copy history
+				</div>
+				<div class="card-body p-1">
+					<div class="row row-cols-1 row-cols-lg-2 g-1">
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text wx-7">1</span>
+								<span class="input-group-text form-control">1</span>
+								<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text">2</span>
+								<span class="input-group-text form-control">2</span>
+								<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text">3</span>
+								<span class="input-group-text form-control">3</span>
+								<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text">4</span>
+								<span class="input-group-text form-control">4</span>
+								<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text">5</span>
+								<span class="input-group-text form-control">5</span>
+								<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text">6</span>
+								<span class="input-group-text form-control">6</span>
+								<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text">7</span>
+								<span class="input-group-text form-control">7</span>
+								<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text">8</span>
+								<span class="input-group-text form-control">8</span>
+								<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text">9</span>
+								<span class="input-group-text form-control">9</span>
+								<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text">10</span>
+								<label class="input-group-text form-control overflow-x-scroll">playerradio Agree "HELOOOOOOOWWWWWWWWWW StatTrak™ WWWWWWWWWWWWWWWWWWWW"</label>
+								<button class="input-group-text"><img src="../resource/Icons/SVG/PaperClip.svg"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<script>
 			(function() {
 				addOptionsToId("voiceLine", VoiceLines);
-				addOptionsToId("colorDropdown", Colors);
+				addOptionsToId("playerNameDropdown", Colors);
 				addOptionsToId("weaponColorDropdown", Colors);
 
-
+				let inputs = document.getElementsByTagName("input");
+				appendUpdateListener(inputs, "input");
+				let selects = document.getElementsByTagName("select");
+				appendUpdateListener(selects, "change");
 			})();
 		</script>
 	</body>
