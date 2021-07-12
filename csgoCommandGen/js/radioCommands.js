@@ -31,11 +31,11 @@ var Commands = {
 
 function copy() {
 	copyRadioCommand();
-	setCommand
-	// TODO: set in history
+	addToHistory(getValueFromId("result"));
 }
 
 function copyRadioCommand(id = "result") {
+	console.log(`copied: ${id}`);
 	let copyText = document.getElementById(id);
 	copyText.select();
 	copyText.setSelectionRange(0, 99999);
@@ -64,7 +64,48 @@ function appendUpdateListener(elements, onAction) {
 
 var coppiedCommands = [];
 
+function addToHistory(text) {
+	coppiedCommands.unshift(text); // Add to history (front of array)
+	updateHistoryUi();
+	if (coppiedCommands.length > 10) removeLastFromHistory(); // limit history length (max 10)
+}
 
+function updateHistoryUi() {
+	let historyContainerDOM = document.getElementById("historyItemsContainer");
+	// clear history
+	historyContainerDOM.innerHTML = "";
+	// add history
+	if (coppiedCommands.length > 0) {
+		let historyInnerHTML = "";
+		coppiedCommands.forEach((command, index) => {
+			historyInnerHTML += historyItem(index, command);
+		});
+		historyContainerDOM.innerHTML = historyInnerHTML;
+	}
+	// empty? hide/show history
+	coppiedCommands.length > 0 ? removeClass("historySection", "invisible") : addClass("historySection", "invisible");
+}
+
+function clearHistory() {
+	coppiedCommands = [];
+	updateHistoryUi();
+}
+
+function removeLastFromHistory() {
+	coppiedCommands.splice(coppiedCommands.length - 1, 1);
+}
+
+/*** class manipulation  ***/
+
+function addClass(id, className) {
+	let element = document.getElementById(id);
+	if (element.classList.contains(className)) element.classList.add(className);
+}
+
+function removeClass(id, className) {
+	let element = document.getElementById(id);
+	if (element.classList.contains(className)) element.classList.remove(className);
+}
 
 /*** interactive UI commands ***/
 function getValueFromId(id) {
@@ -82,6 +123,7 @@ function generateCommand() {
 	let resultString = "";
 	// builld start
 	let RadioCommand = VoiceLines[getValueFromId("voiceLine")];
+
 	resultString += `${Commands["Radio prefix"]} ${RadioCommand}`;
 
 	resultString += ' "';
@@ -92,24 +134,23 @@ function generateCommand() {
 		let PlayerColor = Colors[getValueFromId("playerNameDropdown")];
 		let PlayerName = getValueFromId("playerName");
 
-		resultString += `${newLine}${playerIndicator}${PlayerColor}${PlayerName}`;
+		resultString += `${newLine}${playerIndicator}${PlayerColor}${PlayerName} `;
 	}
 	// build message
 	let ColorPrefix = Colors[getValueFromId("MessageDropdown")];
 	let TextLine = getValueFromId("message");
-	resultString += `${ColorPrefix}${TextLine}`;
+	resultString += `${ColorPrefix}${TextLine} `;
 
 	// build weapon
 	if (isCheckedFromId("weaponCheck")) {
 		let WeaponColor = Colors[getValueFromId("weaponColorDropdown")];
 		let WeaponName = getValueFromId("weaponText");
+		let statTrack = isCheckedFromId("stCheck") ? ` ${Commands["StatTrak prefix"]}` : "";
 
-		resultString += `${WeaponColor}${WeaponName} ${stCheck} ${WeaponName}`;
+		resultString += `${WeaponColor}${WeaponName} ${statTrack}`;
 	}
 	resultString += '"';
 
-	console.log(resultString);
 	// set command input field
 	document.getElementById("result").value = resultString;
-
 }

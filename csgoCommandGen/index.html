@@ -9,14 +9,6 @@
 		<script src="js/radioCommands.js"></script>
 	</head>
 	<body>
-		<!--
-		-->
-
-		<!--
-			# TODO:
-			- generate history
-			- add copy for history
-		 -->
 		<div class="container mt-5">
 			<input type="hidden" name="copyClipboard" id="copyClipboardDOM" />
 
@@ -60,7 +52,7 @@
 
 					<div class="input-group mb-3">
 						<label class="input-group-text">message</label>
-						<input type="text" id="message" class="form-control" placeholder='eg. "has received in trade: "' maxlength="40" aria-label="message" />
+						<input type="text" id="message" class="form-control" placeholder='eg. "has received in trade:"' maxlength="40" aria-label="message" />
 					</div>
 
 					<div class="input-group mb-3">
@@ -74,7 +66,7 @@
 						<div class="form-check">
 							<input class="form-check-input" type="checkbox" id="weaponCheck" />
 							<label class="form-check-label" for="weaponCheck"> Weapon? </label>
-						</div> 
+						</div>
 					</div>
 
 					<div class="input-group mb-3">
@@ -109,10 +101,10 @@
 				</button>
 			</div>
 
-			<div class="card mt-4">
+			<div id="historySection" class="card mt-4 invisible">
 				<div class="card-header">Copy history</div>
 				<div class="card-body p-1">
-					<div class="row row-cols-1 row-cols-lg-2 g-1">
+					<div id="historyItemsContainer" class="row row-cols-1 row-cols-lg-2 g-1">
 						<div class="col">
 							<div class="input-group">
 								<span class="input-group-text wx-7">1</span>
@@ -212,8 +204,8 @@
 			var historyItem = (index, value) => `<div class="col">
 					<div class="input-group">
 						<span class="input-group-text">${index}</span>
-						<label class="input-group-text form-control overflow-x-scroll" >${value}</label>
-						<button class="input-group-text" onclick="copyRadioCommand()">
+						<input id="history${index}" class="input-group-text form-control overflow-x-scroll" value='${value}' readonly />
+						<button class="input-group-text" onclick="copyRadioCommand('history${index}')">
 							<img src="../resource/Icons/SVG/PaperClip.svg" />
 						</button>
 					</div>
@@ -225,7 +217,7 @@
 				addOptionsToId("MessageDropdown", Colors);
 				addOptionsToId("weaponColorDropdown", Colors);
 
-				let inputs = document.getElementsByTagName("input");
+				let inputs = document.querySelectorAll("input:not(#result)");
 				appendUpdateListener(inputs, "input");
 				let selects = document.getElementsByTagName("select");
 				appendUpdateListener(selects, "change");
