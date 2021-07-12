@@ -20,7 +20,7 @@
 	/* #686868 */
 	--bg-color-active: transparent;
 	/* #888888 */
-	--inset-shadow-color: rgba(0, 0, 0, .3);
+	--inset-shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 body,
@@ -31,7 +31,7 @@ html {
 }
 
 span {
-	line-height: .8;
+	line-height: 0.3;
 }
 
 .container {

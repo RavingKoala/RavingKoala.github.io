@@ -1,40 +1,42 @@
 var VoiceLines = {
-	Affirmative: "Affirmative",
-	Agree: "Agree",
+	"Affirmative": "Affirmative",
+	"Agree": "Agree",
 	"Radio Affirmitive": "Radio.Affirmitive",
 	"Radio 10": "Radio.Num10",
 };
 
 var Colors = {
-	"Team Color": "",
-	White: "",
-	Grey: "",
+	"Default": "",
+	"White": "",
+	"Grey": "",
 	"Light Red": "",
 	"Dark Red": "",
-	Grey: "",
-	"Pale Red": "",
-	Orchid: "",
-	Gold: "",
-	"Light Green": "",
-	Lime: "",
-	Green: "",
-	Blue: "",
+	"Covert Red": "",
+	"Orchid": "",
+	"Gold": "",
+	"Light Green": "",
+	"Lime": "",
+	"Green": "",
+	"Blue": "",
 	"Dark Blue": "",
 };
 
-var coppiedCommands = [];
+var Commands = {
+	"Radio prefix": "playerradio",
+	"Newline prefix": "",
+	"Player indicator": "",
+	"Knife Prefix": "★",
+	"StatTrak prefix": "StatTrak™",
+};
 
-function copy() {}
-function copyRadioCommand() {
-	var copyText = document.getElementById("result");
-	copyText.select();
-	copyText.setSelectionRange(0, 99999);
-	document.execCommand("copy");
+function copy() {
+	copyRadioCommand();
+	setCommand
+	// TODO: set in history
 }
 
-function copyToClipboard(text) {
-	var copyText = document.getElementById("copyClipboardDOM");
-	copyText.value = text;
+function copyRadioCommand(id = "result") {
+	let copyText = document.getElementById(id);
 	copyText.select();
 	copyText.setSelectionRange(0, 99999);
 	document.execCommand("copy");
@@ -50,8 +52,7 @@ function addOptionsToId(id, obj) {
 }
 
 function appendUpdateListener(elements, onAction) {
-	if (typeof elements !== "object" || typeof onAction !== "string")
-		return Error("Wrong arguments to AppendUpdateListener");
+	if (typeof elements !== "object" || typeof onAction !== "string") return Error("Wrong arguments to AppendUpdateListener");
 
 	for (let i = 0; i < elements.length; i++) {
 		let element = elements[i];
@@ -59,13 +60,13 @@ function appendUpdateListener(elements, onAction) {
 	}
 }
 
+/*** History ***/
+
+var coppiedCommands = [];
+
+
+
 /*** interactive UI commands ***/
-
-function generateCommand() {
-	// check all inputs
-	console.log("update command");
-}
-
 function getValueFromId(id) {
 	let element = document.getElementById(id);
 	return element.value;
@@ -74,4 +75,41 @@ function getValueFromId(id) {
 function isCheckedFromId(id) {
 	let element = document.getElementById(id);
 	return element.checked;
+}
+
+function generateCommand() {
+	// build strings
+	let resultString = "";
+	// builld start
+	let RadioCommand = VoiceLines[getValueFromId("voiceLine")];
+	resultString += `${Commands["Radio prefix"]} ${RadioCommand}`;
+
+	resultString += ' "';
+	// build playername
+	if (isCheckedFromId("playerCheck")) {
+		let newLine = isCheckedFromId("NewLineCheck") ? Commands["Newline prefix"] : "";
+		let playerIndicator = isCheckedFromId("playerCheck") ? Commands["Player indicator"] : "";
+		let PlayerColor = Colors[getValueFromId("playerNameDropdown")];
+		let PlayerName = getValueFromId("playerName");
+
+		resultString += `${newLine}${playerIndicator}${PlayerColor}${PlayerName}`;
+	}
+	// build message
+	let ColorPrefix = Colors[getValueFromId("MessageDropdown")];
+	let TextLine = getValueFromId("message");
+	resultString += `${ColorPrefix}${TextLine}`;
+
+	// build weapon
+	if (isCheckedFromId("weaponCheck")) {
+		let WeaponColor = Colors[getValueFromId("weaponColorDropdown")];
+		let WeaponName = getValueFromId("weaponText");
+
+		resultString += `${WeaponColor}${WeaponName} ${stCheck} ${WeaponName}`;
+	}
+	resultString += '"';
+
+	console.log(resultString);
+	// set command input field
+	document.getElementById("result").value = resultString;
+
 }
