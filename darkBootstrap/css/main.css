@@ -1,0 +1,137 @@
+:root {
+	--loader-color: yellow;
+	--loader-bg-color: red;
+
+	--slider-color: rgba(128, 128, 128, 0.2);
+	/* #555 */
+	--slider-bg-color: rgba(128, 128, 128, 0.1);
+	/* #222 */
+	--bg-color: transparent;
+	/* #484848 */
+
+	--dark-bg-color: #000000;
+	--dark-text: #ffffff;
+	--dark-surface-color: rgba(255, 255, 255, 0.07);
+}
+
+@font-face {
+	font-family: "Fira Sans";
+	src: url("resource/font/FiraSans-bold.ttf") format("truetype");
+}
+
+body,
+html {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.body {
+	font-family: "Fira Sans";
+}
+
+.container {
+	min-height: 100%;
+	/* align-content: center; */
+}
+
+.overflow-x-scroll {
+	overflow-x: scroll;
+}
+
+.overflow-y-scroll {
+	overflow-y: scroll;
+}
+
+/*** custom sliders ***/
+::-webkit-scrollbar,
+::-webkit-scrollbar-thumb {
+	transition: background-color 0.3s ease-in-out;
+}
+
+::-webkit-scrollbar {
+	margin: -50px;
+	background-color: #e9ecef;
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-button {
+	width: 0;
+	height: 0;
+}
+
+::-webkit-scrollbar-thumb {
+	-webkit-box-shadow: inset 0 0 3px var(--inset-shadow-color);
+	background-color: var(--slider-color);
+	border-width: 0;
+	border-radius: 3px;
+}
+
+::-webkit-scrollbar-track {
+	margin: 0;
+	border-width: 0;
+	border-radius: 0;
+}
+
+::-webkit-scrollbar-corner {
+	background-color: transparent;
+}
+
+/***** dark theme *****/
+/* .dark {
+	background-color: var(--dark-bg-color);
+}
+
+.dark div.surface {
+	background-color: var(--dark-surface-color);
+}
+
+.dark .input-group-text,
+.dark input,
+.dark select {
+	background-color: var(--dark-surface-color);
+}
+
+.dark input {
+	background-color: transparent;
+	border: none;
+}
+
+.dark input:hover {
+	border: transparent;
+}
+
+.dark input:focus {
+	background-color: transparent;
+}
+
+.dark p,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark div,
+.dark input,
+.dark select,
+.dark input,
+.dark label {
+	color: white;
+}
+
+.dark svg {
+	fill: white;
+}
+
+.dark select {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 16px 12px;
+}
+
+.dark select option {
+	background-color: #0b0b0b;
+}
+.dark select option:hover {
+	border: #0e0e0e solid 2px;
+} */

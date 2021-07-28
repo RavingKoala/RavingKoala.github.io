@@ -37,7 +37,7 @@
 	flex-wrap: wrap;
 }
 
-.items > * {
+.items > div {
 	flex: 1 1 150px;
 }
 
@@ -87,16 +87,14 @@ button {
 	border-radius: 15px;
 	padding: 1em 2em;
 	margin: 1em;
-	box-shadow: inset -4px -6px 10px rgba(0, 0, 0, 0.47),
-		inset 6px 5px 6px rgba(255, 255, 255, 0.32);
+	box-shadow: inset -4px -6px 10px rgba(0, 0, 0, 0.47), inset 6px 5px 6px rgba(255, 255, 255, 0.32);
 	font-size: 24px;
 	white-space: nowrap;
 	cursor: pointer;
 }
 
 button:active {
-	box-shadow: inset 4px 6px 10px rgba(0, 0, 0, 0.47),
-		inset -6px -5px 6px rgba(255, 255, 255, 0.32);
+	box-shadow: inset 4px 6px 10px rgba(0, 0, 0, 0.47), inset -6px -5px 6px rgba(255, 255, 255, 0.32);
 }
 
 span.label {

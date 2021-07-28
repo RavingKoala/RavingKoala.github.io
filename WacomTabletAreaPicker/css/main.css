@@ -3,24 +3,20 @@
 	--loader-bg-color: red;
 
 	--slider-color: rgba(128, 128, 128, 0.2);
-	/*#555 */
-	--slider-color-hover: rgba(128, 128, 128, 0.25);
-	/* #777 */
-	--slider-color-active: rgba(128, 128, 128, 0.3);
-	/* #999 */
+	/* #555 */
 	--slider-bg-color: rgba(128, 128, 128, 0.1);
 	/* #222 */
-	--slider-bg-color-hover: rgba(128, 128, 128, 0.15);
-	/* #282828 */
-	--slider-bg-color-active: rgba(128, 128, 128, 0.2);
-	/* #282828 */
 	--bg-color: transparent;
 	/* #484848 */
-	--bg-color-hover: transparent;
-	/* #686868 */
-	--bg-color-active: transparent;
-	/* #888888 */
-	--inset-shadow-color: rgba(0, 0, 0, 0.3);
+
+	--dark-bg-color: #000000;
+	--dark-text: #ffffff;
+	--dark-surface-color: rgba(255, 255, 255, 0.07);
+}
+
+@font-face {
+	font-family: "Fira Sans";
+	src: url("resource/font/FiraSans-bold.ttf") format("truetype");
 }
 
 body,
@@ -30,30 +26,8 @@ html {
 	padding: 0;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	padding: 4px 0.3em;
-	border-bottom: var(--text-color) 3px solid;
-}
-
-h1 {
-	font-size: 48px;
-}
-
-h2 {
-	font-size: 36px;
-}
-
-h2 {
-	font-size: 28px;
-}
-
-span {
-	line-height: 0.3;
+.body {
+	font-family: "Fira Sans";
 }
 
 .container {
@@ -62,11 +36,11 @@ span {
 }
 
 .overflow-x-scroll {
-	overflow-x: scroll !important;
+	overflow-x: scroll;
 }
 
 .overflow-y-scroll {
-	overflow-y: scroll !important;
+	overflow-y: scroll;
 }
 
 /*** custom sliders ***/
