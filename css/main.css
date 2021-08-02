@@ -10,7 +10,7 @@
 /*** fonts ***/
 @font-face {
 	font-family: "Fira Sans";
-	src: url("resource/font/FiraSans-bold.ttf") format("truetype");
+	src: url("/resource/font/Fira\ Sans/FiraSans-bold.ttf") format("truetype");
 }
 
 /*** Layouts ***/

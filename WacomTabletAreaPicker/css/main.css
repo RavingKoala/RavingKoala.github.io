@@ -1,7 +1,4 @@
 :root {
-	--loader-color: yellow;
-	--loader-bg-color: red;
-
 	--slider-color: rgba(128, 128, 128, 0.2);
 	/* #555 */
 	--slider-bg-color: rgba(128, 128, 128, 0.1);
@@ -16,7 +13,67 @@
 
 @font-face {
 	font-family: "Fira Sans";
-	src: url("resource/font/FiraSans-bold.ttf") format("truetype");
+	src: url("/resource/font/Fira\ Sans/FiraSans-bold.ttf") format("truetype");
+}
+
+/* bootstrap extention*/
+.container {
+	background-color: var(--surface-color);
+	padding: 10vh 10vw;
+	margin: 0 20vw;
+}
+
+.container,
+.container-fluid,
+.container-lg,
+.container-md,
+.container-sm,
+.container-xl,
+.container-xxl {
+	width: 100%;
+}
+@media (min-width: 576px) {
+	.container,
+	.container-sm {
+		max-width: 100%;
+	}
+}
+@media (min-width: 768px) {
+	.container,
+	.container-md,
+	.container-sm {
+		max-width: 720px;
+	}
+}
+@media (min-width: 992px) {
+	.container,
+	.container-lg,
+	.container-md,
+	.container-sm {
+		max-width: 740px;
+	}
+}
+@media (min-width: 1200px) {
+	.container,
+	.container-lg,
+	.container-md,
+	.container-sm,
+	.container-xl {
+		max-width: 790px;
+	}
+}
+@media (min-width: 1400px) {
+	.container,
+	.container-lg,
+	.container-md,
+	.container-sm,
+	.container-xl,
+	.container-xxl {
+		max-width: 860px;
+	}
+}
+.p-10 {
+	padding: 6rem;
 }
 
 body,
@@ -26,13 +83,23 @@ html {
 	padding: 0;
 }
 
-.body {
+* {
+	box-sizing: border-box;
+	font-family: "Fira Sans";
+	font-weight: 700;
+}
+
+body {
+	min-height: 100%;
+	display: flex;
+	justify-content: center;
 	font-family: "Fira Sans";
 }
 
-.container {
-	min-height: 100%;
-	/* align-content: center; */
+.center {
+	display: flex;
+	justify-content: center;
+	text-align: center;
 }
 
 .overflow-x-scroll {
@@ -76,4 +143,65 @@ html {
 
 ::-webkit-scrollbar-corner {
 	background-color: transparent;
+}
+
+h1 {
+	padding: 4px 0.3em;
+	border-bottom: #fff 3px solid;
+}
+
+h2 {
+	font-size: 1.875rem;
+}
+
+.tablet {
+	position: relative;
+	padding-top: 56.25%;
+	width: 100%;
+	border: #00eeff solid 2px;
+	border-radius: 20px;
+	background-color: rgba(255, 255, 255, 0.14);
+}
+
+.tablet-field {
+	width: 8rem;
+}
+
+.hide {
+	display: none;
+}
+
+.top {
+	position: absolute;
+	top: 7px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.left {
+	position: absolute;
+	left: 7px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.right {
+	position: absolute;
+	right: 7px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.bottom {
+	position: absolute;
+	bottom: 7px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.middle {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }

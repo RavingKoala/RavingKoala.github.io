@@ -1,0 +1,32 @@
+:root {
+	--md-primary: #bb86fc;
+	--md-primary-text: #000;
+	--md-secondary: #03dac6;
+	--md-secondary-text: #000;
+	--md-bg: #000;
+	--md-bg-text: #fff;
+	--md-surface: rgb(255, 255, 255, 0.07);
+	--md-surface-text: #fff;
+}
+
+.bg {
+	background-color: var(--md-bg);
+}
+.surface {
+	background-color: var(--md-surface);
+}
+
+.primary {
+	background-color: var(--md-primary);
+	color: var(--md-primary-text);
+}
+.primary-text {
+	color: var(--md-primary);
+}
+.secondary {
+	background-color: var(--md-secondary);
+	color: var(--md-secondary-text);
+}
+.secondary-text {
+	color: var(--md-secondary);
+}
