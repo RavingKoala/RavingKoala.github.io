@@ -103,3 +103,7 @@ span {
 ::-webkit-scrollbar-corner {
 	background-color: transparent;
 }
+
+.p-10 {
+	padding: 6em;
+}

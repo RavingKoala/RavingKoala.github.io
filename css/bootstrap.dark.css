@@ -116,6 +116,15 @@
 .dark .figure-caption {
 	color: #b3bdc6;
 }
+.dark .container,
+.dark .container-fluid,
+.dark .container-lg,
+.dark .container-md,
+.dark .container-sm,
+.dark .container-xl,
+.dark .container-xxl {
+	background-color: var(--dark-surface-color);
+}
 .dark .table {
 	--bs-table-striped-color: #f1f6fc;
 	--bs-table-striped-bg: rgba(255, 255, 255, 0.05);
@@ -258,14 +267,19 @@
 }
 .dark .form-select {
 	color: #f1f6fc;
-	background-color: var(--dark-surface-color);
+	background-color: #222;
 	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23dbdee1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-	border: 1px solid #252b31;
+	border: 1px solid #fff;
 	transition: box-shadow 0.15s ease-out;
 }
+
+.dark .form-select option{
+	background-color: #474747;
+}
+
 .dark .form-select:focus {
 	border-color: var(--dark-form-border-color);
-	box-shadow: box-shadow: 0 0 0 0.25rem var(--dark-form-shadow-color);
+	box-shadow: 0 0 0 0.25rem var(--dark-form-shadow-color);
 }
 .dark .form-select:disabled {
 	background-color: #0f1215;
