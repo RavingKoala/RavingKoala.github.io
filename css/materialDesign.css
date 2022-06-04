@@ -12,6 +12,7 @@
 .bg {
 	background-color: var(--md-bg);
 }
+
 .surface {
 	background-color: var(--md-surface);
 }
@@ -20,13 +21,16 @@
 	background-color: var(--md-primary);
 	color: var(--md-primary-text);
 }
+
 .primary-text {
 	color: var(--md-primary);
 }
+
 .secondary {
 	background-color: var(--md-secondary);
 	color: var(--md-secondary-text);
 }
+
 .secondary-text {
 	color: var(--md-secondary);
 }

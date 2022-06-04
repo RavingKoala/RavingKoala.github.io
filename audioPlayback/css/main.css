@@ -1,0 +1,86 @@
+/* Player panel */
+#player {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: center;
+
+	margin: 9rem auto 0 auto;
+	padding: 2rem;
+	max-width: 830px;
+
+	border-radius: 60px;
+}
+
+#player>* {
+	margin: 2rem;
+}
+
+#actionButton {
+	cursor: pointer;
+}
+
+#actionButton svg {
+	height: 100px;
+	width: 100px;
+	color: var(--md-primary);
+}
+
+.textfield {
+	display: flex;
+	align-items: center;
+	min-width: 386px;
+	padding: 1.5rem;
+	border: solid 6px var(--md-primary);
+	border-radius: 2rem;
+	font-family: 'Fira Sans';
+	font-size: 1.2em;
+}
+
+#waveforms svg {
+	height: 80px;
+	width: 120px;
+	color: var(--md-primary);
+}
+
+/* Requirements panel */
+#requirements {
+	position: absolute;
+	display: flex;
+	flex-direction: row;
+	top: 1rem;
+	left: 1rem;
+	margin: 1rem;
+}
+
+#requirements svg {
+	height: 76px;
+	width: 76px;
+}
+
+.warning {
+	background-color: var(--dark-bs-warning);
+	color: #000;
+}
+
+.warning-text {
+	color: var(--dark-bs-warning);
+}
+
+.warning {
+	background-color: var(--dark-bs-warning);
+	color: #000;
+}
+
+.warning-text {
+	color: var(--dark-bs-warning);
+}
+
+.danger {
+	background-color: var(--dark-bs-danger);
+	color: #000;
+}
+
+.danger-text {
+	color: var(--dark-bs-danger);
+}
