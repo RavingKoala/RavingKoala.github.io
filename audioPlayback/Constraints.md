@@ -18,6 +18,7 @@ States of application are as following:
 ## possible settings
 - deffinetly need something to skip the playback
 - perhaps a wait before playback
+- Select mic
 
 ## Additions
 ### Help menu

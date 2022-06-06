@@ -58,13 +58,13 @@
 	width: 76px;
 }
 
-.warning {
-	background-color: var(--dark-bs-warning);
+.success {
+	background-color: var(--dark-bs-success);
 	color: #000;
 }
 
-.warning-text {
-	color: var(--dark-bs-warning);
+.success-text {
+	color: var(--dark-bs-success);
 }
 
 .warning {

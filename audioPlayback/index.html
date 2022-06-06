@@ -11,30 +11,47 @@
 		<link rel="stylesheet" href="../css/bootstrap.dark.css" />
 		<link rel="stylesheet" href="../css/materialDesign.css" />
 		<link rel="stylesheet" href="./css/main.css" />
+		<script src="../js/ClassHelpers.js"></script>
 		<script src="./js/includeContent.js"></script>
+		<script src="./js/recorder.js"></script>
+		<script src="./js/requirements.js"></script>
+		<script src="./js/voiceApp.js"></script>
 	</head>
-
+<!-- TODO:
+		- make responsive :P
+-->
 	<body class="dark mt-6">
 		<div id="requirements">
-			<div id="audio danger-text">
+			<div id="audio" class="danger-text">
 				<include src="./resources/SVGs/NoSound.svg"></include>
 			</div>
-			<div id="microphone">
+			<div id="microphone" class="danger-text">
 				<include src="./resources/SVGs/NoMic.svg"></include>
 			</div>
 		</div>
 		<div id="player" class="surface">
 			<div id="actionButton">
-				<include src="./resources/SVGs/PlayButton.svg"></include>
+				<include src="./resources/SVGs/RecordButton.svg"></include>
 			</div>
 			<span class="textfield">Start recording...</span>
 			<div id="waveforms">
-				<include src="./resources/SVGs/Soundwaves.svg"></include>
+				<include src="./resources/SVGs/Soundwaves.svg" style="display: none;"></include>
 			</div>
 		</div>
-		<script src="./js/voiceApp.js"></script>
 		<script>
+			// content update
 			replaceIncludes()
+
+			var actionButtonDOM = document.getElementById("actionButton")
+			var textfieldDOM = document.querySelector("span.textfield")
+			var audioReqDOM = document.getElementById("audio")
+			var micReqDOM = document.getElementById("microphone")
+			var audioDOM = document.querySelector("#waveforms")
+
+			var settings = VoiceAppSettings
+			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, audioDOM, settings);
+
+			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
 		</script>
 	</body>
 

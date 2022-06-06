@@ -95,18 +95,6 @@ function removeLastFromHistory() {
 	coppiedCommands.splice(coppiedCommands.length - 1, 1)
 }
 
-/*** class manipulation  ***/
-
-function addClass(id, className) {
-	let element = document.getElementById(id)
-	if (element.classList.contains(className)) element.classList.add(className)
-}
-
-function removeClass(id, className) {
-	let element = document.getElementById(id)
-	if (element.classList.contains(className)) element.classList.remove(className)
-}
-
 /*** interactive UI commands ***/
 function getValueFromId(id) {
 	let element = document.getElementById(id)

@@ -11,6 +11,7 @@
 		<link rel="stylesheet" href="../css/bootstrap.dark.css" />
 		<link rel="stylesheet" href="../css/materialDesign.css" />
 		<link rel="stylesheet" href="css/main.css" />
+		<script src="../js/ClassHelpers.js"></script>
 		<script src="js/radioCommands.js"></script>
 	</head>
 
@@ -203,15 +204,15 @@
 				</div>`
 
 				(function() {
-					addOptionsToId("voiceLine", VoiceLines)
-					addOptionsToId("playerNameDropdown", Colors)
-					addOptionsToId("MessageDropdown", Colors)
-					addOptionsToId("weaponColorDropdown", Colors)
+					addOptionsToId("voiceLine", VoiceLines);
+					addOptionsToId("playerNameDropdown", Colors);
+					addOptionsToId("MessageDropdown", Colors);
+					addOptionsToId("weaponColorDropdown", Colors);
 
-					let inputs = document.querySelectorAll("input:not(#result)")
-					appendUpdateListener(inputs, "input")
-					let selects = document.getElementsByTagName("select")
-					appendUpdateListener(selects, "change")
+					let inputs = document.querySelectorAll("input:not(#result)");
+					appendUpdateListener(inputs, "input");
+					let selects = document.getElementsByTagName("select");
+					appendUpdateListener(selects, "change");
 				})()
 		</script>
 	</body>

@@ -9,7 +9,7 @@ function getContent(URI, callback) {
 			if (this.status == 404)
 				result = "Content not found."
 		}
-		if (typeof callback == "function")
+		if (result && typeof callback == "function")
 			return callback(result)
 	}
 	xhttp.open("GET", URI, true)

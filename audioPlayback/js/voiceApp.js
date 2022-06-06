@@ -1,101 +1,184 @@
 // this module is all the logic for the voice playback app
+const States = {
+	Idle: "idle",
+	Recording: "recording",
+	Hold: "hold",
+	Reviewing: "reviewing"
+}
 
-function VoiceAppStateManager() {
-	// enum
-	this.State = {
-		Idle: "idle",
-		Recording: "recording",
-		Reviewing: "reviewing"
-	};
+var VoiceAppSettings = {
+	pauseBeforeReview: false, // bool
+	autoContinueAfterPlayed: true // bool // TODO: MAKE THIS WORK
+}
 
-	const DOM_ActionButton = document.getElementById("actionButton");
-	const DOM_TextField = document.getElementById("textfield");
-	const DOM_Waveforms = document.getElementById("waveforms");
+class VoiceApp {
+	State
+	UIManager
+	RecorderManager
 
-	var currentState = this.State.Idle;
+	constructor (actionButtonDOM, textfieldDOM, waveformDOM, voiceAppSettings) {
+		this.State = new VoiceAppStateManager(voiceAppSettings);
+		this.UIManager = new VoiceAppUIStateManager(actionButtonDOM, textfieldDOM, voiceAppSettings)
+		this.RecorderManager = new VoiceAppRecorderStateManager(waveformDOM, voiceAppSettings)
 
-	// public function:
-	// this.functionName = () => {...}
-
-	// private function:
-	// var functionName = () => {...}
-
-	this.initialize = () => {
-		DOM_ActionButton.addEventListener("click", this.nextState)
+		if (voiceAppSettings.autoContinueAfterPlayed)
+			document.addEventListener(RecorderEvents.onEndedOrStopped, () => {
+				this.transitionState(States.Idle)
+			})
+		if (!voiceAppSettings.pauseBeforeReview)
+			document.addEventListener(RecorderEvents.onReady, () => {
+				this.transitionState(States.Reviewing)
+			})
 	}
 
-	this.nextState = () => {
-		switch (currentState) {
-			case this.State.Idle:
-				this.transitionState(this.State.Recording)
-				break;
-			case this.State.Recording:
-				this.transitionState(this.State.Reviewing)
-				break;
-			case this.State.Reviewing:
-				this.transitionState(this.State.Idle)
-				break;
-		}
+	nextState() {
+		let nextState = this.State.getNextState()
+		this.transitionState(nextState)
 	}
 
-	this.transitionState = (state) => {
-		switch (state) {
-			case this.State.Idle:
-				if (currentState == this.State.Reviewing)
-					changeState(state);
-				break;
-			case this.State.Recording:
-				if (currentState == this.State.Idle)
-					changeState(state);
-				break;
-			case this.State.Reviewing:
-				if (currentState == this.State.Recording)
-					changeState(state);
-				break;
-		}
-		// reset to Idle
-	}
-
-	var changeState = (state) => {
-		switch (state) {
-			case this.State.Idle:
-				changeStateIdle();
-				break;
-			case this.State.Recording:
-				changeStateRecording();
-				break;
-			case this.State.Reviewing:
-				changeStateReviewing();
-				break;
-			default:
-				//reset to State.Idle
-				break;
-		}
-	}
-
-	var changeStateIdle = () => {
-		// stop actions
-		// change button
-		// change textfield text
-		console.log("idle");
-		currentState = this.State.Idle;
-	}
-
-	var changeStateRecording = () => {
-		// stop actions
-		// change button
-		// change textfield text
-		console.log("recording");
-		currentState = this.State.Recording;
-	}
-
-	var changeStateReviewing = () => {
-		// stop actions
-		// change button
-		// change textfield text
-		console.log("reviewing");
-		currentState = this.State.Reviewing;
+	// TODO: make safe to transition from any state to any state
+	transitionState(state) {
+		this.State.currentState = state
+		this.RecorderManager.changeState(state)
+		this.UIManager.changeState(state)
 	}
 }
 
-new VoiceAppStateManager().initialize();
+class VoiceAppStateManager {
+	voiceAppSettings
+	currentState
+	constructor (voiceAppSettings) {
+		this.voiceAppSettings = voiceAppSettings
+		this.currentState = States.Idle
+	}
+
+	getNextState(state) {
+		if (!state)
+			state = this.currentState;
+
+		switch (state) {
+			case States.Idle:
+				return States.Recording
+			case States.Recording:
+				if (this.voiceAppSettings.pauseBeforeReview)
+					return States.Hold
+				else
+					return States.Reviewing
+			case States.Hold:
+				return States.Reviewing
+			case States.Reviewing:
+				return States.Idle
+			default:
+				return States.Idle
+		}
+	}
+
+	transitionNextState() {
+		this.currentState = this.getNextState(this.currentState)
+	}
+}
+
+class VoiceAppUIStateManager {
+	actionButtonDOM
+	textfieldDOM
+
+	constructor (actionButtonDOM, textfieldDOM) {
+		this.actionButtonDOM = actionButtonDOM
+		this.textfieldDOM = textfieldDOM
+	}
+
+	changeState(state) {
+		switch (state) {
+			case States.Idle:
+				this.#changeStateIdle()
+				break
+			case States.Recording:
+				this.#changeStateRecording()
+				break
+			case States.Hold:
+				this.#changeStatePause()
+				break
+			case States.Reviewing:
+				this.#changeStateReviewing()
+				break
+			default:
+				break
+		}
+	}
+
+	#changeStateIdle() {
+		getContent("./resources/SVGs/RecordButton.svg", (result) => {
+			this.actionButtonDOM.innerHTML = result
+		})
+		this.textfieldDOM.innerHTML = "Idle"
+	}
+
+	#changeStateRecording() {
+		getContent("./resources/SVGs/PlayButton.svg", (result) => {
+			this.actionButtonDOM.innerHTML = result
+		})
+		this.textfieldDOM.innerHTML = "Recording"
+	}
+
+	#changeStatePause() {
+		getContent("./resources/SVGs/PauseButton.svg", (result) => {
+			this.actionButtonDOM.innerHTML = result
+		})
+		this.textfieldDOM.innerHTML = "Reviewing"
+	}
+
+	#changeStateReviewing() {
+		getContent("./resources/SVGs/FullstopButton.svg", (result) => {
+			this.actionButtonDOM.innerHTML = result
+		})
+		this.textfieldDOM.innerHTML = "Reviewing"
+	}
+}
+
+class VoiceAppRecorderStateManager {
+	#voiceAppSettings
+	#Rec
+
+	constructor (waveformDOM, voiceAppSettings) {
+		this.#voiceAppSettings = voiceAppSettings
+		this.#Rec = new Recorder(waveformDOM)
+	}
+
+	changeState(state) {
+		switch (state) {
+			case States.Idle:
+				this.#changeStateIdle()
+				break;
+			case States.Recording:
+				this.#changeStateRecording()
+				break;
+			case States.Hold:
+				this.#changeStatePause()
+				break;
+			case States.Reviewing:
+				this.#changeStateReviewing()
+				break;
+			default:
+				break;
+		}
+	}
+
+	#changeStateIdle() {
+
+	}
+
+	#changeStateRecording() {
+		this.#Rec.startRecording()
+	}
+
+	#changeStatePause() {
+		this.#Rec.stopRecording()
+	}
+
+	#changeStateReviewing() {
+		if (!this.#voiceAppSettings.pauseBeforeReview)
+			this.#Rec.stopRecording()
+
+		this.#Rec.playRecording()
+	}
+}
