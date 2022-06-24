@@ -8,8 +8,8 @@ const States = {
 }
 
 var VoiceAppSettings = {
-	immediateReview: () => new Error("immediateReview was never set to 'true' or 'false'"), // bool
-	autoContinueAfterPlayed: () => new Error("autoContinueAfterPlayed was never set to 'true' or 'false'"), // bool
+	immediateReview: new Error("immediateReview was never set to 'true' or 'false'"), // bool
+	autoContinueAfterPlayed: new Error("autoContinueAfterPlayed was never set to 'true' or 'false'"), // bool
 }
 
 class VoiceApp {
@@ -18,18 +18,18 @@ class VoiceApp {
 	RecorderManager
 
 	constructor (actionButtonDOM, textfieldDOM, settings) {
-		
+
 
 		this.State = new VoiceAppStateManager(settings);
 		this.UIManager = new VoiceAppUIStateManager(actionButtonDOM, textfieldDOM, settings)
 
 		this.RecorderManager = new VoiceAppRecorderStateManager(settings)
 
-		if (settings.autoContinueAfterPlayed)
+		if (settings.autoContinueAfterPlayed === true)
 			document.addEventListener(RecorderEvents.onEndedOrStopped, () => {
 				this.transitionState(States.Idle)
 			})
-		// if (settings.immediateReview)
+		// if (settings.immediateReview === true) // entire if might not be needed
 		// 	document.addEventListener(RecorderEvents.onReady, () => {
 		// 		this.transitionState(States.Reviewing)
 		// 	})

@@ -18,6 +18,7 @@
 		<script src="./js/voiceApp.js"></script>
 	</head>
 	<!-- TODO: make responsive -->
+	<!-- TODO: add keyaction implementation -->
 
 	<body class="dark mt-6">
 		<div id="requirements">
@@ -50,8 +51,8 @@
 			var waveformsDOM = document.querySelector("#waveforms")
 
 			var settings = VoiceAppSettings
-			// settings.immediateReview = true; // TODO: this feature gives error the second time
-			// settings.autoContinueAfterPlayed = false; // TODO: this feature doesnt work
+			settings.immediateReview = false
+			settings.autoContinueAfterPlayed = true
 
 			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, settings)
 			var reqManager = new RequirementStateManager(audioReqDOM, micReqDOM)
