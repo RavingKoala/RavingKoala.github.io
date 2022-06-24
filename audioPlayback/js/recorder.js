@@ -2,92 +2,100 @@ const RecorderEvents = {
 	onReady: new Event("onReady"),
 	onStopped: new Event("onStopped"),
 	onEnded: new Event("onEnded"),
-	onEndedOrStopped: new Event("onEndedOrStopped")
+	onEndedOrStopped: new Event("onEndedOrStopped"), // only call this autside of this file
+	onRecordPermsUpdate: new CustomEvent("onRecordPermsUpdate", { detail: { 'IsRecAllowed': null } })
 }
 
-class Recorder {
-	mediaStream
-	audioRecorder
-	recording
-	AudioBlobList
-	lastBlobRaw
-	audioDOM
-	#playASAP
-	constructor (waveformDOM) {
-		this.mediaStream
-		this.audioRecorder
-		this.recording = false
-		this.AudioBlobList = []
-		this.lastBlobRaw
-		this.audioDOM = document.createElement("audio")
-		document.body.appendChild(this.audioDOM) // TODO: append to waveformDOM
+document.addEventListener(RecorderEvents.onStopped, () => { document.dispatchEvent(RecorderEvents.onEndedOrStopped) })
+document.addEventListener(RecorderEvents.onEnded, () => { document.dispatchEvent(RecorderEvents.onEndedOrStopped) })
 
-		// Eventlistners
-		document.addEventListener(RecorderEvents.onReady, (e) => {
-			this.processData(e)
-		});
-		// TODO: MAKE THIS WORK
-		// this.audioDOM.onended = (e) => {
-		// 	this.audioDOM.dispatchEvent(RecorderEvents.onEnded)
-		// 	this.audioDOM.dispatchEvent(RecorderEvents.onEndedOrStopped)
-		// }
+class Recorder {
+	isRecording
+	isEnded
+	audioRecorder
+	mediaStream
+	audioObj
+	constructor () {
+		this.isRecording = false
+		this.isEnded = true
+		this.mediaStream
+		this.lastBlobRaw
+		this.audioObj = new Audio()
+
+		this.audioObj.onpause = () => {
+			this.isEnded = true
+			this.audioObj.pause()
+			document.dispatchEvent(new Event(RecorderEvents.onEnded))
+		}
+
+		this.requestPerms()
 	}
 
 	processData(audioClip) {
 		this.lastBlobRaw = []
 		this.lastBlobRaw.push(audioClip.data)
 		const audioBlob = new Blob(this.lastBlobRaw, { type: "audio/ogg" })
-		this.AudioBlobList.push(audioBlob)
-		this.audioDOM.setAttribute('src', window.URL.createObjectURL(audioBlob))
+		const url = window.URL.createObjectURL(audioBlob)
+		// history
+		// blobHistory.push(audioBlob) // option for later
+		this.audioObj.src = url
 		// Tear down after recording.
 		this.audioRecorder.stream.getTracks().forEach(t => t.stop())
 		this.audioRecorder = null
-		if (this.#playASAP) {
-			this.audioDOM.play()
-			this.#playASAP = false
-		}
+		// play recording
+		this.isEndedisEnded = false
+		// TODO setting make this inbetween step
+		this.audioObj.play()
 	}
 
 	async requestPerms() {
-		this.mediaStream = await window.navigator.mediaDevices.getUserMedia(
+		await window.navigator.mediaDevices.getUserMedia(
 			{ audio: true }
-		)
+		).then((stream) => {
+			this.mediaStream = stream
+
+			var event = RecorderEvents.onRecordPermsUpdate
+			event.detail.IsRecAllowed = true
+			document.dispatchEvent(event)
+		}).catch((e) => {
+			console.error(e);
+
+			var event = RecorderEvents.onRecordPermsUpdate
+			event.detail.IsRecAllowed = false
+			document.dispatchEvent(event)
+		})
 	}
 
 	setupRecorder() {
 		this.audioRecorder = new MediaRecorder(this.mediaStream)
 
-		this.audioRecorder.ondataavailable = (e) => {
-			this.processData(e)
+		this.audioRecorder.ondataavailable = (data) => {
+			this.processData(data)
 			// play recording
-			this.audioDOM.dispatchEvent(RecorderEvents.onReady)
+			document.dispatchEvent(RecorderEvents.onReady)
 		}
 	}
 
 	async startRecording() {
-		await this.requestPerms();
+		await this.requestPerms()
 		this.setupRecorder()
-		if (this.mediaStream) {
-			this.recording = true;
-			this.audioRecorder.start()
-		} else {
-			throw new Error("Recording audio is not allowed!")
-		}
+		this.audioRecorder.start()
+		this.isRecording = true
 	}
 
 	stopRecording() {
-		// TODO option = .5 sec cooldown
+		// TODO setting make this optional
+		// await new Promise(res => setTimeout(res, 500))
 		this.audioRecorder.stop()
-		this.recording = false;
-		this.audioDOM.dispatchEvent(RecorderEvents.onStopped)
-		this.audioDOM.dispatchEvent(RecorderEvents.onEndedOrStopped)
+		this.isRecording = false
+		document.dispatchEvent(RecorderEvents.onStopped)
 	}
 
-	playRecording() {
-		if (this.audioDOM.hasAttribute("src"))
-			this.audioDOM.play()
-		else
-			this.#playASAP = true
+	playRecording() { // option for later
 
+	}
+
+	stopPlaying() {
+		this.audioObj.pause()
 	}
 }

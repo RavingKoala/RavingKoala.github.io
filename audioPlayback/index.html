@@ -13,17 +13,18 @@
 		<link rel="stylesheet" href="./css/main.css" />
 		<script src="../js/ClassHelpers.js"></script>
 		<script src="./js/includeContent.js"></script>
-		<script src="./js/recorder.js"></script>
 		<script src="./js/requirements.js"></script>
+		<script src="./js/recorder.js"></script>
 		<script src="./js/voiceApp.js"></script>
 	</head>
-<!-- TODO:
-		- make responsive :P
--->
+	<!-- TODO: make responsive -->
+
 	<body class="dark mt-6">
 		<div id="requirements">
 			<div id="audio" class="danger-text">
 				<include src="./resources/SVGs/NoSound.svg"></include>
+				<!-- TODO: Create volume control app -->
+				<!-- https://stackoverflow.com/questions/33747398/html-audio-tag-volume#answers -->
 			</div>
 			<div id="microphone" class="danger-text">
 				<include src="./resources/SVGs/NoMic.svg"></include>
@@ -46,10 +47,17 @@
 			var textfieldDOM = document.querySelector("span.textfield")
 			var audioReqDOM = document.getElementById("audio")
 			var micReqDOM = document.getElementById("microphone")
-			var audioDOM = document.querySelector("#waveforms")
+			var waveformsDOM = document.querySelector("#waveforms")
 
 			var settings = VoiceAppSettings
-			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, audioDOM, settings);
+			// settings.immediateReview = true; // TODO: this feature gives error the second time
+			// settings.autoContinueAfterPlayed = false; // TODO: this feature doesnt work
+
+			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, settings)
+			var reqManager = new RequirementStateManager(audioReqDOM, micReqDOM)
+			document.addEventListener(RecorderEvents.onRecordPermsUpdate, (e) => {
+				reqManager.setMicImage(e.detail.IsRecAllowed ? MicStates.Mic : MicStates.NoMic)
+			})
 
 			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
 		</script>

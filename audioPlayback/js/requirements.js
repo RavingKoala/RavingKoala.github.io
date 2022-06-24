@@ -1,25 +1,41 @@
 // this module is ment for checking if audio and mic functionality are enabled.
 
-function RequirementStateManager(audioDOM, micDOM) {
+const SoundStates = {
+	Sound: "sound",
+	NoSound: "noSound"
+}
 
-	this.SoundStates = {
-		Sound: "sound",
-		NoSound: "noSound"
-	};
+const MicStates = {
+	Mic: "mic",
+	NoMic: "noMic",
+}
 
-	this.MicStates = {
-		Mic: "mic",
-		NoMic: "noMic",
-	};
+class RequirementStateManager {
+	#currentState = {
+		Mic: null,
+		Sound: null
+	}
+	constructor (audioDOM, micDOM) {
+		if (!audioDOM instanceof Element || !audioDOM instanceof Document)
+			throw new Error("audioDom is not a valid element")
+		if (!micDOM instanceof Element || !micDOM instanceof Document)
+			throw new Error("micDOM is not a valid element")
 
-	this.setSoundImage = (state) => {
+		this.audioDOM = audioDOM
+		this.micDOM = micDOM
+	}
+
+	setSoundImage(state) {
+		if (state == this.#currentState)
+			return
+
 		switch (state) {
-			case this.SoundStates.Sound:
+			case SoundStates.Sound:
 				removeClass("audio", "danger-text")
 				removeClass("audio", "warning-text")
 				addClass("audio", "success-text")
 				getContent("./resources/SVGs/Sound.svg", (result) => {
-					audioDOM.innerHTML = result
+					this.audioDOM.innerHTML = result
 				})
 				break
 			default:
@@ -27,20 +43,20 @@ function RequirementStateManager(audioDOM, micDOM) {
 				removeClass("audio", "warning-text")
 				addClass("audio", "danger-text")
 				getContent("./resources/SVGs/NoSound.svg", (result) => {
-					audioDOM.innerHTML = result
+					this.audioDOM.innerHTML = result
 				})
 				break
 		}
 	}
 
-	this.setMicImage = (state) => {
+	setMicImage(state) {
 		switch (state) {
-			case this.MicStates.Mic:
+			case MicStates.Mic:
 				removeClass("microphone", "danger-text")
 				removeClass("microphone", "warning-text")
 				addClass("microphone", "success-text")
 				getContent("./resources/SVGs/Mic.svg", (result) => {
-					micDOM.innerHTML = result
+					this.micDOM.innerHTML = result
 				})
 				break
 			default:
@@ -48,7 +64,7 @@ function RequirementStateManager(audioDOM, micDOM) {
 				removeClass("microphone", "warning-text")
 				addClass("microphone", "danger-text")
 				getContent("./resources/SVGs/NoMic.svg", (result) => {
-					micDOM.innerHTML = result
+					this.micDOM.innerHTML = result
 				})
 				break
 		}

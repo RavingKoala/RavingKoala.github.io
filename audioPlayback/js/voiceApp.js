@@ -3,12 +3,13 @@ const States = {
 	Idle: "idle",
 	Recording: "recording",
 	Hold: "hold",
-	Reviewing: "reviewing"
+	Reviewing: "reviewing",
+	// TODO: add stopping and pausing
 }
 
 var VoiceAppSettings = {
-	pauseBeforeReview: false, // bool
-	autoContinueAfterPlayed: true // bool // TODO: MAKE THIS WORK
+	immediateReview: () => new Error("immediateReview was never set to 'true' or 'false'"), // bool
+	autoContinueAfterPlayed: () => new Error("autoContinueAfterPlayed was never set to 'true' or 'false'"), // bool
 }
 
 class VoiceApp {
@@ -16,19 +17,22 @@ class VoiceApp {
 	UIManager
 	RecorderManager
 
-	constructor (actionButtonDOM, textfieldDOM, waveformDOM, voiceAppSettings) {
-		this.State = new VoiceAppStateManager(voiceAppSettings);
-		this.UIManager = new VoiceAppUIStateManager(actionButtonDOM, textfieldDOM, voiceAppSettings)
-		this.RecorderManager = new VoiceAppRecorderStateManager(waveformDOM, voiceAppSettings)
+	constructor (actionButtonDOM, textfieldDOM, settings) {
+		
 
-		if (voiceAppSettings.autoContinueAfterPlayed)
+		this.State = new VoiceAppStateManager(settings);
+		this.UIManager = new VoiceAppUIStateManager(actionButtonDOM, textfieldDOM, settings)
+
+		this.RecorderManager = new VoiceAppRecorderStateManager(settings)
+
+		if (settings.autoContinueAfterPlayed)
 			document.addEventListener(RecorderEvents.onEndedOrStopped, () => {
 				this.transitionState(States.Idle)
 			})
-		if (!voiceAppSettings.pauseBeforeReview)
-			document.addEventListener(RecorderEvents.onReady, () => {
-				this.transitionState(States.Reviewing)
-			})
+		// if (settings.immediateReview)
+		// 	document.addEventListener(RecorderEvents.onReady, () => {
+		// 		this.transitionState(States.Reviewing)
+		// 	})
 	}
 
 	nextState() {
@@ -45,10 +49,10 @@ class VoiceApp {
 }
 
 class VoiceAppStateManager {
-	voiceAppSettings
+	settings
 	currentState
-	constructor (voiceAppSettings) {
-		this.voiceAppSettings = voiceAppSettings
+	constructor (settings) {
+		this.settings = settings
 		this.currentState = States.Idle
 	}
 
@@ -60,7 +64,7 @@ class VoiceAppStateManager {
 			case States.Idle:
 				return States.Recording
 			case States.Recording:
-				if (this.voiceAppSettings.pauseBeforeReview)
+				if (!this.settings.immediateReview)
 					return States.Hold
 				else
 					return States.Reviewing
@@ -71,10 +75,6 @@ class VoiceAppStateManager {
 			default:
 				return States.Idle
 		}
-	}
-
-	transitionNextState() {
-		this.currentState = this.getNextState(this.currentState)
 	}
 }
 
@@ -124,7 +124,7 @@ class VoiceAppUIStateManager {
 		getContent("./resources/SVGs/PauseButton.svg", (result) => {
 			this.actionButtonDOM.innerHTML = result
 		})
-		this.textfieldDOM.innerHTML = "Reviewing"
+		this.textfieldDOM.innerHTML = "Waiting"
 	}
 
 	#changeStateReviewing() {
@@ -139,9 +139,9 @@ class VoiceAppRecorderStateManager {
 	#voiceAppSettings
 	#Rec
 
-	constructor (waveformDOM, voiceAppSettings) {
+	constructor (voiceAppSettings) {
 		this.#voiceAppSettings = voiceAppSettings
-		this.#Rec = new Recorder(waveformDOM)
+		this.#Rec = new Recorder()
 	}
 
 	changeState(state) {
@@ -164,7 +164,8 @@ class VoiceAppRecorderStateManager {
 	}
 
 	#changeStateIdle() {
-
+		if (!this.#Rec.isEnded)
+			this.#Rec.stopPlaying()
 	}
 
 	#changeStateRecording() {
@@ -176,7 +177,7 @@ class VoiceAppRecorderStateManager {
 	}
 
 	#changeStateReviewing() {
-		if (!this.#voiceAppSettings.pauseBeforeReview)
+		if (this.#voiceAppSettings.immediateReview)
 			this.#Rec.stopRecording()
 
 		this.#Rec.playRecording()
