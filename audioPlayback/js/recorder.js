@@ -24,7 +24,6 @@ class Recorder {
 
 		this.audioObj.onpause = () => {
 			this.isEnded = true
-			this.audioObj.pause()
 			document.dispatchEvent(new Event(RecorderEvents.onEnded))
 		}
 
@@ -43,7 +42,7 @@ class Recorder {
 		this.audioRecorder.stream.getTracks().forEach(t => t.stop())
 		this.audioRecorder = null
 		// play recording
-		this.isEndedisEnded = false
+		this.isEnded = false
 		// TODO setting make this inbetween step
 		this.audioObj.play()
 	}
@@ -88,7 +87,6 @@ class Recorder {
 		// await new Promise(res => setTimeout(res, 500))
 		this.audioRecorder.stop()
 		this.isRecording = false
-		document.dispatchEvent(RecorderEvents.onStopped)
 	}
 
 	playRecording() { // option for later
