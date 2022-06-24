@@ -1,13 +1,13 @@
 const RecorderEvents = {
-	onReady: new Event("onReady"),
-	onStopped: new Event("onStopped"),
-	onEnded: new Event("onEnded"),
-	onEndedOrStopped: new Event("onEndedOrStopped"), // only call this autside of this file
-	onRecordPermsUpdate: new CustomEvent("onRecordPermsUpdate", { detail: { 'IsRecAllowed': null } })
+	onReady: "onReady",
+	onStopped: "onStopped",
+	onEnded: "onEnded",
+	onEndedOrStopped: "onEndedOrStopped", // only call this autside of this file
+	onRecordPermsUpdate: "onRecordPermsUpdate"
 }
 
-document.addEventListener(RecorderEvents.onStopped, () => { document.dispatchEvent(RecorderEvents.onEndedOrStopped) })
-document.addEventListener(RecorderEvents.onEnded, () => { document.dispatchEvent(RecorderEvents.onEndedOrStopped) })
+document.addEventListener(RecorderEvents.onStopped, () => { document.dispatchEvent(new Event(RecorderEvents.onEndedOrStopped)) })
+document.addEventListener(RecorderEvents.onEnded, () => { document.dispatchEvent(new Event(RecorderEvents.onEndedOrStopped)) })
 
 class Recorder {
 	isRecording
@@ -54,15 +54,11 @@ class Recorder {
 		).then((stream) => {
 			this.#mediaStream = stream
 
-			var event = RecorderEvents.onRecordPermsUpdate
-			event.detail.IsRecAllowed = true
-			document.dispatchEvent(event)
+			document.dispatchEvent(new CustomEvent(RecorderEvents.onRecordPermsUpdate, { detail: { 'IsRecAllowed': true } }))
 		}).catch((e) => {
 			console.error(e);
 
-			var event = RecorderEvents.onRecordPermsUpdate
-			event.detail.IsRecAllowed = false
-			document.dispatchEvent(event)
+			document.dispatchEvent(new CustomEvent(RecorderEvents.onRecordPermsUpdate, { detail: { 'IsRecAllowed': false } }))
 		})
 	}
 
@@ -72,7 +68,7 @@ class Recorder {
 		this.#audioRecorder.ondataavailable = (data) => {
 			this.processData(data)
 			// play recording
-			document.dispatchEvent(RecorderEvents.onReady)
+			document.dispatchEvent(new Event(RecorderEvents.onReady))
 		}
 	}
 
