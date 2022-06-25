@@ -83,8 +83,6 @@ class Recorder {
 	}
 
 	stopRecording() {
-		// TODO setting make this optional
-		// await new Promise(res => setTimeout(res, 500))
 		this.#audioRecorder.stop()
 		this.isRecording = false
 	}
