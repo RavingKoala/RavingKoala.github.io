@@ -9,22 +9,29 @@ const RecorderEvents = {
 document.addEventListener(RecorderEvents.onStopped, () => { document.dispatchEvent(new Event(RecorderEvents.onEndedOrStopped)) })
 document.addEventListener(RecorderEvents.onEnded, () => { document.dispatchEvent(new Event(RecorderEvents.onEndedOrStopped)) })
 
+var RecorderSettings = {
+	PlayASAP: new Error("PlayASAP was never set to 'true' or 'false'"), // bool
+}
+
 class Recorder {
 	isRecording
-	isEnded
+	isPlaying
+	// Volume
 	#playASAP
 	#audioRecorder
 	#mediaStream
+	#lastBlobRaw
 	#audioObj
-	constructor () {
+	constructor (settings) {
 		this.isRecording = false
-		this.isEnded = true
+		this.isPlaying = false
+		this.#playASAP = settings.PlayASAP
 		this.#mediaStream
-		this.lastBlobRaw
+		this.#lastBlobRaw
 		this.#audioObj = new Audio()
 
 		this.#audioObj.onpause = () => {
-			this.isEnded = true
+			this.isPlaying = false
 			document.dispatchEvent(new Event(RecorderEvents.onEnded))
 		}
 
@@ -32,20 +39,16 @@ class Recorder {
 	}
 
 	processData(audioClip) {
-		this.lastBlobRaw = []
-		this.lastBlobRaw.push(audioClip.data)
-		const audioBlob = new Blob(this.lastBlobRaw, { type: "audio/ogg" })
+		this.#lastBlobRaw = []
+		this.#lastBlobRaw.push(audioClip.data)
+		const audioBlob = new Blob(this.#lastBlobRaw, { type: "audio/ogg" })
 		const url = window.URL.createObjectURL(audioBlob)
-		// history
-		// blobHistory.push(audioBlob) // option for later
 		this.#audioObj.src = url
 		// Tear down after recording.
 		this.#audioRecorder.stream.getTracks().forEach(t => t.stop())
 		this.#audioRecorder = null
-		// play recording
-		this.isEnded = false
-		// TODO setting make this inbetween step
-		this.#audioObj.play()
+		if (this.#playASAP)
+			this.playRecording()
 	}
 
 	async requestPerms() {
@@ -67,7 +70,7 @@ class Recorder {
 
 		this.#audioRecorder.ondataavailable = (data) => {
 			this.processData(data)
-			// play recording
+
 			document.dispatchEvent(new Event(RecorderEvents.onReady))
 		}
 	}
@@ -86,8 +89,9 @@ class Recorder {
 		this.isRecording = false
 	}
 
-	playRecording() { // option for later
-
+	playRecording() { // never call playRecording if settings.PlayASAP === true
+		this.isPlaying = true
+		this.#audioObj.play()
 	}
 
 	stopPlaying() {

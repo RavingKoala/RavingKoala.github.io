@@ -4,7 +4,6 @@ const States = {
 	Recording: "recording",
 	Hold: "hold",
 	Reviewing: "reviewing",
-	// TODO: add stopping and pausing
 }
 
 var VoiceAppSettings = {
@@ -18,21 +17,10 @@ class VoiceApp {
 	RecorderManager
 
 	constructor (actionButtonDOM, textfieldDOM, settings) {
-
-
 		this.State = new VoiceAppStateManager(settings);
 		this.UIManager = new VoiceAppUIStateManager(actionButtonDOM, textfieldDOM, settings)
 
 		this.RecorderManager = new VoiceAppRecorderStateManager(settings)
-
-		if (settings.autoContinueAfterPlayed === true)
-			document.addEventListener(RecorderEvents.onEndedOrStopped, () => {
-				this.transitionState(States.Idle)
-			})
-		// if (settings.immediateReview === true) // entire if might not be needed
-		// 	document.addEventListener(RecorderEvents.onReady, () => {
-		// 		this.transitionState(States.Reviewing)
-		// 	})
 	}
 
 	nextState() {
@@ -51,6 +39,7 @@ class VoiceApp {
 class VoiceAppStateManager {
 	settings
 	currentState
+
 	constructor (settings) {
 		this.settings = settings
 		this.currentState = States.Idle
@@ -64,16 +53,16 @@ class VoiceAppStateManager {
 			case States.Idle:
 				return States.Recording
 			case States.Recording:
-				if (!this.settings.immediateReview)
-					return States.Hold
-				else
+				if (this.settings.immediateReview)
 					return States.Reviewing
+				else
+					return States.Hold
 			case States.Hold:
 				return States.Reviewing
 			case States.Reviewing:
 				return States.Idle
 			default:
-				return States.Idle
+				throw Error("Unknown State")
 		}
 	}
 }
@@ -141,7 +130,11 @@ class VoiceAppRecorderStateManager {
 
 	constructor (voiceAppSettings) {
 		this.#voiceAppSettings = voiceAppSettings
-		this.#Rec = new Recorder()
+
+		var settings = RecorderSettings
+		settings.PlayASAP = voiceAppSettings.immediateReview
+
+		this.#Rec = new Recorder(settings)
 	}
 
 	changeState(state) {
@@ -164,22 +157,26 @@ class VoiceAppRecorderStateManager {
 	}
 
 	#changeStateIdle() {
+		console.log("STATE Idle")
 		if (!this.#Rec.isEnded)
 			this.#Rec.stopPlaying()
 	}
 
 	#changeStateRecording() {
+		console.log("STATE Recording")
 		this.#Rec.startRecording()
 	}
 
 	#changeStatePause() {
+		console.log("STATE Pause")
 		this.#Rec.stopRecording()
 	}
 
 	#changeStateReviewing() {
+		console.log("STATE Review")
 		if (this.#voiceAppSettings.immediateReview)
 			this.#Rec.stopRecording()
-
-		this.#Rec.playRecording()
+		else
+			this.#Rec.playRecording()
 	}
 }
