@@ -90,8 +90,10 @@ class Recorder {
 	}
 
 	playRecording() { // never call playRecording if settings.PlayASAP === true
-		this.isPlaying = true
-		this.#audioObj.play()
+		if (!this.#playASAP) {
+			this.isPlaying = true
+			this.#audioObj.play()
+		}
 	}
 
 	stopPlaying() {

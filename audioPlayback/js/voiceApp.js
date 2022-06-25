@@ -21,6 +21,9 @@ class VoiceApp {
 		this.UIManager = new VoiceAppUIStateManager(actionButtonDOM, textfieldDOM, settings)
 
 		this.RecorderManager = new VoiceAppRecorderStateManager(settings)
+
+		if (settings.autoContinueAfterPlayed == true)
+			document.addEventListener(RecorderEvents.onEnded, () => { this.transitionState(States.Idle) })
 	}
 
 	nextState() {
