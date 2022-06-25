@@ -30,8 +30,7 @@ class VoiceApp {
 		let nextState = this.State.getNextState()
 		this.transitionState(nextState)
 	}
-
-	// TODO: make safe to transition from any state to any state
+	
 	transitionState(state) {
 		this.State.currentState = state
 		this.RecorderManager.changeState(state)
@@ -184,7 +183,7 @@ class VoiceAppRecorderStateManager {
 	#changeStateReviewing() {
 		console.log("STATE Review")
 		if (this.#voiceAppSettings.immediateReview)
-			this.#Rec.stopRecording()
+			this.#Rec.stopRecording() // Automatically call playRecording on ready
 		else
 			this.#Rec.playRecording()
 	}
