@@ -71,9 +71,10 @@ class VoiceAppUIStateManager {
 	actionButtonDOM
 	textfieldDOM
 
-	constructor (actionButtonDOM, textfieldDOM) {
+	constructor (actionButtonDOM, textfieldDOM, settings) {
 		this.actionButtonDOM = actionButtonDOM
 		this.textfieldDOM = textfieldDOM
+		this.settings = settings
 	}
 
 	changeState(state) {
@@ -103,14 +104,19 @@ class VoiceAppUIStateManager {
 	}
 
 	#changeStateRecording() {
-		getContent("./resources/SVGs/PlayButton.svg", (result) => {
-			this.actionButtonDOM.innerHTML = result
-		})
+		if (this.settings.immediateReview)
+			getContent("./resources/SVGs/PlayButton.svg", (result) => {
+				this.actionButtonDOM.innerHTML = result
+			})
+		else
+			getContent("./resources/SVGs/PauseButton.svg", (result) => {
+				this.actionButtonDOM.innerHTML = result
+			})
 		this.textfieldDOM.innerHTML = "Recording"
 	}
 
 	#changeStatePause() {
-		getContent("./resources/SVGs/PauseButton.svg", (result) => {
+		getContent("./resources/SVGs/PlayButton.svg", (result) => {
 			this.actionButtonDOM.innerHTML = result
 		})
 		this.textfieldDOM.innerHTML = "Waiting"

@@ -51,8 +51,8 @@
 			var waveformsDOM = document.querySelector("#waveforms")
 
 			var settings = VoiceAppSettings
-			settings.immediateReview = true
-			settings.autoContinueAfterPlayed = true
+			settings.immediateReview = false
+			settings.autoContinueAfterPlayed = true // TODO: no longer working
 
 			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, settings)
 			var reqManager = new RequirementStateManager(audioReqDOM, micReqDOM)
