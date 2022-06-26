@@ -15,6 +15,7 @@
 		<script src="./js/includeContent.js"></script>
 		<script src="./js/requirements.js"></script>
 		<script src="./js/recorder.js"></script>
+		<script src="./js/volumeManager.js"></script>
 		<script src="./js/voiceApp.js"></script>
 	</head>
 	<!-- TODO: make responsive -->
@@ -54,10 +55,16 @@
 			settings.immediateReview = false
 			settings.autoContinueAfterPlayed = true
 
-			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, settings)
-			var reqManager = new RequirementStateManager(audioReqDOM, micReqDOM)
+			var recorder = new Recorder(settings)
+			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, settings)
+			var statusManager = new StatusStateManager(audioReqDOM, micReqDOM)
+			var volume = new VolumeManager()
+
 			document.addEventListener(RecorderEvents.onRecordPermsUpdate, (e) => {
-				reqManager.setMicImage(e.detail.IsRecAllowed ? MicStates.Mic : MicStates.NoMic)
+				statusManager.setMicImage(e.detail.IsRecAllowed ? MicStates.Mic : MicStates.NoMic)
+			})
+			document.addEventListener(VolumeEvents.volumeChanged, (e) => {
+				recorder.setVolume(e.detail.volume)
 			})
 
 			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })

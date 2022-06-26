@@ -16,7 +16,7 @@ var RecorderSettings = {
 class Recorder {
 	isRecording
 	isPlaying
-	// Volume
+	#volume
 	#playASAP
 	#audioRecorder
 	#mediaStream
@@ -29,6 +29,7 @@ class Recorder {
 		this.#mediaStream
 		this.#lastBlobRaw
 		this.#audioObj = new Audio()
+		this.setVolume(1)
 
 		this.#audioObj.onpause = () => {
 			this.isPlaying = false
@@ -63,6 +64,10 @@ class Recorder {
 
 			document.dispatchEvent(new CustomEvent(RecorderEvents.onRecordPermsUpdate, { detail: { 'IsRecAllowed': false } }))
 		})
+	}
+
+	setVolume(value) {
+		this.#audioObj.volume = value
 	}
 
 	setupRecorder() {

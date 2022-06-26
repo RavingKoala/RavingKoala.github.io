@@ -10,7 +10,7 @@ const MicStates = {
 	NoMic: "noMic",
 }
 
-class RequirementStateManager {
+class StatusStateManager {
 	#currentState = {
 		Mic: null,
 		Sound: null

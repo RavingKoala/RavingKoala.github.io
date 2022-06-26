@@ -16,11 +16,11 @@ class VoiceApp {
 	UIManager
 	RecorderManager
 
-	constructor (actionButtonDOM, textfieldDOM, settings) {
+	constructor (actionButtonDOM, textfieldDOM, recorder, settings) {
 		this.State = new VoiceAppStateManager(settings);
 		this.UIManager = new VoiceAppUIStateManager(actionButtonDOM, textfieldDOM, settings)
 
-		this.RecorderManager = new VoiceAppRecorderStateManager(settings)
+		this.RecorderManager = new VoiceAppRecorderStateManager(recorder, settings)
 
 		if (settings.autoContinueAfterPlayed == true)
 			document.addEventListener(RecorderEvents.onEnded, () => { this.transitionState(States.Idle) })
@@ -30,7 +30,7 @@ class VoiceApp {
 		let nextState = this.State.getNextState()
 		this.transitionState(nextState)
 	}
-	
+
 	transitionState(state) {
 		this.State.currentState = state
 		this.RecorderManager.changeState(state)
@@ -136,13 +136,13 @@ class VoiceAppRecorderStateManager {
 	#voiceAppSettings
 	#Rec
 
-	constructor (voiceAppSettings) {
+	constructor (recorder, voiceAppSettings) {
 		this.#voiceAppSettings = voiceAppSettings
 
 		var settings = RecorderSettings
 		settings.PlayASAP = voiceAppSettings.immediateReview
 
-		this.#Rec = new Recorder(settings)
+		this.#Rec = recorder
 	}
 
 	changeState(state) {
