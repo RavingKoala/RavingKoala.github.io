@@ -15,7 +15,7 @@ class VolumeManager {
 		this.#sliderDOM = sliderDOM
 		this.changeVolume(0.5)
 
-		this.#sliderDOM.addEventListener("change", (e) => {
+		this.#sliderDOM.addEventListener("input", (e) => {
 			this.changeVolume(e.target.value/100)
 		})
 	}

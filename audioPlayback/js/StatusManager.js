@@ -26,7 +26,7 @@ class StatusStateManager {
 	}
 
 	setSoundImage(state) {
-		if (state == this.#currentState)
+		if (state === this.#currentState.Sound)
 			return
 
 		switch (state) {
@@ -47,9 +47,14 @@ class StatusStateManager {
 				})
 				break
 		}
+
+		this.#currentState.Sound = state
 	}
 
 	setMicImage(state) {
+		if (state === this.#currentState.Mic)
+			return
+
 		switch (state) {
 			case MicStates.Mic:
 				removeClass("microphone", "danger-text")
@@ -68,5 +73,6 @@ class StatusStateManager {
 				})
 				break
 		}
+		this.#currentState.Mic = state
 	}
 }
