@@ -4,10 +4,20 @@ const VolumeEvents = {
 
 class VolumeManager {
 	#volume
-	constructor () {
-		this.#volume
+	#IsPressedDown
+	#sliderDOM
+	#minPageOffset
+	#maxPageOffset
 
+	constructor (sliderDOM) {
+		this.#volume
+		this.#IsPressedDown = false
+		this.#sliderDOM = sliderDOM
 		this.changeVolume(0.5)
+
+		this.#sliderDOM.addEventListener("change", (e) => {
+			this.changeVolume(e.target.value/100)
+		})
 	}
 
 	changeVolume(value) {
@@ -19,4 +29,6 @@ class VolumeManager {
 		this.#volume = value
 		document.dispatchEvent(new CustomEvent(VolumeEvents.volumeChanged, { detail: { 'volume': value } }))
 	}
+
+
 }

@@ -1,3 +1,7 @@
+let IncludeContentEvents = {
+	onLoaded: "onLoaded",
+}
+
 function getContent(URI, callback) {
 	var xhttps, result
 	var xhttp = new XMLHttpRequest()
@@ -26,4 +30,5 @@ function replaceIncludes(tag = "include", attr = "src") {
 		})
 		return
 	}
+	document.dispatchEvent(new Event(IncludeContentEvents.onLoaded))
 }

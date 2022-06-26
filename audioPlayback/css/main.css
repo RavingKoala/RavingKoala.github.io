@@ -43,8 +43,9 @@
 	color: var(--md-primary);
 }
 
+
 /* Requirements panel */
-#requirements {
+#status {
 	position: absolute;
 	display: flex;
 	flex-direction: row;
@@ -53,11 +54,114 @@
 	margin: 1rem;
 }
 
-#requirements svg {
+#status svg {
 	height: 76px;
 	width: 76px;
 }
 
+#volumeControl {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+
+/** volume slider **/
+#volumeContainer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 10px auto;
+	border-radius: 6px;
+	width: 46px;
+	height: 0;
+	background-color: var(--md-surface);
+}
+
+#volumeControl.active #volumeContainer {
+	height: 150px;
+}
+
+#volumeContainer .slider {
+	/* auto height with margin-top: 22px; and margin-bottom: 22px; */
+	width: calc(150px - (22px * 2));
+	transform: rotate(270deg);
+	-moz-transform: rotate(270deg);
+}
+
+
+
+
+/*
+
+#volumeSlider {
+	display: flex;
+	margin: 10px;
+	border-radius: 6px;
+	width: 46px;
+	height: 0;
+	background-color: var(--md-surface);
+}
+
+#volumeControl.active #volumeSlider {
+	height: 129px;
+}
+
+.sliderRange {
+	margin: 22px auto;
+	width: 6px;
+	background-color: var(--md-surface);
+}
+
+.activeVolume {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: var(--md-primary);
+	width: 50%;
+	height: 50%;
+}
+
+.thumb::before {
+	content: '';
+	display: block;
+	position: relative;
+	border-radius: 50%;
+	left: 50%;
+	top: 50%;
+	width: 16px;
+	height: 16px;
+	transform: translate(-50%, -50%);
+	background-color: var(--md-primary);
+	cursor: pointer;
+}
+
+.thumb {
+	position: relative;
+	box-sizing: border-box;
+	transform: translateY(-50%);
+	border-radius: 50%;
+	top: 100%;
+	width: 16px;
+	height: 16px;
+	border: var(--md-primary) 2px solid;
+	background-color: rgba(187, 134, 252, 0.30);
+	cursor: pointer;
+	transition: width .2s ease-in, height .2s ease-in;
+}
+
+.thumb:hover {
+	width: 32px;
+	height: 32px;
+	transition: width .2s ease-out, height .2s ease-out;
+}
+
+*/
+
+
+
+
+/* SVG colors */
 .success {
 	background-color: var(--dark-bs-success);
 	color: #000;

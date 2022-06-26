@@ -12,8 +12,8 @@
 		<link rel="stylesheet" href="../css/materialDesign.css" />
 		<link rel="stylesheet" href="./css/main.css" />
 		<script src="../js/ClassHelpers.js"></script>
+		<script src="./js/StatusManager.js"></script>
 		<script src="./js/includeContent.js"></script>
-		<script src="./js/requirements.js"></script>
 		<script src="./js/recorder.js"></script>
 		<script src="./js/volumeManager.js"></script>
 		<script src="./js/voiceApp.js"></script>
@@ -22,11 +22,16 @@
 	<!-- TODO: add keyaction implementation -->
 
 	<body class="dark mt-6">
-		<div id="requirements">
-			<div id="audio" class="danger-text">
-				<include src="./resources/SVGs/NoSound.svg"></include>
-				<!-- TODO: Create volume control app -->
-				<!-- https://stackoverflow.com/questions/33747398/html-audio-tag-volume#answers -->
+		<div id="status">
+			<div id="volumeControl" class="active">
+				<div id="audio" class="danger-text">
+					<include src="./resources/SVGs/NoSound.svg"></include>
+					<!-- TODO: Create volume control app -->
+					<!-- https://stackoverflow.com/questions/33747398/html-audio-tag-volume#answers -->
+				</div>
+				<div id="volumeContainer">
+					<input type="range" min="0" max="100" value="100" class="slider">
+				</div>
 			</div>
 			<div id="microphone" class="danger-text">
 				<include src="./resources/SVGs/NoMic.svg"></include>
@@ -43,13 +48,14 @@
 		</div>
 		<script>
 			// content update
-			replaceIncludes()
+			replaceIncludes();
 
 			var actionButtonDOM = document.getElementById("actionButton")
 			var textfieldDOM = document.querySelector("span.textfield")
 			var audioReqDOM = document.getElementById("audio")
 			var micReqDOM = document.getElementById("microphone")
-			var waveformsDOM = document.querySelector("#waveforms")
+			var waveformsDOM = document.getElementById("waveforms")
+			var volumeSlider = document.querySelector("#volumeContainer .slider")
 
 			var settings = VoiceAppSettings
 			settings.immediateReview = false
@@ -58,7 +64,9 @@
 			var recorder = new Recorder(settings)
 			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, settings)
 			var statusManager = new StatusStateManager(audioReqDOM, micReqDOM)
-			var volume = new VolumeManager()
+			var volume = new VolumeManager(volumeSlider)
+
+			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
 
 			document.addEventListener(RecorderEvents.onRecordPermsUpdate, (e) => {
 				statusManager.setMicImage(e.detail.IsRecAllowed ? MicStates.Mic : MicStates.NoMic)
@@ -66,8 +74,6 @@
 			document.addEventListener(VolumeEvents.volumeChanged, (e) => {
 				recorder.setVolume(e.detail.volume)
 			})
-
-			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
 		</script>
 	</body>
 
