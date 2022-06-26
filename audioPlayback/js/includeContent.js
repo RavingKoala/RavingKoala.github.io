@@ -16,15 +16,12 @@ function getContent(URI, callback) {
 	xhttp.send()
 }
 
-function replaceIncludes(tag = "include") {
-	var z, i, parent, node, file
-	z = document.getElementsByTagName(tag)
-	for (i = 0; i < z.length; i++) {
-		node = z[i]
-		parent = node.parentNode
-		file = node.getAttribute("src")
+function replaceIncludes(tag = "include", attr = "src") {
+	let el = document.getElementsByTagName(tag)
+	for (let node of el) {
+		let file = node.getAttribute(attr)
 		getContent(file, (content) => {
-			parent.innerHTML = content
+			node.outerHTML = content
 			replaceIncludes() // always do this for nested includes
 		})
 		return
