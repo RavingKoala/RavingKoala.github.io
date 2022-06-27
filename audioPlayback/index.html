@@ -25,6 +25,18 @@
 	<!-- TODO: add info panel -->
 
 	<body class="dark mt-6">
+		<!-- #region main -->
+		<div id="player" class="surface">
+			<div id="actionButton">
+				<include src="./resources/SVGs/RecordButton.svg"></include>
+			</div>
+			<span class="textfield">Start recording...</span>
+			<div id="waveforms">
+				<include src="./resources/SVGs/Soundwaves.svg" style="display: none;"></include>
+			</div>
+		</div>
+		<!-- #endregion -->
+		<!-- #region status bar -->
 		<div id="status">
 			<div id="volumeControl" class="active">
 				<div id="audio" class="success-text">
@@ -42,31 +54,29 @@
 				<include src="./resources/SVGs/NoMic.svg"></include>
 			</div>
 		</div>
-		<div id="player" class="surface">
-			<div id="actionButton">
-				<include src="./resources/SVGs/RecordButton.svg"></include>
-			</div>
-			<span class="textfield">Start recording...</span>
-			<div id="waveforms">
-				<include src="./resources/SVGs/Soundwaves.svg" style="display: none;"></include>
-			</div>
+		<!-- #endregion -->
+		<!-- #region settings -->
+		<div id="settings">
+			<include src="./resources/SVGs/SettingsButton.svg"></include>
 		</div>
+		<!-- #endregion -->
+		<!-- #endregion info -->
+		<div id="info">
+			<include src="./resources/SVGs/InfoButton.svg"></include>
+		</div>
+		<!-- #endregion -->
 		<script>
 			// content update
 			replaceIncludes();
 
-			var actionButtonDOM = document.getElementById("actionButton")
-			var textfieldDOM = document.querySelector("span.textfield")
-			var audioReqDOM = document.getElementById("audio")
-			var micReqDOM = document.getElementById("microphone")
-			var waveformsDOM = document.getElementById("waveforms")
-			var volumeSlider = document.querySelector("#sliderContainer")
 
 			var settings = VoiceAppSettings
 			settings.immediateReview = false
 			settings.autoContinueAfterPlayed = true
 
 			// StatusStateManager
+			var audioReqDOM = document.getElementById("audio")
+			var micReqDOM = document.getElementById("microphone")
 			var statusManager = new StatusStateManager(audioReqDOM, micReqDOM)
 			document.addEventListener(RecorderEvents.onRecordPermsUpdate, (e) => {
 				statusManager.setMicImage(e.detail.IsRecAllowed ? MicStates.Mic : MicStates.NoMic)
@@ -78,15 +88,27 @@
 				recorder.setVolume(e.detail.volume)
 
 				statusManager.setSoundImage(e.detail.volume > 0 ? SoundStates.Sound : SoundStates.NoSound)
-
 			})
 
 			// VoiceApp
+			var actionButtonDOM = document.getElementById("actionButton")
+			var textfieldDOM = document.querySelector("span.textfield")
 			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, settings)
 			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
 
 			// VolumeManager
+			var volumeSlider = document.querySelector("#sliderContainer")
 			var volume = new VolumeManager(volumeSlider)
+
+			// Settings
+			var settingsBtn = document.getElementById("settings")
+			settingsBtn.addEventListener("click", () => { console.log("open settings"); })
+
+			// Info
+			var infoBtn = document.getElementById("info")
+			infoBtn.addEventListener("click", () => { console.log("open info"); })
+
+
 		</script>
 	</body>
 
