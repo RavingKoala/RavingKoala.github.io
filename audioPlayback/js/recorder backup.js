@@ -1,10 +1,10 @@
 const RecorderEvents = {
-	onReady: "onReady",
-	onPlaying: "onPlaying",
-	onStopped: "onStopped",
-	onEnded: "onEnded",
-	onEndedOrStopped: "onEndedOrStopped",
-	onRecordPermsUpdate: "onRecordPermsUpdate",
+	onReady: "OnReady",
+	onPlaying: "OnPlaying",
+	onStopped: "OnStopped",
+	onEnded: "OnEnded",
+	onEndedOrStopped: "OnEndedOrStopped",
+	onRecordPermsUpdate: "OnRecordPermsUpdate",
 }
 
 class Recorder {

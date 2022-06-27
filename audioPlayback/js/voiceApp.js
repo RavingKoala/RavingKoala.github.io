@@ -1,9 +1,9 @@
 // this module is all the logic for the voice playback app
 const States = {
-	Idle: "idle",
-	Recording: "recording",
-	Hold: "hold",
-	Reviewing: "reviewing",
+	idle: "Idle",
+	recording: "Recording",
+	hold: "Hold",
+	reviewing: "Reviewing",
 }
 
 var VoiceAppSettings = {
@@ -23,7 +23,7 @@ class VoiceApp {
 		this.RecorderManager = new VoiceAppRecorderStateManager(recorder, settings)
 
 		if (settings.autoContinueAfterPlayed == true)
-			document.addEventListener(RecorderEvents.onEnded, () => { this.transitionState(States.Idle) })
+			document.addEventListener(RecorderEvents.onEnded, () => { this.transitionState(States.idle) })
 	}
 
 	nextState() {
@@ -44,7 +44,7 @@ class VoiceAppStateManager {
 
 	constructor (settings) {
 		this.settings = settings
-		this.currentState = States.Idle
+		this.currentState = States.idle
 	}
 
 	getNextState(state) {
@@ -52,17 +52,17 @@ class VoiceAppStateManager {
 			state = this.currentState
 
 		switch (state) {
-			case States.Idle:
-				return States.Recording
-			case States.Recording:
+			case States.idle:
+				return States.recording
+			case States.recording:
 				if (this.settings.immediateReview)
-					return States.Reviewing
+					return States.reviewing
 				else
-					return States.Hold
-			case States.Hold:
-				return States.Reviewing
-			case States.Reviewing:
-				return States.Idle
+					return States.hold
+			case States.hold:
+				return States.reviewing
+			case States.reviewing:
+				return States.idle
 			default:
 				throw Error("Unknown State")
 		}
@@ -81,16 +81,16 @@ class VoiceAppUIStateManager {
 
 	changeState(state) {
 		switch (state) {
-			case States.Idle:
+			case States.idle:
 				this.#changeStateIdle()
 				break
-			case States.Recording:
+			case States.recording:
 				this.#changeStateRecording()
 				break
-			case States.Hold:
+			case States.hold:
 				this.#changeStatePause()
 				break
-			case States.Reviewing:
+			case States.reviewing:
 				this.#changeStateReviewing()
 				break
 			default:
@@ -147,16 +147,16 @@ class VoiceAppRecorderStateManager {
 
 	changeState(state) {
 		switch (state) {
-			case States.Idle:
+			case States.idle:
 				this.#changeStateIdle()
 				break;
-			case States.Recording:
+			case States.recording:
 				this.#changeStateRecording()
 				break;
-			case States.Hold:
+			case States.hold:
 				this.#changeStatePause()
 				break;
-			case States.Reviewing:
+			case States.reviewing:
 				this.#changeStateReviewing()
 				break;
 			default:

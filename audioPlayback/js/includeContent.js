@@ -1,5 +1,5 @@
 let IncludeContentEvents = {
-	onLoaded: "onLoaded",
+	onLoaded: "OnLoaded",
 }
 
 function getContent(URI, callback) {
@@ -14,11 +14,22 @@ function getContent(URI, callback) {
 				result = "Content not found."
 		}
 		if (result && typeof callback == "function")
-			return callback(result)
+			return callback(wrapResult(result, URI))
 	}
 	xhttp.open("GET", URI, true)
 	xhttp.send()
+
+	let wrapResult = (content, URI) => {
+		let wrapper = document.createElement("div")
+
+		let className = URI.split(".").pop() + "Wrapper"
+		wrapper.classList.add(className)
+		wrapper.innerHTML = content
+		return wrapper.outerHTML
+	}
 }
+
+
 
 function replaceIncludes(tag = "include", attr = "src") {
 	let el = document.getElementsByTagName(tag)
@@ -26,7 +37,7 @@ function replaceIncludes(tag = "include", attr = "src") {
 		let file = node.getAttribute(attr)
 		getContent(file, (content) => {
 			node.outerHTML = content
-			replaceIncludes() // always do this for nested includes
+			replaceIncludes()
 		})
 		return
 	}

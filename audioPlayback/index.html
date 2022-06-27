@@ -20,6 +20,9 @@
 	</head>
 	<!-- TODO: make responsive -->
 	<!-- TODO: add keyaction implementation -->
+	<!-- TODO: add selector for mic -->
+	<!-- TODO: add settings menu -->
+	<!-- TODO: add info panel -->
 
 	<body class="dark mt-6">
 		<div id="status">
@@ -82,10 +85,8 @@
 			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, settings)
 			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
 
-
 			// VolumeManager
 			var volume = new VolumeManager(volumeSlider)
-
 		</script>
 	</body>
 

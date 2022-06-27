@@ -1,9 +1,9 @@
 const RecorderEvents = {
-	onReady: "onReady",
-	onStopped: "onStopped",
-	onEnded: "onEnded",
-	onEndedOrStopped: "onEndedOrStopped", // only call this autside of this file
-	onRecordPermsUpdate: "onRecordPermsUpdate"
+	onReady: "OnReady",
+	onStopped: "OnStopped",
+	onEnded: "OnEnded",
+	onEndedOrStopped: "OnEndedOrStopped", // only call this autside of this file
+	onRecordPermsUpdate: "OnRecordPermsUpdate"
 }
 
 document.addEventListener(RecorderEvents.onStopped, () => { document.dispatchEvent(new Event(RecorderEvents.onEndedOrStopped)) })

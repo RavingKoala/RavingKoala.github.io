@@ -1,13 +1,13 @@
 // this module is ment for checking if audio and mic functionality are enabled.
 
 const SoundStates = {
-	Sound: "sound",
-	NoSound: "noSound"
+	Sound: "Sound",
+	NoSound: "NoSound"
 }
 
 const MicStates = {
-	Mic: "mic",
-	NoMic: "noMic",
+	Mic: "Mic",
+	NoMic: "NoMic",
 }
 
 class StatusStateManager {
