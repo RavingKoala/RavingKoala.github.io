@@ -49,9 +49,8 @@
 	position: absolute;
 	display: flex;
 	flex-direction: row;
-	top: 1rem;
-	left: 1rem;
-	margin: 1rem;
+	top: 2rem;
+	left: 2rem;
 }
 
 #status svg {
@@ -67,50 +66,31 @@
 
 
 /** volume slider **/
-#volumeContainer {
+#sliderContainer {
 	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin: 10px auto;
+	overflow: hidden;
+	margin: 0;
 	border-radius: 6px;
 	width: 46px;
 	height: 0;
 	background-color: var(--md-surface);
+	transition: height 0.23s linear, margin 0.23s linear;
 }
 
-#volumeControl.active #volumeContainer {
-	height: 150px;
-}
-
-#volumeContainer .slider {
-	/* auto height with margin-top: 22px; and margin-bottom: 22px; */
-	width: calc(150px - (22px * 2));
-	transform: rotate(270deg);
-	-moz-transform: rotate(270deg);
-}
-
-
-
-
-/*
-
-#volumeSlider {
-	display: flex;
-	margin: 10px;
-	border-radius: 6px;
-	width: 46px;
-	height: 0;
-	background-color: var(--md-surface);
-}
-
-#volumeControl.active #volumeSlider {
+#volumeControl:hover #sliderContainer {
 	height: 129px;
+	margin: 10px;
 }
 
 .sliderRange {
-	margin: 22px auto;
+	margin: 0 auto;
 	width: 6px;
 	background-color: var(--md-surface);
+	transition: margin 0.23s linear;
+}
+
+#volumeControl:hover .sliderRange {
+	margin: 22px auto;
 }
 
 .activeVolume {
@@ -118,7 +98,7 @@
 	flex-direction: column;
 	align-items: center;
 	background-color: var(--md-primary);
-	width: 50%;
+	width: 100%;
 	height: 50%;
 }
 
@@ -142,21 +122,21 @@
 	transform: translateY(-50%);
 	border-radius: 50%;
 	top: 100%;
-	width: 16px;
-	height: 16px;
+	min-width: 16px;max-width: 16px;
+	min-height: 16px;max-height: 16px;
 	border: var(--md-primary) 2px solid;
 	background-color: rgba(187, 134, 252, 0.30);
 	cursor: pointer;
-	transition: width .2s ease-in, height .2s ease-in;
+	transition: min-width .2s ease-in, min-height .2s ease-in, max-height .2s ease-in;
 }
 
+/* TODO becomes scuffed when activeVolume is below 40px*/
 .thumb:hover {
-	width: 32px;
-	height: 32px;
-	transition: width .2s ease-out, height .2s ease-out;
+	min-width: 32px;max-width: 32px;
+	min-height: 32px;max-height: 32px;
+	transition: min-width .2s ease-out, min-height .2s ease-out, max-height .2s ease-out;
 }
 
-*/
 
 
 

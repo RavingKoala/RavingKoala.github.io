@@ -17,7 +17,7 @@ class VoiceApp {
 	RecorderManager
 
 	constructor (actionButtonDOM, textfieldDOM, recorder, settings) {
-		this.State = new VoiceAppStateManager(settings);
+		this.State = new VoiceAppStateManager(settings)
 		this.UIManager = new VoiceAppUIStateManager(actionButtonDOM, textfieldDOM, settings)
 
 		this.RecorderManager = new VoiceAppRecorderStateManager(recorder, settings)
@@ -49,7 +49,7 @@ class VoiceAppStateManager {
 
 	getNextState(state) {
 		if (!state)
-			state = this.currentState;
+			state = this.currentState
 
 		switch (state) {
 			case States.Idle:

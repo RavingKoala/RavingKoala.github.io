@@ -29,7 +29,7 @@ class Recorder {
 		this.#mediaStream
 		this.#lastBlobRaw
 		this.#audioObj = new Audio()
-		this.setVolume(1)
+		this.setVolume(0.5)
 
 		this.#audioObj.onpause = () => {
 			this.isPlaying = false
@@ -60,7 +60,7 @@ class Recorder {
 
 			document.dispatchEvent(new CustomEvent(RecorderEvents.onRecordPermsUpdate, { detail: { 'IsRecAllowed': true } }))
 		}).catch((e) => {
-			console.error(e);
+			console.error(e)
 
 			document.dispatchEvent(new CustomEvent(RecorderEvents.onRecordPermsUpdate, { detail: { 'IsRecAllowed': false } }))
 		})

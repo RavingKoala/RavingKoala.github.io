@@ -23,7 +23,6 @@ class Recorder {
 		this.LastBlobRaw
 		this.#playASAP
 		this.AudioDOM = audioDOM
-		console.log(this.AudioDOM);
 
 		this.requestPerms()
 
@@ -94,7 +93,7 @@ class Recorder {
 		if (this.IsRecording) {
 			// TODO option = .5 sec cooldown
 			this.audioRecorder.stop()
-			cleanupLastRecording();
+			cleanupLastRecording()
 			this.IsRecording = false
 			document.dispatchEvent(new Event(RecorderEvents.onStopped))
 			document.dispatchEvent(new Event(RecorderEvents.onEndedOrStopped))

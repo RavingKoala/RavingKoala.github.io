@@ -24,13 +24,15 @@
 	<body class="dark mt-6">
 		<div id="status">
 			<div id="volumeControl" class="active">
-				<div id="audio" class="danger-text">
-					<include src="./resources/SVGs/NoSound.svg"></include>
-					<!-- TODO: Create volume control app -->
-					<!-- https://stackoverflow.com/questions/33747398/html-audio-tag-volume#answers -->
+				<div id="audio" class="success-text">
+					<include src="./resources/SVGs/Sound.svg"></include>
 				</div>
-				<div id="volumeContainer">
-					<input type="range" min="0" max="100" value="100" class="slider">
+				<div id="sliderContainer">
+					<div class="sliderRange">
+						<div class="activeVolume">
+							<div class="thumb"></div>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div id="microphone" class="danger-text">
@@ -55,25 +57,35 @@
 			var audioReqDOM = document.getElementById("audio")
 			var micReqDOM = document.getElementById("microphone")
 			var waveformsDOM = document.getElementById("waveforms")
-			var volumeSlider = document.querySelector("#volumeContainer .slider")
+			var volumeSlider = document.querySelector("#sliderContainer")
 
 			var settings = VoiceAppSettings
 			settings.immediateReview = false
 			settings.autoContinueAfterPlayed = true
 
-			var recorder = new Recorder(settings)
-			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, settings)
+			// StatusStateManager
 			var statusManager = new StatusStateManager(audioReqDOM, micReqDOM)
-			var volume = new VolumeManager(volumeSlider)
-
-			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
-
 			document.addEventListener(RecorderEvents.onRecordPermsUpdate, (e) => {
 				statusManager.setMicImage(e.detail.IsRecAllowed ? MicStates.Mic : MicStates.NoMic)
 			})
+
+			// Recorder
+			var recorder = new Recorder(settings)
 			document.addEventListener(VolumeEvents.volumeChanged, (e) => {
 				recorder.setVolume(e.detail.volume)
+
+				statusManager.setSoundImage(e.detail.volume > 0 ? SoundStates.Sound : SoundStates.NoSound)
+
 			})
+
+			// VoiceApp
+			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, settings)
+			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
+
+
+			// VolumeManager
+			var volume = new VolumeManager(volumeSlider)
+
 		</script>
 	</body>
 
