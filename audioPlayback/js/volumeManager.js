@@ -52,8 +52,16 @@ class VolumeManager {
 		document.dispatchEvent(new CustomEvent(VolumeEvents.volumeChanged, { detail: { 'volume': value } }))
 	}
 
+	addVolume(value) {
+		this.changeVolume(this.#volume + value)
+	}
+
+	subVolume(value) {
+		this.changeVolume(this.#volume - value)
+	}
+
 	updateSlider(value) {
-		this.#volumeSliderDOM.querySelector(".activeVolume").style.height = value*100 + "%"
+		this.#volumeSliderDOM.querySelector(".activeVolume").style.height = value * 100 + "%"
 	}
 
 	volumeSlider_thumb_mousedown(e) {

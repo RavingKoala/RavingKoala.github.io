@@ -104,6 +104,14 @@
 			// ShortcutManager
 			var shortcutManager = new ShortcutManager()
 			shortcutManager.addShortcut(new shortcut(KeyCodes.Space, new shortcutMod(), KeyActions.press), function() { voiceApp.nextState() })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, new shortcutMod(true), KeyActions.keyDown), function() { volume.addVolume(0.1) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, new shortcutMod(true), KeyActions.keyDown), function() { volume.subVolume(0.1) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, new shortcutMod(), KeyActions.keyDown), function() { volume.addVolume(0.05) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, new shortcutMod(), KeyActions.keyDown), function() { volume.subVolume(0.05) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.Slash, new shortcutMod(undefined, true), KeyActions.keyDown), function() { alert("opened info panel") })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.KeyI, new shortcutMod(undefined, true), KeyActions.keyDown), function() { alert("opened Settings panel") })
+			
+			
 
 			// Settings
 			var settingsBtn = document.getElementById("settings")

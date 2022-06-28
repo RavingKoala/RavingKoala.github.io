@@ -36,6 +36,10 @@ var KeyCodes = {
 	Digit8: "Digit8",
 	Digit9: "Digit9",
 	Digit0: "Digit0",
+	ArrowUp: "ArrowUp",
+	ArrowDown: "ArrowDown",
+	ArrowLeft: "ArrowLeft",
+	ArrowRight: "ArrowRight",
 	Minus: "Minus",
 	Equal: "Equal",
 	BracketLeft: "BracketLeft",
@@ -64,6 +68,22 @@ var KeyCodes = {
 	Numpad8: "Numpad8",
 	Numpad9: "Numpad9",
 	NumpadDecimal: "NumpadDecimal",
+	Control: "Control",
+	Alt: "Alt",
+	Shift: "Shift",
+	Meta: "Meta",
+	F1: "F1",
+	F2: "F2",
+	F3: "F3",
+	F4: "F4",
+	F5: "F5",
+	F6: "F6",
+	F7: "F7",
+	F8: "F8",
+	F9: "F9",
+	F10: "F10",
+	F11: "F11",
+	F12: "F12",
 }
 
 var KeyActions = {
@@ -81,6 +101,7 @@ class ShortcutManager {
 		this.activeShortcuts = {}
 		this.pressed = {}
 		document.addEventListener("keydown", (e) => {
+			console.log(e);
 			if (this.pressed[e.code] === null) // prevent trigger from the same press
 				return
 			if (!this.activeShortcuts[e.code])
@@ -113,6 +134,7 @@ class ShortcutManager {
 	}
 
 	#ShortcutPressed(shortcut) {
+		console.log(shortcut.toString())
 		if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()])
 			this.activeShortcuts[shortcut.keyCode][shortcut.toString()]()
 	}
@@ -124,20 +146,20 @@ class ShortcutManager {
 			this.pressed[e.code] = null
 		}, this.holdTime)
 
-		let scMod = new shortcutMod(e.ctrl, e.shift, e.alt, e.meta)
+		let scMod = new shortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
 		let sc = new shortcut(e.code, scMod, KeyActions.keyDown)
 		this.#ShortcutPressed(sc)
 	}
 
 	#onKeyPress(e) {
-		let scMod = new shortcutMod(e.ctrl, e.shift, e.alt, e.meta)
+		let scMod = new shortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
 		let sc = new shortcut(e.code, scMod, KeyActions.press)
 		this.#ShortcutPressed(sc)
 	}
 
 	#onKeyHold(e) {
 		clearTimeout(this.pressed[e.code])
-		let scMod = new shortcutMod(e.ctrl, e.shift, e.alt, e.meta)
+		let scMod = new shortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
 		let sc = new shortcut(e.code, scMod, KeyActions.hold)
 		this.#ShortcutPressed(sc)
 	}
@@ -151,7 +173,7 @@ class ShortcutManager {
 			this.#onKeyPress(e)
 		}
 
-		let shortcutMods = new shortcutMod(e.ctrl, e.shift, e.alt, e.meta)
+		let shortcutMods = new shortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
 		let sc = new shortcut(e.code, shortcutMods, KeyActions.keyUp)
 		this.#ShortcutPressed(sc)
 	}
@@ -193,10 +215,10 @@ class shortcut {
 }
 
 class shortcutMod {
-	constructor (ctrl = undefined, shift = undefined, alt = undefined, meta = undefined) {
+	constructor (ctrl = undefined, alt = undefined, shift = undefined, meta = undefined) {
 		this.ctrl = ctrl
-		this.shift = shift
 		this.alt = alt
+		this.shift = shift
 		this.meta = meta
 	}
 
@@ -204,8 +226,8 @@ class shortcutMod {
 		if (!scMod instanceof shortcutMod)
 			return false
 		if (this.ctrl !== scMod.ctrl
-			|| this.shift !== scMod.shift
 			|| this.alt !== scMod.alt
+			|| this.shift !== scMod.shift
 			|| this.meta !== scMod.meta)
 			return false
 
@@ -215,8 +237,8 @@ class shortcutMod {
 	toString() {
 		let string = ""
 		if (this.ctrl) string += "ctrl"
-		if (this.shift) string += "shift"
 		if (this.alt) string += "alt"
+		if (this.shift) string += "shift"
 		if (this.meta) string += "meta"
 		return string
 	}
