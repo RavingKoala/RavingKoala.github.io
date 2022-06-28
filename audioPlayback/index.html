@@ -17,6 +17,7 @@
 		<script src="./js/recorder.js"></script>
 		<script src="./js/volumeManager.js"></script>
 		<script src="./js/voiceApp.js"></script>
+		<script src="./js/shortcutManager.js"></script>
 	</head>
 	<!-- TODO: make responsive -->
 	<!-- TODO: add keyaction implementation -->
@@ -99,6 +100,10 @@
 			// VolumeManager
 			var volumeSlider = document.querySelector("#sliderContainer")
 			var volume = new VolumeManager(volumeSlider)
+
+			// ShortcutManager
+			var shortcutManager = new ShortcutManager()
+			shortcutManager.addShortcut(new shortcut(KeyCodes.Space, new shortcutMod(), KeyActions.press), function() { voiceApp.nextState() })
 
 			// Settings
 			var settingsBtn = document.getElementById("settings")
