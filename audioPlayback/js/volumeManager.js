@@ -15,13 +15,10 @@ class VolumeManager {
 		this.#volumeSliderDOM = volumeSliderDOM
 		this.changeVolume(0.5)
 
-		// event listners
-		/// thumb
 		this.#volumeSliderDOM.querySelector(".thumb").addEventListener("mousedown", (e) => {
 			this.volumeSlider_thumb_mousedown(e)
 		})
-
-		/// volumeSlider
+		
 		this.#volumeSliderDOM.addEventListener("input", (e) => {
 			this.changeVolume(e.target.value / 100)
 		})

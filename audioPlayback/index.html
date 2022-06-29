@@ -19,11 +19,6 @@
 		<script src="./js/voiceApp.js"></script>
 		<script src="./js/shortcutManager.js"></script>
 	</head>
-	<!-- TODO: make responsive -->
-	<!-- TODO: add keyaction implementation -->
-	<!-- TODO: add selector for mic -->
-	<!-- TODO: add settings menu -->
-	<!-- TODO: add info panel -->
 
 	<body class="dark mt-6">
 		<!-- #region main -->
@@ -31,7 +26,7 @@
 			<div id="actionButton">
 				<include src="./resources/SVGs/RecordButton.svg"></include>
 			</div>
-			<span class="textfield">Start recording...</span>
+			<span class="textfield">Start recording</span>
 			<div id="waveforms">
 				<include src="./resources/SVGs/Soundwaves.svg" style="display: none;"></include>
 			</div>
@@ -70,10 +65,15 @@
 			// content update
 			replaceIncludes();
 
+			// settings
+			var VASettings = VoiceAppSettings
+			VASettings.immediateReview = true
+			VASettings.autoContinueAfterPlayed = true
+			var RSettings = RecorderSettings
+			RSettings.PlayASAP = VASettings.immediateReview
 
-			var settings = VoiceAppSettings
-			settings.immediateReview = false
-			settings.autoContinueAfterPlayed = true
+			// ShortcutManager
+			var shortcutManager = new ShortcutManager()
 
 			// StatusStateManager
 			var audioReqDOM = document.getElementById("audio")
@@ -84,43 +84,36 @@
 			})
 
 			// Recorder
-			var recorder = new Recorder(settings)
+			var recorder = new Recorder(RSettings)
 			document.addEventListener(VolumeEvents.volumeChanged, (e) => {
 				recorder.setVolume(e.detail.volume)
-
 				statusManager.setSoundImage(e.detail.volume > 0 ? SoundStates.Sound : SoundStates.NoSound)
 			})
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, new shortcutMod(true), KeyActions.keyDown), function() { volume.addVolume(0.1) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, new shortcutMod(true), KeyActions.keyDown), function() { volume.subVolume(0.1) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, new shortcutMod(), KeyActions.keyDown), function() { volume.addVolume(0.05) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, new shortcutMod(), KeyActions.keyDown), function() { volume.subVolume(0.05) })
 
 			// VoiceApp
 			var actionButtonDOM = document.getElementById("actionButton")
 			var textfieldDOM = document.querySelector("span.textfield")
-			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, settings)
+			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, VASettings)
 			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.Space, new shortcutMod(), KeyActions.press), function() { voiceApp.nextState() })
 
 			// VolumeManager
 			var volumeSlider = document.querySelector("#sliderContainer")
 			var volume = new VolumeManager(volumeSlider)
 
-			// ShortcutManager
-			var shortcutManager = new ShortcutManager()
-			shortcutManager.addShortcut(new shortcut(KeyCodes.Space, new shortcutMod(), KeyActions.press), function() { voiceApp.nextState() })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, new shortcutMod(true), KeyActions.keyDown), function() { volume.addVolume(0.1) })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, new shortcutMod(true), KeyActions.keyDown), function() { volume.subVolume(0.1) })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, new shortcutMod(), KeyActions.keyDown), function() { volume.addVolume(0.05) })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, new shortcutMod(), KeyActions.keyDown), function() { volume.subVolume(0.05) })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.Slash, new shortcutMod(undefined, true), KeyActions.keyDown), function() { alert("opened info panel") })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.KeyI, new shortcutMod(undefined, true), KeyActions.keyDown), function() { alert("opened Settings panel") })
-			
-			
-
 			// Settings
 			var settingsBtn = document.getElementById("settings")
 			settingsBtn.addEventListener("click", () => { console.log("open settings"); })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.KeyI, new shortcutMod(undefined, true), KeyActions.keyDown), function() { alert("opened Settings panel") })
 
 			// Info
 			var infoBtn = document.getElementById("info")
 			infoBtn.addEventListener("click", () => { console.log("open info"); })
-
+			shortcutManager.addShortcut(new shortcut(KeyCodes.Slash, new shortcutMod(undefined, true), KeyActions.keyDown), function() { alert("opened info panel") })
 
 		</script>
 	</body>

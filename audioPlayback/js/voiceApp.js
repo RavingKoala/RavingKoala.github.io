@@ -102,7 +102,7 @@ class VoiceAppUIStateManager {
 		getContent("./resources/SVGs/RecordButton.svg", (result) => {
 			this.actionButtonDOM.innerHTML = result
 		})
-		this.textfieldDOM.innerHTML = "Idle"
+		this.textfieldDOM.innerHTML = "Start recording"
 	}
 
 	#changeStateRecording() {
