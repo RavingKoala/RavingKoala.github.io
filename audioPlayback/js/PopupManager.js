@@ -1,4 +1,4 @@
-class Recorder {
+class PopupManager {
 	constructor () {
 
 	}

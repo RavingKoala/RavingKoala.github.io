@@ -1,10 +1,10 @@
-let IncludeContentEvents = {
+var IncludeContentEvents = {
 	onLoaded: "OnLoaded",
 }
 
 function getContent(URI, callback) {
-	var xhttps, result
-	var xhttp = new XMLHttpRequest()
+	let result
+	let xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4) {
 			if (this.status == 200) {
@@ -28,8 +28,6 @@ function getContent(URI, callback) {
 		return wrapper.outerHTML
 	}
 }
-
-
 
 function replaceIncludes(tag = "include", attr = "src") {
 	let el = document.getElementsByTagName(tag)

@@ -1,13 +1,8 @@
 const RecorderEvents = {
 	onReady: "OnReady",
-	onStopped: "OnStopped",
 	onEnded: "OnEnded",
-	onEndedOrStopped: "OnEndedOrStopped", // only call this autside of this file
 	onRecordPermsUpdate: "OnRecordPermsUpdate"
 }
-
-document.addEventListener(RecorderEvents.onStopped, () => { document.dispatchEvent(new Event(RecorderEvents.onEndedOrStopped)) })
-document.addEventListener(RecorderEvents.onEnded, () => { document.dispatchEvent(new Event(RecorderEvents.onEndedOrStopped)) })
 
 var RecorderSettings = {
 	PlayASAP: new Error("PlayASAP was never set to 'true' or 'false'"), // bool

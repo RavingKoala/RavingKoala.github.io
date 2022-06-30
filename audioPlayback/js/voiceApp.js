@@ -82,53 +82,28 @@ class VoiceAppUIStateManager {
 	changeState(state) {
 		switch (state) {
 			case States.idle:
-				this.#changeStateIdle()
+				this.#changeUI("./resources/SVGs/RecordButton.svg", "Start recording")
 				break
 			case States.recording:
-				this.#changeStateRecording()
+				let actionbuttonURI = this.settings.immediateReview ? "./resources/SVGs/PlayButton.svg" : "./resources/SVGs/PauseButton.svg"
+				this.#changeUI(actionbuttonURI, "Recording")
 				break
 			case States.hold:
-				this.#changeStatePause()
+				this.#changeUI("./resources/SVGs/PlayButton.svg", "Waiting")
 				break
 			case States.reviewing:
-				this.#changeStateReviewing()
+				this.#changeUI("./resources/SVGs/FullstopButton.svg", "Reviewing")
 				break
 			default:
 				break
 		}
 	}
 
-	#changeStateIdle() {
-		getContent("./resources/SVGs/RecordButton.svg", (result) => {
+	#changeUI(actionBtnURI, labelText) {
+		getContent(actionBtnURI, (result) => {
 			this.actionButtonDOM.innerHTML = result
 		})
-		this.textfieldDOM.innerHTML = "Start recording"
-	}
-
-	#changeStateRecording() {
-		if (this.settings.immediateReview)
-			getContent("./resources/SVGs/PlayButton.svg", (result) => {
-				this.actionButtonDOM.innerHTML = result
-			})
-		else
-			getContent("./resources/SVGs/PauseButton.svg", (result) => {
-				this.actionButtonDOM.innerHTML = result
-			})
-		this.textfieldDOM.innerHTML = "Recording"
-	}
-
-	#changeStatePause() {
-		getContent("./resources/SVGs/PlayButton.svg", (result) => {
-			this.actionButtonDOM.innerHTML = result
-		})
-		this.textfieldDOM.innerHTML = "Waiting"
-	}
-
-	#changeStateReviewing() {
-		getContent("./resources/SVGs/FullstopButton.svg", (result) => {
-			this.actionButtonDOM.innerHTML = result
-		})
-		this.textfieldDOM.innerHTML = "Reviewing"
+		this.textfieldDOM.innerHTML = labelText
 	}
 }
 
@@ -148,39 +123,23 @@ class VoiceAppRecorderStateManager {
 	changeState(state) {
 		switch (state) {
 			case States.idle:
-				this.#changeStateIdle()
+				if (!this.#Rec.isEnded)
+					this.#Rec.stopPlaying()
 				break;
 			case States.recording:
-				this.#changeStateRecording()
+				this.#Rec.startRecording()
 				break;
 			case States.hold:
-				this.#changeStatePause()
+				this.#Rec.stopRecording()
 				break;
 			case States.reviewing:
-				this.#changeStateReviewing()
+				if (this.#voiceAppSettings.immediateReview)
+					this.#Rec.stopRecording() // Automatically call playRecording on ready
+				else
+					this.#Rec.playRecording()
 				break;
 			default:
 				break;
 		}
-	}
-
-	#changeStateIdle() {
-		if (!this.#Rec.isEnded)
-			this.#Rec.stopPlaying()
-	}
-
-	#changeStateRecording() {
-		this.#Rec.startRecording()
-	}
-
-	#changeStatePause() {
-		this.#Rec.stopRecording()
-	}
-
-	#changeStateReviewing() {
-		if (this.#voiceAppSettings.immediateReview)
-			this.#Rec.stopRecording() // Automatically call playRecording on ready
-		else
-			this.#Rec.playRecording()
 	}
 }

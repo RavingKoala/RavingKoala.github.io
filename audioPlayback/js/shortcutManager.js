@@ -1,4 +1,3 @@
-/* structs */
 var KeyCodes = {
 	KeyQ: "KeyQ",
 	KeyW: "KeyW",
@@ -185,8 +184,6 @@ class ShortcutManager {
 	}
 }
 
-/* templates */
-
 class shortcut {
 	constructor (keyCode = undefined, mods = new shortcutMod(), keyAction = undefined) {
 		this.keyCode = keyCode
@@ -194,15 +191,6 @@ class shortcut {
 		this.keyAction = keyAction
 	}
 
-	equals(sc) {
-		if (!sc instanceof shortcut)
-			return false
-		if (this.keyCode !== sc.keyCode
-			|| this.mods.equals(sc.scMod)
-			|| this.keyAction !== sc.keyAction)
-			return false
-		return true
-	}
 	toString() {
 		let string = ""
 		string += this.mods.toString()
@@ -218,18 +206,6 @@ class shortcutMod {
 		this.alt = alt
 		this.shift = shift
 		this.meta = meta
-	}
-
-	equals(scMod) {
-		if (!scMod instanceof shortcutMod)
-			return false
-		if (this.ctrl !== scMod.ctrl
-			|| this.alt !== scMod.alt
-			|| this.shift !== scMod.shift
-			|| this.meta !== scMod.meta)
-			return false
-
-		return true
 	}
 
 	toString() {
