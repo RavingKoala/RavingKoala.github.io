@@ -165,23 +165,19 @@ class VoiceAppRecorderStateManager {
 	}
 
 	#changeStateIdle() {
-		console.log("STATE Idle")
 		if (!this.#Rec.isEnded)
 			this.#Rec.stopPlaying()
 	}
 
 	#changeStateRecording() {
-		console.log("STATE Recording")
 		this.#Rec.startRecording()
 	}
 
 	#changeStatePause() {
-		console.log("STATE Pause")
 		this.#Rec.stopRecording()
 	}
 
 	#changeStateReviewing() {
-		console.log("STATE Review")
 		if (this.#voiceAppSettings.immediateReview)
 			this.#Rec.stopRecording() // Automatically call playRecording on ready
 		else

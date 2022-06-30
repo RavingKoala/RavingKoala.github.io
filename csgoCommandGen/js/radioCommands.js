@@ -35,7 +35,6 @@ function copy() {
 }
 
 function copyRadioCommand(id = "result") {
-	console.log(`copied: ${id}`)
 	let copyText = document.getElementById(id)
 	copyText.select()
 	copyText.setSelectionRange(0, 99999)

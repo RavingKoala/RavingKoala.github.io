@@ -101,7 +101,6 @@ class ShortcutManager {
 		this.activeShortcuts = {}
 		this.pressed = {}
 		document.addEventListener("keydown", (e) => {
-			console.log(e);
 			if (this.pressed[e.code] === null) // prevent trigger from the same press
 				return
 			if (!this.activeShortcuts[e.code])
@@ -134,7 +133,6 @@ class ShortcutManager {
 	}
 
 	#ShortcutPressed(shortcut) {
-		console.log(shortcut.toString())
 		if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()])
 			this.activeShortcuts[shortcut.keyCode][shortcut.toString()]()
 	}
