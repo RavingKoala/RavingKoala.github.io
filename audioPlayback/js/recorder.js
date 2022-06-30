@@ -16,7 +16,6 @@ var RecorderSettings = {
 class Recorder {
 	isRecording
 	isPlaying
-	#volume
 	#playASAP
 	#audioRecorder
 	#mediaStream
@@ -93,10 +92,8 @@ class Recorder {
 	}
 
 	playRecording() { // never call playRecording if settings.PlayASAP === true
-		if (!this.#playASAP) {
-			this.isPlaying = true
-			this.#audioObj.play()
-		}
+		this.isPlaying = true
+		this.#audioObj.play()
 	}
 
 	stopPlaying() {
