@@ -38,7 +38,7 @@ function copyRadioCommand(id = "result") {
 	let copyText = document.getElementById(id)
 	copyText.select()
 	copyText.setSelectionRange(0, 99999)
-	document.execCommand("copy")
+	navigator.clipboard.writeText(copyText.value)
 }
 
 function addOptionsToId(id, obj) {
@@ -52,6 +52,7 @@ function addOptionsToId(id, obj) {
 
 function appendUpdateListener(elements, onAction) {
 	if (typeof elements !== "object" || typeof onAction !== "string") return Error("Wrong arguments to AppendUpdateListener")
+	
 
 	for (let i = 0; i < elements.length; i++) {
 		let element = elements[i]
@@ -66,7 +67,7 @@ var coppiedCommands = []
 function addToHistory(text) {
 	coppiedCommands.unshift(text) // Add to history (front of array)
 	updateHistoryUi()
-	if (coppiedCommands.length > 10) removeLastFromHistory() // limit history length (max 10)
+	if (coppiedCommands.length >= 10) removeLastFromHistory() // limit history length (max 10)
 }
 
 function updateHistoryUi() {
@@ -77,7 +78,7 @@ function updateHistoryUi() {
 	if (coppiedCommands.length > 0) {
 		let historyInnerHTML = ""
 		coppiedCommands.forEach((command, index) => {
-			historyInnerHTML += historyItem(index, command)
+			historyInnerHTML += historyItem(index+1, command)
 		})
 		historyContainerDOM.innerHTML = historyInnerHTML
 	}
