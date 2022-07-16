@@ -28,8 +28,8 @@
 }
 
 .content {
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-auto-flow: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .items {

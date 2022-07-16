@@ -1,4 +1,8 @@
-/* Player panel */
+body {
+	font-family: 'Fira Sans';
+}
+
+/* #region Player panel */
 #player {
 	display: flex;
 	flex-direction: row;
@@ -33,7 +37,6 @@
 	padding: 1.5rem;
 	border: solid 6px var(--md-primary);
 	border-radius: 2rem;
-	font-family: 'Fira Sans';
 	font-size: 1.2em;
 }
 
@@ -43,8 +46,9 @@
 	color: var(--md-primary);
 }
 
+/* #endregion */
 
-/* Requirements panel */
+/* #region Requirements panel */
 #status {
 	position: absolute;
 	display: flex;
@@ -58,6 +62,7 @@
 	flex-direction: column;
 	align-items: center;
 }
+
 #status .svgWrapper,
 #actionButton .svgWrapper {
 	border-radius: 50%;
@@ -70,8 +75,9 @@
 	width: 76px;
 }
 
+/* #endregion */
 
-/** volume slider **/
+/* #region volume slider */
 :root {
 	--show-animation-duration: 0.12s;
 }
@@ -153,8 +159,9 @@
 	transition: min-width .2s ease-out, min-height .2s ease-out, max-height .2s ease-out;
 }
 
+/* #endregion */
 
-/* settings */
+/* #region settings */
 /** settings button **/
 #settings {
 	position: absolute;
@@ -169,10 +176,14 @@
 
 
 /** settings panel **/
+#settingsPopup .panelContent {
+	display: flex;
+	flex-direction: column;
+}
 
+/* #endregion */
 
-
-/* Info */
+/* #region Info */
 /** Info button **/
 #info {
 	position: absolute;
@@ -188,9 +199,9 @@
 /** Info panel **/
 
 
+/* #endregion */
 
-
-/* SVG colors */
+/* #region SVG colors */
 .success {
 	background-color: var(--dark-bs-success);
 	color: #000;
@@ -217,3 +228,5 @@
 .danger-text {
 	color: var(--dark-bs-danger);
 }
+
+/* #endregion */

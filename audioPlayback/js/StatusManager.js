@@ -34,7 +34,7 @@ class StatusStateManager {
 				removeClass("audio", "danger-text")
 				removeClass("audio", "warning-text")
 				addClass("audio", "success-text")
-				getContent("./resources/SVGs/Sound.svg", (result) => {
+				getContent("./resources/SVGs/Sound.svg").then((result) => {
 					this.audioDOM.innerHTML = result
 				})
 				break
@@ -42,7 +42,7 @@ class StatusStateManager {
 				removeClass("audio", "success-text")
 				removeClass("audio", "warning-text")
 				addClass("audio", "danger-text")
-				getContent("./resources/SVGs/NoSound.svg", (result) => {
+				getContent("./resources/SVGs/NoSound.svg").then((result) => {
 					this.audioDOM.innerHTML = result
 				})
 				break
@@ -60,7 +60,7 @@ class StatusStateManager {
 				removeClass("microphone", "danger-text")
 				removeClass("microphone", "warning-text")
 				addClass("microphone", "success-text")
-				getContent("./resources/SVGs/Mic.svg", (result) => {
+				getContent("./resources/SVGs/Mic.svg").then((result) => {
 					this.micDOM.innerHTML = result
 				})
 				break
@@ -68,7 +68,7 @@ class StatusStateManager {
 				removeClass("microphone", "success-text")
 				removeClass("microphone", "warning-text")
 				addClass("microphone", "danger-text")
-				getContent("./resources/SVGs/NoMic.svg", (result) => {
+				getContent("./resources/SVGs/NoMic.svg").then((result) => {
 					this.micDOM.innerHTML = result
 				})
 				break

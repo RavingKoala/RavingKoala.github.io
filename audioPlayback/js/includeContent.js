@@ -2,7 +2,10 @@ var IncludeContentEvents = {
 	onLoaded: "OnLoaded",
 }
 
-function getContent(URI, callback) {
+var contentDict = {}
+
+// TODO: track gotten content so you dont have to do the ajax call in future
+function getContentAjax(URI, callback) {
 	let result
 	let xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function() {
@@ -14,12 +17,17 @@ function getContent(URI, callback) {
 				result = "Content not found."
 		}
 		if (result && typeof callback == "function")
-			return callback(wrapResult(result, URI))
+			return callback(result)
 	}
 	xhttp.open("GET", URI, true)
 	xhttp.send()
+}
 
-	let wrapResult = (content, URI) => {
+async function getContent(URI, raw = false) {
+	if (contentDict[URI])
+		return contentDict[URI]
+
+	function wrapResult(URI, content) {
 		let wrapper = document.createElement("div")
 
 		let className = URI.split(".").pop() + "Wrapper"
@@ -27,15 +35,35 @@ function getContent(URI, callback) {
 		wrapper.innerHTML = content
 		return wrapper.outerHTML
 	}
+	
+	return new Promise((resolve, reject) => {
+		getContentAjax(URI, (content => {
+			if (content) {
+				if (!raw)
+					content = wrapResult(URI, content)
+
+				contentDict[URI] = content
+				resolve(content)
+			} else {
+				reject("no content found")
+			}
+		}))
+	})
 }
 
-function replaceIncludes(tag = "include", attr = "src") {
-	let el = document.getElementsByTagName(tag)
-	for (let node of el) {
+async function replaceIncludes(tag = "include", attr = "src") {
+	let els = document.getElementsByTagName(tag)
+	for (let node of els) {
 		let file = node.getAttribute(attr)
-		getContent(file, (content) => {
+		await getContent(file)
+		.then(async (content) => {
 			node.outerHTML = content
-			replaceIncludes()
+			await replaceIncludes(tag, attr)
+		}).catch((err) => {
+			console.log(node.outerHTML);
+			console.error(err)
+			if (node)
+				node.outerHTML = "error"
 		})
 		return
 	}
