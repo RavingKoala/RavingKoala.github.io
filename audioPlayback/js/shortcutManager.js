@@ -51,6 +51,7 @@ var KeyCodes = {
 	Slash: "Slash",
 	Space: "Space",
 	Tab: "Tab",
+	Escape: "Escape",
 	Backquote: "Backquote",
 	NumpadDivide: "NumpadDivide",
 	NumpadMultiply: "NumpadMultiply",
@@ -116,24 +117,40 @@ class ShortcutManager {
 		window.addEventListener("blur", this.#resetTracking)
 	}
 
-	addShortcut(shortcut, action) {
+	addShortcut(shortcut, action, unique = true) {
 		if (typeof action !== "function")
 			throw new Error("Shortcut action is not valid!")
 
 		if (!this.activeShortcuts[shortcut.keyCode])
 			this.activeShortcuts[shortcut.keyCode] = {}
+			
 
 		if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()]) {
-			alert("that shortcut is already set")
-			return
+			if (unique)
+				if (typeof this.activeShortcuts[shortcut.keyCode][shortcut.toString()] === "function"){
+					let fn = this.activeShortcuts[shortcut.keyCode][shortcut.toString()]
+					this.activeShortcuts[shortcut.keyCode][shortcut.toString()] = [fn];
+				}	
+			else
+				if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()] === action) {
+					alert("that shortcut is already set")
+					return
+				}
 		}
 
-		this.activeShortcuts[shortcut.keyCode][shortcut.toString()] = action
+		if (Array.isArray(this.activeShortcuts[shortcut.keyCode][shortcut.toString()]))
+			this.activeShortcuts[shortcut.keyCode][shortcut.toString()].push(action)
+		else 
+			this.activeShortcuts[shortcut.keyCode][shortcut.toString()] = action
 	}
 
 	#ShortcutPressed(shortcut) {
-		if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()])
-			this.activeShortcuts[shortcut.keyCode][shortcut.toString()]()
+		if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()]) {
+			if (Array.isArray(this.activeShortcuts[shortcut.keyCode][shortcut.toString()]))
+				this.activeShortcuts[shortcut.keyCode][shortcut.toString()].forEach(fn => fn() );
+			else
+				this.activeShortcuts[shortcut.keyCode][shortcut.toString()]()
+		}
 	}
 
 	#onKeyDown(e) {

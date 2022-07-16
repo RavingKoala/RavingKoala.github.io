@@ -11,9 +11,12 @@
 		<link rel="stylesheet" href="../css/bootstrap.dark.css" />
 		<link rel="stylesheet" href="../css/materialDesign.css" />
 		<link rel="stylesheet" href="./css/main.css" />
+		<link rel="stylesheet" href="./css/popup.css" />
+		<link rel="stylesheet" href="./css/formControls.css"> 
 		<script src="../js/ClassHelpers.js"></script>
 		<script src="./js/statusManager.js"></script>
 		<script src="./js/includeContent.js"></script>
+		<script src="./js/includePopups.js"></script>
 		<script src="./js/recorder.js"></script>
 		<script src="./js/volumeManager.js"></script>
 		<script src="./js/voiceApp.js"></script>
@@ -24,7 +27,7 @@
 		<!-- #region main -->
 		<div id="player" class="surface">
 			<div id="actionButton">
-				<include src="./resources/SVGs/RecordButton.svg"></include>
+				<include src="./resources/SVGs/RecordButton.svg" />
 			</div>
 			<span class="textfield">Start recording</span>
 			<div id="waveforms">
@@ -56,14 +59,18 @@
 			<include src="./resources/SVGs/SettingsButton.svg"></include>
 		</div>
 		<!-- #endregion -->
-		<!-- #endregion info -->
+		<!-- #region info -->
 		<div id="info">
 			<include src="./resources/SVGs/InfoButton.svg"></include>
 		</div>
 		<!-- #endregion -->
+		<!-- #region popups -->
+		<popup src="./popups/Settings.html" id="settingsPopup"></popup>
+		<popup src="./popups/Info.html" id="infoPopup"></popup>
+		<!-- #endregion -->
 		<script>
 			// content update
-			replaceIncludes();
+			replaceIncludes()
 
 			// settings
 			var VASettings = VoiceAppSettings
@@ -91,15 +98,15 @@
 			})
 			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, new shortcutMod(true), KeyActions.keyDown), function() { volume.addVolume(0.1) })
 			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, new shortcutMod(true), KeyActions.keyDown), function() { volume.subVolume(0.1) })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, new shortcutMod(), KeyActions.keyDown), function() { volume.addVolume(0.05) })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, new shortcutMod(), KeyActions.keyDown), function() { volume.subVolume(0.05) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), function() { volume.addVolume(0.05) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, undefined, KeyActions.keyDown), function() { volume.subVolume(0.05) })
 
 			// VoiceApp
 			var actionButtonDOM = document.getElementById("actionButton")
 			var textfieldDOM = document.querySelector("span.textfield")
 			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, VASettings)
 			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.Space, new shortcutMod(), KeyActions.press), function() { voiceApp.nextState() })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.Space, undefined, KeyActions.press), function() { voiceApp.nextState() })
 
 			// VolumeManager
 			var volumeSlider = document.querySelector("#sliderContainer")
@@ -107,14 +114,25 @@
 
 			// Settings
 			var settingsBtn = document.getElementById("settings")
-			settingsBtn.addEventListener("click", () => { console.log("open settings"); })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.KeyI, new shortcutMod(undefined, true), KeyActions.keyDown), function() { alert("opened Settings panel") })
-
+			includePopup("settingsPopup")
+				.then((settingsPopup) => {
+					settingsBtn.addEventListener("click", () => { settingsPopup.classList.add("show") })
+					shortcutManager.addShortcut(new shortcut(KeyCodes.KeyI, new shortcutMod(undefined, true), KeyActions.keyDown), function() { settingsPopup.classList.add("show") })
+					shortcutManager.addShortcut(new shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show") }, true)
+					shortcutManager.addShortcut(new shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show") }, true)
+					settingsPopup.querySelector(".overlay").addEventListener("click", () => { settingsPopup.classList.remove("show") })
+				})
+				
 			// Info
 			var infoBtn = document.getElementById("info")
-			infoBtn.addEventListener("click", () => { console.log("open info"); })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.Slash, new shortcutMod(undefined, true), KeyActions.keyDown), function() { alert("opened info panel") })
-
+			includePopup("infoPopup")
+				.then((infoPopup) => {
+					infoBtn.addEventListener("click", () => { infoPopup.classList.add("show") })
+					shortcutManager.addShortcut(new shortcut(KeyCodes.Slash, new shortcutMod(undefined, true), KeyActions.keyDown), function() { infoPopup.classList.add("show") })
+					shortcutManager.addShortcut(new shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { infoPopup.classList.remove("show") }, true)
+					infoPopup.querySelector(".overlay").addEventListener("click", () => { infoPopup.classList.remove("show") })
+				})
+				
 		</script>
 	</body>
 

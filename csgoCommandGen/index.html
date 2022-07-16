@@ -12,10 +12,10 @@
 		<link rel="stylesheet" href="../css/materialDesign.css" />
 		<link rel="stylesheet" href="css/main.css" />
 		<script src="../js/ClassHelpers.js"></script>
-		<script src="js/radioCommands.js"></script>
+		<script src="./js/radioCommands.js"></script>
 	</head>
 
-	<body class="">
+	<body class="dark">
 		<div class="container p-10">
 			<input type="hidden" name="copyClipboard" id="copyClipboardDOM" />
 			<div class="row row-cols-1 row-cols-lg-2">
@@ -97,103 +97,15 @@
 				<div class="card-header">Copy history</div>
 				<div class="card-body p-1">
 					<div id="historyItemsContainer" class="row row-cols-1 row-cols-lg-2 g-1">
-						<div class="col">
-							<div class="input-group">
-								<span class="input-group-text wx-7">1</span>
-								<span class="input-group-text form-control">1</span>
-								<button class="input-group-text">
-									<img src="../resource/Icons/SVG/PaperClip.svg" />
-								</button>
-							</div>
-						</div>
-						<div class="col">
-							<div class="input-group">
-								<span class="input-group-text">2</span>
-								<span class="input-group-text form-control">2</span>
-								<button class="input-group-text">
-									<img src="../resource/Icons/SVG/PaperClip.svg" />
-								</button>
-							</div>
-						</div>
-						<div class="col">
-							<div class="input-group">
-								<span class="input-group-text">3</span>
-								<span class="input-group-text form-control">3</span>
-								<button class="input-group-text">
-									<img src="../resource/Icons/SVG/PaperClip.svg" />
-								</button>
-							</div>
-						</div>
-						<div class="col">
-							<div class="input-group">
-								<span class="input-group-text">4</span>
-								<span class="input-group-text form-control">4</span>
-								<button class="input-group-text">
-									<img src="../resource/Icons/SVG/PaperClip.svg" />
-								</button>
-							</div>
-						</div>
-						<div class="col">
-							<div class="input-group">
-								<span class="input-group-text">5</span>
-								<span class="input-group-text form-control">5</span>
-								<button class="input-group-text">
-									<img src="../resource/Icons/SVG/PaperClip.svg" />
-								</button>
-							</div>
-						</div>
-						<div class="col">
-							<div class="input-group">
-								<span class="input-group-text">6</span>
-								<span class="input-group-text form-control">6</span>
-								<button class="input-group-text">
-									<img src="../resource/Icons/SVG/PaperClip.svg" />
-								</button>
-							</div>
-						</div>
-						<div class="col">
-							<div class="input-group">
-								<span class="input-group-text">7</span>
-								<span class="input-group-text form-control">7</span>
-								<button class="input-group-text">
-									<img src="../resource/Icons/SVG/PaperClip.svg" />
-								</button>
-							</div>
-						</div>
-						<div class="col">
-							<div class="input-group">
-								<span class="input-group-text">8</span>
-								<span class="input-group-text form-control">8</span>
-								<button class="input-group-text">
-									<img src="../resource/Icons/SVG/PaperClip.svg" />
-								</button>
-							</div>
-						</div>
-						<div class="col">
-							<div class="input-group">
-								<span class="input-group-text">9</span>
-								<span class="input-group-text form-control">9</span>
-								<button class="input-group-text">
-									<img src="../resource/Icons/SVG/PaperClip.svg" />
-								</button>
-							</div>
-						</div>
-						<div class="col">
-							<div class="input-group">
-								<span class="input-group-text">10</span>
-								<input id="history10" class="input-group-text form-control overflow-x-scroll" value='playerradio Agree "HELOOOOOOOWWWWWWWWWW StatTrak™ WWWWWWWWWWWWWWWWWWWW"'
-									readonly />
-								<button class="input-group-text">
-									<img src="../resource/Icons/SVG/PaperClip.svg" />
-								</button>
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 		<script>
-			var historyItem = (index, value) => `<div class="col">
+		</script>
+		<script>
+			var historyItem = (index, value) => {
+				return `<div class="col">
 					<div class="input-group">
 						<span class="input-group-text">${index}</span>
 						<input id="history${index}" class="input-group-text form-control overflow-x-scroll" value='${value}' readonly />
@@ -202,18 +114,19 @@
 						</button>
 					</div>
 				</div>`
+			}
+			
+			(function() {
+				addOptionsToId("voiceLine", VoiceLines)
+				addOptionsToId("playerNameDropdown", Colors)
+				addOptionsToId("MessageDropdown", Colors)
+				addOptionsToId("weaponColorDropdown", Colors)
 
-				(function() {
-					addOptionsToId("voiceLine", VoiceLines)
-					addOptionsToId("playerNameDropdown", Colors)
-					addOptionsToId("MessageDropdown", Colors)
-					addOptionsToId("weaponColorDropdown", Colors)
-
-					let inputs = document.querySelectorAll("input:not(#result)")
-					appendUpdateListener(inputs, "input")
-					let selects = document.getElementsByTagName("select")
-					appendUpdateListener(selects, "change")
-				})()
+				let inputs = document.querySelectorAll("input:not(#result)")
+				appendUpdateListener(inputs, "input")
+				let selects = document.getElementsByTagName("select")
+				appendUpdateListener(selects, "change")
+			})()
 		</script>
 	</body>
 
