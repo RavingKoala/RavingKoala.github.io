@@ -34,3 +34,19 @@
 .secondary-text {
 	color: var(--md-secondary);
 }
+
+.primary-fill {
+	fill: var(--md-primary);
+}
+
+.primary-text-fill {
+	fill: var(--md-primary-text);
+}
+
+.secondary-fill  {
+	fill: var(--md-secondary-text);
+}
+
+.secondary-text-fill  {
+	fill: var(--md-secondary);
+}

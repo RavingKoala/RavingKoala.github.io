@@ -1,0 +1,102 @@
+:root {
+	--tab-bg-color: var(--md-bg);
+	--tab-selected-bg-color: var(--md-bg);
+	--tab-text-color: var(--md-bg-text);
+	--tab-border-color: #000;
+}
+
+.dark {
+	--tab-bg-color: var(--md-bg);
+	--tab-selected-bg-color: #242424;
+	--tab-border-color: transparent;
+}
+
+.tabContainer {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+/* tabs */
+.tabContainer .tabList {
+	height: 2.3em;
+	display: inherit;
+	flex-direction: row;
+	overflow-y: hidden;
+	overflow-x: scroll;
+}
+
+.tabContainer .tabList::-webkit-scrollbar {
+	display: none;
+}
+
+.tabContainer .tabList .tab:first-child {
+	margin-left: 2em;
+}
+
+.tabContainer .tabList .tab {
+	z-index: 1;
+	position: relative;
+	background-color: var(--tab-bg-color);
+	border-top: var(--tab-border-color) solid 2px;
+	/* 2px */
+	min-width: 6em;
+	text-align: center;
+	line-height: .8em;
+	padding: calc(.55em + 2px) 1em .55em 1em;
+	margin: 0 .6em;
+	border-radius: 0 0 0 0;
+	cursor: pointer;
+}
+
+.tabContainer .tabList .tab:before,
+.tabContainer .tabList .tab:after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-color: transparent transparent var(--tab-bg-color) transparent;
+	cursor: default;
+}
+
+.tabContainer .tabList .tab:before {
+	left: 0;
+	border-width: 0 0 2.3em 1em;
+	transform: translateX(-100%);
+}
+
+.tabContainer .tabList .tab:after {
+	right: 0;
+	border-width: 0 1em 2.3em 0;
+	transform: translateX(100%);
+}
+
+.tabContainer .tabList .tab.selected {
+	z-index: 2;
+	background-color: var(--tab-selected-bg-color);
+	border-top: var(--tab-border-color) solid 4px;
+	padding-top: .55em;
+}
+
+.tabContainer .tabList .tab.selected:before,
+.tabContainer .tabList .tab.selected:after {
+	border-color: transparent transparent var(--tab-selected-bg-color) transparent;
+}
+
+/* tab content */
+.tabContainer .tabContent {
+	height: 100%;
+	background-color: var(--tab-selected-bg-color);
+	border: var(--tab-border-color) solid 2px;
+}
+
+.tabContainer .tabContent .content {
+	display: none;
+	height: 100%;
+}
+
+.tabContainer .tabContent .content.show {
+	display: flex;
+}
