@@ -2,8 +2,7 @@
 
 /** Todo:
   * fix consistent colors for buttons and links (add them too) (the blue's)
-  *	add grba(255, 255, 255, .07) to all surface components
-  * set maririal design names (surface primary) to a 1-3 variable changable thing
+  *	add grba(255, 255, 255, .07) to all surface components (in materialDesign.css)
 */
 :root {
 	--dark-bs-blue: #80b3ff;

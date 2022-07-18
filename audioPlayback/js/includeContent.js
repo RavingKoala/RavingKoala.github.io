@@ -4,7 +4,6 @@ var IncludeContentEvents = {
 
 var contentDict = {}
 
-// TODO: track gotten content so you dont have to do the ajax call in future
 function getContentAjax(URI, callback) {
 	let result
 	let xhttp = new XMLHttpRequest()
@@ -39,8 +38,8 @@ async function getContent(URI, raw = false) {
 	return new Promise((resolve, reject) => {
 		getContentAjax(URI, (content => {
 			if (content) {
-				if (!raw)
-					content = wrapResult(URI, content)
+				// if (!raw)
+				// 	content = wrapResult(URI, content)
 
 				contentDict[URI] = content
 				resolve(content)
@@ -60,10 +59,9 @@ async function replaceIncludes(tag = "include", attr = "src") {
 			node.outerHTML = content
 			await replaceIncludes(tag, attr)
 		}).catch((err) => {
-			console.log(node.outerHTML);
-			console.error(err)
 			if (node)
 				node.outerHTML = "error"
+			throw new Error("An error occured whilst including content: " + Error.toString())
 		})
 		return
 	}

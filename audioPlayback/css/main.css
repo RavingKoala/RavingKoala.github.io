@@ -24,7 +24,7 @@ body {
 	cursor: pointer;
 }
 
-#actionButton .svgWrapper {
+#actionButton svg {
 	height: 100px;
 	width: 100px;
 	color: var(--md-primary);
@@ -40,7 +40,7 @@ body {
 	font-size: 1.2em;
 }
 
-#waveforms .svgWrapper {
+#waveforms svg {
 	height: 80px;
 	width: 120px;
 	color: var(--md-primary);
@@ -63,14 +63,14 @@ body {
 	align-items: center;
 }
 
-#status .svgWrapper,
-#actionButton .svgWrapper {
+#status svg,
+#actionButton svg {
 	border-radius: 50%;
 	background-color: var(--md-surface);
 	margin: 5px;
 }
 
-#status .svgWrapper {
+#status svg {
 	height: 76px;
 	width: 76px;
 }
@@ -150,7 +150,6 @@ body {
 	transition: min-width .2s ease-in, min-height .2s ease-in, max-height .2s ease-in;
 }
 
-/* TODO becomes scuffed when activeVolume is below 40px*/
 .thumb:hover {
 	min-width: 32px;
 	max-width: 32px;

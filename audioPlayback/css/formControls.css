@@ -1,3 +1,5 @@
+/* #region Checkbox */
+
 /* html template:
  * 	<label class="checkboxContainer">
  * 		sample text 
@@ -6,7 +8,6 @@
  * 	</label>
  */
 
-/* #region Checkbox */
 .checkboxContainer {
 	display: block;
 	position: relative;
@@ -100,8 +101,67 @@
 .radiobuttonContainer input:checked~.radiobutton {
 	background-color: var(--md-primary);
 	/* clippath related to 30x30 viewbox*/
-	clip-path: path(evenodd, "M30 0H0V30H30V0ZM24 15C24 19.9706 19.9706 24 15 24C10.0294 24 6 19.9706 6 15C6 10.0294 10.0294 6 15 6C19.9706 6 24 10.0294 24 15ZM15 27C21.6274 27 27 21.6274 27 15C27 8.37258 21.6274 3 15 3C8.37258 3 3 8.37258 3 15C3 21.6274 8.37258 27 15 27Z");
+	clip-path: path(evenodd, "M24 15C24 19.9706 19.9706 24 15 24C10.0294 24 6 19.9706 6 15C6 10.0294 10.0294 6 15 6C19.9706 6 24 10.0294 24 15ZM15 27C21.6274 27 27 21.6274 27 15C27 8.37258 21.6274 3 15 3C8.37258 3 3 8.37258 3 15C3 21.6274 8.37258 27 15 27Z");
 	-webkit-clip-path: path(evenodd, "M30 0H0V30H30V0ZM24 15C24 19.9706 19.9706 24 15 24C10.0294 24 6 19.9706 6 15C6 10.0294 10.0294 6 15 6C19.9706 6 24 10.0294 24 15ZM15 27C21.6274 27 27 21.6274 27 15C27 8.37258 21.6274 3 15 3C8.37258 3 3 8.37258 3 15C3 21.6274 8.37258 27 15 27Z");
+}
+
+/* #endregion */
+
+/* #region switch */
+
+/* html template:
+ * 	<label class="switchContainer">
+ * 		sample text 
+ * 		<input type="checkbox">
+ * 		<span class="switch"></span>
+ * 	</label>
+ */
+
+.switchContainer {
+	display: block;
+	position: relative;
+	padding-left: 50px;
+	margin-bottom: 12px;
+	cursor: pointer;
+	font-size: 22px;
+	line-height: normal;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.switchContainer input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+.switch {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 30px;
+	width: 45px;
+	border-radius: 15px;
+	box-sizing: border-box;
+	border: 4px var(--md-primary) solid;
+	overflow: hidden;
+	background-color: var(--md-primary);
+	/* clippath related to 30x30 viewbox*/
+	clip-path: path(nonzero, "M45 0H0V29H45V0ZM15 26C8.92487 26 4 21.0751 4 15C4 8.92487 8.92487 4 15 4H30C36.0709 4 41 8.92914 41 15C41 21.0709 36.0709 26 30 26H15ZM23 15C23 19.4183 19.4183 23 15 23C10.5817 23 7 19.4183 7 15C7 10.5817 10.5817 7 15 7C19.4183 7 23 10.5817 23 15Z");
+	-webkit-clip-path: path(nonzero, "M45 0H0V29H45V0ZM15 26C8.92487 26 4 21.0751 4 15C4 8.92487 8.92487 4 15 4H30C36.0709 4 41 8.92914 41 15C41 21.0709 36.0709 26 30 26H15ZM23 15C23 19.4183 19.4183 23 15 23C10.5817 23 7 19.4183 7 15C7 10.5817 10.5817 7 15 7C19.4183 7 23 10.5817 23 15Z");
+}
+
+
+.switchContainer:hover {
+	background-color: var(--md-surface);
+}
+
+.switchContainer input:checked~.switch {
+	/* clippath related to 30x30 viewbox*/
+	clip-path: path(nonzero, "M45 0H0V30H45V0ZM30 23C34.4183 23 38 19.4183 38 15C38 10.5817 34.4183 7 30 7C25.5817 7 22 10.5817 22 15C22 19.4183 25.5817 23 30 23ZM41 15C41 21.0751 36.0751 26 30 26C23.9249 26 19 21.0751 19 15C19 8.92487 23.9249 4 30 4C36.0751 4 41 8.92487 41 15Z");
+	-webkit-clip-path: path(nonzero, "M45 0H0V30H45V0ZM30 23C34.4183 23 38 19.4183 38 15C38 10.5817 34.4183 7 30 7C25.5817 7 22 10.5817 22 15C22 19.4183 25.5817 23 30 23ZM41 15C41 21.0751 36.0751 26 30 26C23.9249 26 19 21.0751 19 15C19 8.92487 23.9249 4 30 4C36.0751 4 41 8.92487 41 15Z");
 }
 
 /* #endregion */
