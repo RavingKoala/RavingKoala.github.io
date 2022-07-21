@@ -23,5 +23,5 @@ Math.ceil = function(x, round) {
 }
 
 Math.gcd = function(a, b) {
-	return (!b) ? a : Math.gcd(b, a % b);
+	return (!b) ? a : Math.gcd(b, a % b)
 }

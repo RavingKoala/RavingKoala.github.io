@@ -53,7 +53,7 @@ class NSComponent {
 
 	addAttr(attr, value) {
 		if (!Object.values(this.#_attributes).includes(attr))
-			return console.error("NSComponent - " + attr + " is not in the list of attributes");
+			return console.error("NSComponent - " + attr + " is not in the list of attributes")
 
 		this.#attrList[attr] = value
 	}
@@ -69,18 +69,18 @@ class NSComponent {
 		let thisDOM = document.createElementNS(this.#namespaceURI, this.#type)
 		thisDOM.innerHTML = this.innerHTML
 		for (const [attr, value] of Object.entries(this.#attrList)) {
-			thisDOM.setAttribute(attr, value);
+			thisDOM.setAttribute(attr, value)
 		}
 		this.children.forEach((child) => {
 			try {
 				let childDOM = child.createComponent()
 				thisDOM.appendChild(childDOM)
 			} catch (error) {
-				console.error("element: ");
-				console.error(thisDOM);
-				console.error("child: ");
-				console.error(child);
-				console.error(error);
+				console.error("element: ")
+				console.error(thisDOM)
+				console.error("child: ")
+				console.error(child)
+				console.error(error)
 			}
 		})
 		return thisDOM
@@ -214,7 +214,7 @@ class svg extends SVGComponent {
 		super(SVGComponent.types.svg)
 		this.attributes = this.additionalAttributes
 		if (!(vbP instanceof Vec2))
-			return console.error("SVG - constructor needs a Vec2 for viewbox size.");
+			return console.error("SVG - constructor needs a Vec2 for viewbox size.")
 
 		this.addAttr("viewBox", ("0 0 " + vbP.x + " " + vbP.y))
 
@@ -500,7 +500,7 @@ class marker extends SVGComponent {
 		super(SVGComponent.types.marker)
 		this.attributes = this.additionalAttributes
 		if (!(vbP instanceof Vec2))
-			return console.error("SVG - constructor needs a Vec2 for viewbox size.");
+			return console.error("SVG - constructor needs a Vec2 for viewbox size.")
 
 		this.addAttr("viewBox", ("0 0 " + vbP.x + " " + vbP.y))
 	}
@@ -570,7 +570,7 @@ class symbol extends SVGComponent {
 		super(SVGComponent.types.symbol)
 		this.attributes = this.additionalAttributes
 		if (!(vbP instanceof Vec2))
-			return console.error("SVG - constructor needs a Vec2 for viewbox size.");
+			return console.error("SVG - constructor needs a Vec2 for viewbox size.")
 
 		this.addAttr("viewBox", ("0 0 " + vbP.x + " " + vbP.y))
 

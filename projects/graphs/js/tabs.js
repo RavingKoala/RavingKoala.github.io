@@ -22,7 +22,7 @@
 	// make tabs clickable
 	let tabContainers = document.querySelectorAll(".tabContainer")
 	tabContainers.forEach((tabContainer) => {
-		let tabs = tabContainer.querySelectorAll(".tab");
+		let tabs = tabContainer.querySelectorAll(".tab")
 		tabs.forEach((tab) => {
 			tab.addEventListener("click", () => selectTab(tabContainer, tab), false)
 		})

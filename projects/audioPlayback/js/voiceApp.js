@@ -125,21 +125,21 @@ class VoiceAppRecorderStateManager {
 			case States.idle:
 				if (!this.#Rec.isEnded)
 					this.#Rec.stopPlaying()
-				break;
+				break
 			case States.recording:
 				this.#Rec.startRecording()
-				break;
+				break
 			case States.hold:
 				this.#Rec.stopRecording()
-				break;
+				break
 			case States.reviewing:
 				if (this.#voiceAppSettings.immediateReview)
 					this.#Rec.stopRecording() // Automatically call playRecording on ready
 				else
 					this.#Rec.playRecording()
-				break;
+				break
 			default:
-				break;
+				break
 		}
 	}
 }

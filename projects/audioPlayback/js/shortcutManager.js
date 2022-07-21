@@ -107,13 +107,13 @@ class ShortcutManager {
 				return
 
 			this.#onKeyDown(e)
-		});
+		})
 		document.addEventListener("keyup", (e) => {
 			if (!this.activeShortcuts[e.code])
 				return
 
 			this.#onKeyUp(e)
-		});
+		})
 		window.addEventListener("blur", this.#resetTracking)
 	}
 
@@ -129,7 +129,7 @@ class ShortcutManager {
 			if (unique)
 				if (typeof this.activeShortcuts[shortcut.keyCode][shortcut.toString()] === "function"){
 					let fn = this.activeShortcuts[shortcut.keyCode][shortcut.toString()]
-					this.activeShortcuts[shortcut.keyCode][shortcut.toString()] = [fn];
+					this.activeShortcuts[shortcut.keyCode][shortcut.toString()] = [fn]
 				}	
 			else
 				if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()] === action) {
@@ -147,7 +147,7 @@ class ShortcutManager {
 	#ShortcutPressed(shortcut) {
 		if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()]) {
 			if (Array.isArray(this.activeShortcuts[shortcut.keyCode][shortcut.toString()]))
-				this.activeShortcuts[shortcut.keyCode][shortcut.toString()].forEach(fn => fn() );
+				this.activeShortcuts[shortcut.keyCode][shortcut.toString()].forEach(fn => fn() )
 			else
 				this.activeShortcuts[shortcut.keyCode][shortcut.toString()]()
 		}

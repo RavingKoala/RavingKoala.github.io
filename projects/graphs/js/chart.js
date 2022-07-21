@@ -75,18 +75,18 @@ class Chart {
 	}
 
 	static printVarData() {
-		console.log("-- chart vars --");
-		console.log("chartWindowSize:", this.#chartWindowSize, "chartSize", this.#chartSize);
+		console.log("-- chart vars --")
+		console.log("chartWindowSize:", this.#chartWindowSize, "chartSize", this.#chartSize)
 		console.log("chart Startpoint:", this.#chartStartPoint, "chart size:", this.#chartSize)
-		console.log("positive direction:", "x:", this.#chartPositive.x, "y:", this.#chartPositive.y);
-		console.log("values ", "from:", this.#minValue, "increment:", this.#incrementValue, "to:", this.#maxValue);
-		console.log("");
+		console.log("positive direction:", "x:", this.#chartPositive.x, "y:", this.#chartPositive.y)
+		console.log("values ", "from:", this.#minValue, "increment:", this.#incrementValue, "to:", this.#maxValue)
+		console.log("")
 		console.log("0 point:", this.#axisLineSide)
 		console.log("value range", this.#axisLineStartValue, this.#axisLineEndValue)
-		console.log("max amount of increments:", this.#maxGridIncrements);
-		console.log("amount of increment:", this.#gridIncrements);
-		console.log("grid offset (px):", this.#gridOffset);
-		console.log("  ----------  ");
+		console.log("max amount of increments:", this.#maxGridIncrements)
+		console.log("amount of increment:", this.#gridIncrements)
+		console.log("grid offset (px):", this.#gridOffset)
+		console.log("  ----------  ")
 	}
 
 	static drawChart(data, parentDOMid) {
@@ -105,7 +105,7 @@ class Chart {
 		gridLinesGroup.addAttr("class", "gridLines")
 		if (this.#gridAid === this.#gridAidOptions.dot) {
 			for (let i = 0; i < this.#gridIncrements.x; i++) {
-				let xoffset = this.#chartStartPoint.x + (this.#gridOffset.x * i);
+				let xoffset = this.#chartStartPoint.x + (this.#gridOffset.x * i)
 				
 				let from = new Vec2(xoffset, this.#chartStartPoint.y)
 				let to = new Vec2(xoffset, this.#chartStartPoint.y + (this.#chartSize.y))
