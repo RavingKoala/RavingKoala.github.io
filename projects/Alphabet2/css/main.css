@@ -68,7 +68,7 @@ h4 {
 	padding: 1rem;
 	width: min(100%, 322px);
 	background-color: var(--md-surface);
-
+	border-radius: 8px;
 }
 
 .downloads .btn {
