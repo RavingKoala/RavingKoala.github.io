@@ -1,0 +1,84 @@
+@font-face {
+	font-family: "Alphabet 2";
+	src: url("../../../../resource/font/Alphabet2/Alphabet2.ttf") format("truetype");
+}
+
+.alphabet2 {
+	font-family: 'Alphabet 2';
+}
+
+body {
+	height: 100vh;
+	width: 100vw;
+}
+
+.page {
+	display: block;
+	box-sizing: border-box;
+	background-color: var(--md-surface);
+	width: min(100%, 920px);
+	min-height: 100vh;
+	margin: 0 auto;
+	padding: 4rem 6rem 1rem 6rem;
+}
+
+h1,
+h3 {
+	text-align: center;
+}
+
+.banner {
+	display: flex;
+	margin: 3rem 0;
+	justify-content: center;
+}
+
+.banner img {
+	width: min(100%, 520px);
+	height: auto;
+}
+
+.example {
+	margin: 1.5rem auto;
+}
+
+.example p {
+	font-size: 1.2rem;
+}
+
+h3 {
+	font-size: 1.45rem;
+}
+
+h4 {
+	font-size: 1.35rem;
+}
+
+@media (min-width: 860px) {
+	.downloads {
+		display: flex;
+	}
+}
+
+.downloads .dlContainer {
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	margin: 1.5rem auto;
+	padding: 1rem;
+	width: min(100%, 322px);
+	background-color: var(--md-surface);
+	border-radius: 8px;
+}
+
+.downloads .btn {
+	box-sizing: border-box;
+	width: min(100%, 242px);
+	margin: 0.6rem auto;
+	padding: 0.4rem 0.2rem;
+	background-color: var(--md-primary);
+	color: var(--md-primary-text);
+	font-weight: 650;
+	font-size: 1.4rem;
+	border-radius: 40px;
+}
