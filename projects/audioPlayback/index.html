@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Audio playback app</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+			crossorigin="anonymous" />
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+			crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="../../css/bootstrap.dark.css" />
+		<link rel="stylesheet" href="../../css/materialDesign.css" />
+		<link rel="stylesheet" href="./css/main.css" />
+		<link rel="stylesheet" href="./css/popup.css" />
+		<link rel="stylesheet" href="./css/formControls.css">
+		<script src="../../js/ClassHelpers.js"></script>
+		<script src="./js/statusManager.js"></script>
+		<script src="./js/includeContent.js"></script>
+		<script src="./js/includePopups.js"></script>
+		<script src="./js/recorder.js"></script>
+		<script src="./js/volumeManager.js"></script>
+		<script src="./js/voiceApp.js"></script>
+		<script src="./js/shortcutManager.js"></script>
+	</head>
+
+	<body class="dark mt-6">
+		<!-- #region main -->
+		<div id="player" class="surface">
+			<div id="actionButton">
+				<include src="./resources/SVGs/RecordButton.svg" />
+			</div>
+			<span class="textfield">Start recording</span>
+			<div id="waveforms">
+				<include src="./resources/SVGs/Soundwaves.svg" style="display: none;"></include>
+			</div>
+		</div>
+		<!-- #endregion -->
+		<!-- #region status bar -->
+		<div id="status">
+			<div id="volumeControl" class="active">
+				<div id="audio" class="success-text">
+					<include src="./resources/SVGs/Sound.svg"></include>
+				</div>
+				<div id="sliderContainer">
+					<div class="sliderRange">
+						<div class="activeVolume">
+							<div class="thumb"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="microphone" class="danger-text">
+				<include src="./resources/SVGs/NoMic.svg"></include>
+			</div>
+		</div>
+		<!-- #endregion -->
+		<!-- #region settings -->
+		<div id="settings">
+			<include src="./resources/SVGs/SettingsButton.svg"></include>
+		</div>
+		<!-- #endregion -->
+		<!-- #region info -->
+		<div id="info">
+			<include src="./resources/SVGs/InfoButton.svg"></include>
+		</div>
+		<!-- #endregion -->
+		<!-- #region popups -->
+		<popup src="./popups/Settings.html" id="settingsPopup"></popup>
+		<popup src="./popups/Info.html" id="infoPopup"></popup>
+		<!-- #endregion -->
+		<script>
+			// content update
+			replaceIncludes()
+
+			// settings
+			var VASettings = VoiceAppSettings
+			VASettings.immediateReview = true
+			VASettings.autoContinueAfterPlayed = true
+			var RSettings = RecorderSettings
+			RSettings.PlayASAP = VASettings.immediateReview
+
+			// ShortcutManager
+			var shortcutManager = new ShortcutManager()
+
+			// StatusStateManager
+			var audioReqDOM = document.getElementById("audio")
+			var micReqDOM = document.getElementById("microphone")
+			var statusManager = new StatusStateManager(audioReqDOM, micReqDOM)
+			document.addEventListener(RecorderEvents.onRecordPermsUpdate, (e) => {
+				statusManager.setMicImage(e.detail.IsRecAllowed ? MicStates.Mic : MicStates.NoMic)
+			})
+
+			// Recorder
+			var recorder = new Recorder(RSettings)
+			document.addEventListener(VolumeEvents.volumeChanged, (e) => {
+				recorder.setVolume(e.detail.volume)
+				statusManager.setSoundImage(e.detail.volume > 0 ? SoundStates.Sound : SoundStates.NoSound)
+			})
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, new shortcutMod(true), KeyActions.keyDown), function() { volume.addVolume(0.1) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, new shortcutMod(true), KeyActions.keyDown), function() { volume.subVolume(0.1) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), function() { volume.addVolume(0.05) })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, undefined, KeyActions.keyDown), function() { volume.subVolume(0.05) })
+
+			// VoiceApp
+			var actionButtonDOM = document.getElementById("actionButton")
+			var textfieldDOM = document.querySelector("span.textfield")
+			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, VASettings)
+			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
+			shortcutManager.addShortcut(new shortcut(KeyCodes.Space, undefined, KeyActions.press), function() { voiceApp.nextState() })
+
+			// VolumeManager
+			var volumeSlider = document.querySelector("#sliderContainer")
+			var volume = new VolumeManager(volumeSlider)
+
+			// Settings
+			var settingsBtn = document.getElementById("settings")
+			includePopup("settingsPopup")
+				.then((settingsPopup) => {
+					settingsBtn.addEventListener("click", () => { settingsPopup.classList.add("show") })
+					shortcutManager.addShortcut(new shortcut(KeyCodes.KeyI, new shortcutMod(undefined, true), KeyActions.keyDown), function() { settingsPopup.classList.add("show") })
+					shortcutManager.addShortcut(new shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show") }, true)
+					shortcutManager.addShortcut(new shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show") }, true)
+					settingsPopup.querySelector(".overlay").addEventListener("click", () => { settingsPopup.classList.remove("show") })
+				})
+
+			// Info
+			var infoBtn = document.getElementById("info")
+			includePopup("infoPopup")
+				.then((infoPopup) => {
+					infoBtn.addEventListener("click", () => { infoPopup.classList.add("show") })
+					shortcutManager.addShortcut(new shortcut(KeyCodes.Slash, new shortcutMod(undefined, true), KeyActions.keyDown), function() { infoPopup.classList.add("show") })
+					shortcutManager.addShortcut(new shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { infoPopup.classList.remove("show") }, true)
+					infoPopup.querySelector(".overlay").addEventListener("click", () => { infoPopup.classList.remove("show") })
+				})
+
+		</script>
+	</body>
+
+</html>

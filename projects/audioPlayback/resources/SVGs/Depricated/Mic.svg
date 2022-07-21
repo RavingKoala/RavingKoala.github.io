@@ -1,0 +1,9 @@
+<svg viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<circle cx="38" cy="38" r="30" stroke="currentColor" stroke-width="6" />
+	<rect x="30" y="53" width="16" height="2" rx="1" fill="currentColor" />
+	<rect x="36" y="45" width="4" height="9" rx="1" fill="currentColor" />
+	<path
+		d="M48 35C48 36.4445 47.7413 37.8749 47.2388 39.2095C46.7362 40.5441 45.9997 41.7567 45.0711 42.7782C44.1425 43.7996 43.0401 44.6099 41.8268 45.1627C40.6136 45.7155 39.3132 46 38 46C36.6868 46 35.3864 45.7155 34.1732 45.1627C32.9599 44.6099 31.8575 43.7996 30.9289 42.7782C30.0003 41.7567 29.2638 40.5441 28.7612 39.2095C28.2587 37.8749 28 36.4445 28 35"
+		stroke="currentColor" stroke-width="3" />
+	<rect x="32" y="18" width="12" height="23" rx="6" fill="currentColor" />
+</svg>

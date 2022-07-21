@@ -1,0 +1,79 @@
+:root {
+	--loader-color: yellow;
+	--loader-bg-color: red;
+
+	--slider-color: rgba(128, 128, 128, 0.2);
+	/* #555 */
+	--slider-bg-color: rgba(128, 128, 128, 0.1);
+	/* #222 */
+	--bg-color: transparent;
+	/* #484848 */
+
+	--dark-bg-color: #000000;
+	--dark-text: #ffffff;
+	--dark-surface-color: rgba(255, 255, 255, 0.07);
+}
+
+@font-face {
+	font-family: "Fira Sans";
+	src: url("/resource/font/Fira\ Sans/FiraSans-bold.ttf") format("truetype");
+}
+
+body,
+html {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.body {
+	font-family: "Fira Sans";
+}
+
+.container {
+	min-height: 100%;
+	/* align-content: center; */
+}
+
+.overflow-x-scroll {
+	overflow-x: scroll;
+}
+
+.overflow-y-scroll {
+	overflow-y: scroll;
+}
+
+/*** custom sliders ***/
+::-webkit-scrollbar,
+::-webkit-scrollbar-thumb {
+	transition: background-color 0.3s ease-in-out;
+}
+
+::-webkit-scrollbar {
+	margin: -50px;
+	background-color: #e9ecef;
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-button {
+	width: 0;
+	height: 0;
+}
+
+::-webkit-scrollbar-thumb {
+	-webkit-box-shadow: inset 0 0 3px var(--inset-shadow-color);
+	background-color: var(--slider-color);
+	border-width: 0;
+	border-radius: 3px;
+}
+
+::-webkit-scrollbar-track {
+	margin: 0;
+	border-width: 0;
+	border-radius: 0;
+}
+
+::-webkit-scrollbar-corner {
+	background-color: transparent;
+}
