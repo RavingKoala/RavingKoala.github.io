@@ -1,0 +1,91 @@
+:root {}
+
+/* board */
+.board {
+	display: grid;
+	grid-auto-flow: row;
+	gap: 1px;
+	grid-template-columns: repeat(4, 80px);
+	grid-auto-rows: repeat(2, 1fr);
+}
+
+.tile {
+	width: 80px;
+	height: 80px;
+	background-color: var(--md-surface);
+}
+
+.tile:hover {
+	box-shadow: inset 0 0 0 5px #00000050;
+}
+
+.piece {
+	cursor: pointer;
+	cursor: grab;
+	cursor: -webkit-grab;
+	width: min(100%, 80px);
+	height: min(100%, 80px);
+	background-repeat: no-repeat;
+	background-size: 100%;
+}
+
+.piece.dragging {
+	pointer-events: none;
+}
+
+/* pieces */
+.piece.wf {
+	background-image: url("../resources/Fishy1.png");
+}
+
+.piece.wqf {
+	background-image: url("../resources/Fishy2.png");
+}
+
+.piece.we {
+	background-image: url("../resources/Elephant.png");
+}
+
+.piece.wk {
+	background-image: url("../resources/King.png");
+}
+
+.piece.wq {
+	background-image: url("../resources/Queen.png");
+}
+
+.piece.wm {
+	background-image: url("../resources/Monkey.png");
+}
+
+.piece.wr {
+	background-image: url("../resources/Rook.png");
+}
+
+.piece.bf {
+	background-image: url("../resources/black_Fishy1.png");
+}
+
+.piece.bqf {
+	background-image: url("../resources/black_Fishy2.png");
+}
+
+.piece.be {
+	background-image: url("../resources/black_Elephant.png");
+}
+
+.piece.bk {
+	background-image: url("../resources/black_King.png");
+}
+
+.piece.bq {
+	background-image: url("../resources/black_Queen.png");
+}
+
+.piece.bm {
+	background-image: url("../resources/black_Monkey.png");
+}
+
+.piece.br {
+	background-image: url("../resources/black_Rook.png");
+}
