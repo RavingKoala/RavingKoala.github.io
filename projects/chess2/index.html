@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Audio playback app</title>
+		<link rel="stylesheet" href="../../css/bootstrap.dark.css" />
+		<link rel="stylesheet" href="../../css/materialDesign.css" />
+		<link rel="stylesheet" href="./css/main.css" />
+		<link rel="stylesheet" href="./css/chess.css">
+		<script src="./js/chess.js"></script>
+	</head>
+
+	<body class="dark">
+		<div class="container-thin">
+			<div class="board">
+				<div class="jail left">
+					<div class="square" data-id="jl1"></div>
+					<div class="square" data-id="jl2"></div>
+				</div>
+				<div class="inner-board">
+					<div class="marks top">
+						<span>A</span>
+						<span>B</span>
+						<span>C</span>
+						<span>D</span>
+						<span>E</span>
+						<span>F</span>
+						<span>G</span>
+						<span>H</span>
+					</div>
+					<div class="marks left">
+						<span>1</span>
+						<span>2</span>
+						<span>3</span>
+						<span>4</span>
+						<span>5</span>
+						<span>6</span>
+						<span>7</span>
+						<span>8</span>
+					</div>
+					<div class="marks right">
+						<span>1</span>
+						<span>2</span>
+						<span>3</span>
+						<span>4</span>
+						<span>5</span>
+						<span>6</span>
+						<span>7</span>
+						<span>8</span>
+					</div>
+					<div class="marks bottom">
+						<span>A</span>
+						<span>B</span>
+						<span>C</span>
+						<span>D</span>
+						<span>E</span>
+						<span>F</span>
+						<span>G</span>
+						<span>H</span>
+					</div>
+					<div class="thicc-wall">
+						<div class="play-board">
+							<div class="squares">
+								<div class="row">
+									<div class="square" data-id="8a"></div>
+									<div class="square" data-id="8b"></div>
+									<div class="square" data-id="8c"></div>
+									<div class="square" data-id="8d"></div>
+									<div class="square" data-id="8e"></div>
+									<div class="square" data-id="8f"></div>
+									<div class="square" data-id="8g"></div>
+									<div class="square" data-id="8h"></div>
+								</div>
+								<div class="row">
+									<div class="square" data-id="7a"></div>
+									<div class="square" data-id="7b"></div>
+									<div class="square" data-id="7c"></div>
+									<div class="square" data-id="7d"></div>
+									<div class="square" data-id="7e"></div>
+									<div class="square" data-id="7f"></div>
+									<div class="square" data-id="7g"></div>
+									<div class="square" data-id="7h"></div>
+								</div>
+								<div class="row">
+									<div class="square" data-id="6a"></div>
+									<div class="square" data-id="6b"></div>
+									<div class="square" data-id="6c"></div>
+									<div class="square" data-id="6d"></div>
+									<div class="square" data-id="6e"></div>
+									<div class="square" data-id="6f"></div>
+									<div class="square" data-id="6g"></div>
+									<div class="square" data-id="6h"></div>
+								</div>
+								<div class="row">
+									<div class="square" data-id="5a"></div>
+									<div class="square" data-id="5b"></div>
+									<div class="square" data-id="5c"></div>
+									<div class="square" data-id="5d"></div>
+									<div class="square" data-id="5e"></div>
+									<div class="square" data-id="5f"></div>
+									<div class="square" data-id="5g"></div>
+									<div class="square" data-id="5h"></div>
+								</div>
+								<div class="row">
+									<div class="square" data-id="4a"></div>
+									<div class="square" data-id="4b"></div>
+									<div class="square" data-id="4c"></div>
+									<div class="square" data-id="4d"></div>
+									<div class="square" data-id="4e"></div>
+									<div class="square" data-id="4f"></div>
+									<div class="square" data-id="4g"></div>
+									<div class="square" data-id="4h"></div>
+								</div>
+								<div class="row">
+									<div class="square" data-id="3a"></div>
+									<div class="square" data-id="3b"></div>
+									<div class="square" data-id="3c"></div>
+									<div class="square" data-id="3d"></div>
+									<div class="square" data-id="3e"></div>
+									<div class="square" data-id="3f"></div>
+									<div class="square" data-id="3g"></div>
+									<div class="square" data-id="3h"></div>
+								</div>
+								<div class="row">
+									<div class="square" data-id="2a"></div>
+									<div class="square" data-id="2b"></div>
+									<div class="square" data-id="2c"></div>
+									<div class="square" data-id="2d"></div>
+									<div class="square" data-id="2e"></div>
+									<div class="square" data-id="2f"></div>
+									<div class="square" data-id="2g"></div>
+									<div class="square" data-id="2h"></div>
+								</div>
+								<div class="row">
+									<div class="square" data-id="1a"></div>
+									<div class="square" data-id="1b"></div>
+									<div class="square" data-id="1c"></div>
+									<div class="square" data-id="1d"></div>
+									<div class="square" data-id="1e"></div>
+									<div class="square" data-id="1f"></div>
+									<div class="square" data-id="1g"></div>
+									<div class="square" data-id="1h"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="jail right">
+					<div class="square" data-id="jr1"></div>
+					<div class="square" data-id="jr2"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
