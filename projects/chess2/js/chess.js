@@ -217,15 +217,15 @@ class ChessUI {
 		})
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
 			square.addEventListener("mouseover", (e) => {
-				if (this.isDragging)
+				if (this.#isDragging)
 					square.classList.add("dropping")
 			})
 			square.addEventListener("mouseleave", (e) => {
-				if (this.isDragging)
+				if (this.#isDragging)
 					square.classList.remove("dropping")
 			})
 			square.addEventListener("mouseup", (e) => {
-				if (this.isDragging) {
+				if (this.#isDragging) {
 					square.classList.remove("dropping")
 					let from = this.#draggingDOM.parentNode.dataset.id
 					let to = square.dataset.id
@@ -238,17 +238,17 @@ class ChessUI {
 			console.log(this.#chess.board.toString());
 		})
 		document.addEventListener("mousemove", (e) => {
-			if (this.isDragging)
+			if (this.#isDragging)
 				this.#dragMove(new Vec2(e.clientX, e.clientY))
 		})
 	}
 
 	dragStart(piece) {
-		if (this.isDragging)
+		if (this.#isDragging)
 			this.#chess.onDragCancel()
 
 		piece.classList.add("dragging")
-		this.isDragging = true
+		this.#isDragging = true
 		this.#draggingDOM = piece
 	}
 
