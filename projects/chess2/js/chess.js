@@ -350,9 +350,9 @@ class Piece {
 		this.hasBanana = true
 	}
 
-	canMoveTo(board, pos, to) {// pos is Vec2; to is relative
-		throw new Error('Method not implemented.');
 
+	canMoveTo(board, pos, to) {
+		return this.possibleMoves(board, pos).includes(to)
 	}
 
 	possibleMoves(board, pos) { // return [ moves ] (or maybe returns [[moves], [takes]]?)
@@ -376,10 +376,6 @@ class King extends Piece {
 		super("k", color)
 	}
 
-	canMoveTo(board, pos, to) {
-		throw new Error('Method not implemented.');
-	}
-
 	possibleMoves(board, pos) {
 		throw new Error('Method not implemented.');
 	}
@@ -390,10 +386,6 @@ class Queen extends Piece {
 		super("q", color)
 	}
 
-	canMoveTo(board, pos, to) {
-		throw new Error('Method not implemented.');
-	}
-
 	possibleMoves(board, pos) {
 		throw new Error('Method not implemented.');
 	}
@@ -402,10 +394,6 @@ class Queen extends Piece {
 class Fishy extends Piece {
 	constructor (color) {
 		super("f", color)
-	}
-
-	canMoveTo(board, pos, to) {
-		return this.possibleMoves(board, pos).includes(to)
 	}
 
 	possibleMoves(board, pos) {
@@ -427,10 +415,6 @@ class QueenFishy extends Piece {
 		super("qf", color)
 	}
 
-	canMoveTo(board, pos, to) {
-		throw new Error('Method not implemented.');
-	}
-
 	possibleMoves(board, pos) {
 		throw new Error('Method not implemented.');
 	}
@@ -439,10 +423,6 @@ class QueenFishy extends Piece {
 class Elephant extends Piece {
 	constructor (color) {
 		super("e", color)
-	}
-
-	canMoveTo(board, pos, to) {
-		throw new Error('Method not implemented.');
 	}
 
 	possibleMoves(board, pos) {
@@ -455,10 +435,6 @@ class Rook extends Piece {
 		super("r", color)
 	}
 
-	canMoveTo(board, pos, to) {
-		throw new Error('Method not implemented.');
-	}
-
 	possibleMoves(board, pos) {
 		throw new Error('Method not implemented.');
 	}
@@ -469,10 +445,6 @@ class Monkey extends Piece {
 		super("m", color)
 	}
 
-	canMoveTo(board, pos, to) {
-		throw new Error('Method not implemented.');
-	}
-
 	possibleMoves(board, pos) {
 		throw new Error('Method not implemented.');
 	}
@@ -481,10 +453,6 @@ class Monkey extends Piece {
 class Bear extends Piece {
 	constructor () {
 		super("b")
-	}
-
-	canMoveTo(board, pos, to) {
-		throw new Error('Method not implemented.');
 	}
 
 	possibleMoves(board, pos) {
