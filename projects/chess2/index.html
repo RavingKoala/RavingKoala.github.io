@@ -3,17 +3,18 @@
 
 	<head>
 		<meta charset="UTF-8">
-		<title>Audio playback app</title>
+		<title>Chess 2</title>
 		<link rel="stylesheet" href="../../css/bootstrap.dark.css" />
 		<link rel="stylesheet" href="../../css/materialDesign.css" />
 		<link rel="stylesheet" href="./css/main.css" />
 		<link rel="stylesheet" href="./css/chess.css">
+		<script src="./js/vec.js"></script>
 		<script src="./js/chess.js"></script>
 	</head>
 
 	<body class="dark">
 		<div class="container-thin">
-			<div class="board">
+			<div id="board1" class="board">
 				<div class="jail left">
 					<div class="square" data-id="jl1"></div>
 					<div class="square" data-id="jl2"></div>
@@ -30,24 +31,24 @@
 						<span>H</span>
 					</div>
 					<div class="marks left">
-						<span>1</span>
-						<span>2</span>
-						<span>3</span>
-						<span>4</span>
-						<span>5</span>
-						<span>6</span>
-						<span>7</span>
 						<span>8</span>
+						<span>7</span>
+						<span>6</span>
+						<span>5</span>
+						<span>4</span>
+						<span>3</span>
+						<span>2</span>
+						<span>1</span>
 					</div>
 					<div class="marks right">
-						<span>1</span>
-						<span>2</span>
-						<span>3</span>
-						<span>4</span>
-						<span>5</span>
-						<span>6</span>
-						<span>7</span>
 						<span>8</span>
+						<span>7</span>
+						<span>6</span>
+						<span>5</span>
+						<span>4</span>
+						<span>3</span>
+						<span>2</span>
+						<span>1</span>
 					</div>
 					<div class="marks bottom">
 						<span>A</span>
@@ -152,6 +153,10 @@
 				</div>
 			</div>
 		</div>
+		<script>
+			let board = document.getElementById("board1")
+			new Chess(board)
+		</script>
 	</body>
 
 </html>
