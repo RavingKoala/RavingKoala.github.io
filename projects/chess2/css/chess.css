@@ -237,11 +237,11 @@
 
 /* pieces */
 .piece.wf {
-	background-image: url("../resources/Fishy1.png");
+	background-image: url("../resources/Fishy.png");
 }
 
 .piece.wfq {
-	background-image: url("../resources/Fishy2.png");
+	background-image: url("../resources/FishyQueen.png");
 }
 
 .piece.we {
@@ -250,6 +250,10 @@
 
 .piece.wk {
 	background-image: url("../resources/King.png");
+}
+
+.piece[class~="wk^"] {
+	background-image: url("../resources/King_Banana.png");
 }
 
 .piece.wq {
@@ -265,11 +269,11 @@
 }
 
 .piece.bf {
-	background-image: url("../resources/black_Fishy1.png");
+	background-image: url("../resources/black_Fishy.png");
 }
 
 .piece.bfq {
-	background-image: url("../resources/black_Fishy2.png");
+	background-image: url("../resources/black_FishyQueen.png");
 }
 
 .piece.be {
@@ -278,6 +282,10 @@
 
 .piece.bk {
 	background-image: url("../resources/black_King.png");
+}
+
+.piece[class~="bk^"] {
+	background-image: url("../resources/black_King_Banana.png");
 }
 
 .piece.bq {

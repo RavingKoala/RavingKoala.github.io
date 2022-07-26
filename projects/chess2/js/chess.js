@@ -115,7 +115,7 @@ class ChessBoard {
 		this.board["1"]["b"] = new Monkey("w")
 		this.board["1"]["c"] = new Fishy("w")
 		this.board["1"]["d"] = new Queen("w")
-		this.board["1"]["e"] = new King("w")
+		this.board["1"]["e"] = new King("w", true)
 		this.board["1"]["f"] = new Fishy("w")
 		this.board["1"]["g"] = new Monkey("w")
 		this.board["1"]["h"] = new Rook("w")
@@ -132,7 +132,7 @@ class ChessBoard {
 		this.board["8"]["b"] = new Monkey("b")
 		this.board["8"]["c"] = new Fishy("b")
 		this.board["8"]["d"] = new Queen("b")
-		this.board["8"]["e"] = new King("b")
+		this.board["8"]["e"] = new King("b", true)
 		this.board["8"]["f"] = new Fishy("b")
 		this.board["8"]["g"] = new Monkey("b")
 		this.board["8"]["h"] = new Rook("b")
@@ -443,6 +443,10 @@ class ChessUI {
 		toContainerDOM.innerHTML = ""
 		this.move(from, to)
 	}
+	
+	updatePiece(code, piece) {
+		this.#boardDOM.querySelector("[data-id='" + to + "']")
+	}
 }
 
 class Piece {
@@ -523,8 +527,9 @@ class Piece {
 }
 
 class King extends Piece {
-	constructor (color) {
+	constructor (color, hasBanana = false) {
 		super("k", color)
+		this.hasBanana = hasBanana
 	}
 
 	possibleMoves(board, pos) {
@@ -748,8 +753,9 @@ class Rook extends Piece {
 }
 
 class Monkey extends Piece {
-	constructor (color) {
+	constructor (color, hasBanana = false) {
 		super("m", color)
+		this.hasBanana = hasBanana
 	}
 
 	possibleMoves(board, pos) {
