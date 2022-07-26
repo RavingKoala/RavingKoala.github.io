@@ -55,7 +55,7 @@ class Chess {
 
 	onMove(from, to) {
 		let piece = this.board.getPieceByCode(from)
-		if (piece.canMoveTo(this.board, from, to)){
+		if (piece.canMoveTo(this.board, from, to)) {
 			this.move(from, to)
 			if (from === "c")
 				this.#chessUI.hideCenterSquare()
@@ -330,7 +330,7 @@ class ChessUI {
 
 					let from = this.#draggingDOM.parentNode.dataset.id
 					let to = square.dataset.id
-					
+
 					this.#chess.onMove(from, to)
 				}
 			})
@@ -348,7 +348,7 @@ class ChessUI {
 		/* bear exception */
 		this.#boardDOM.querySelector(".squares").querySelector("[data-id='c']").classList.add("hidden")
 	}
-	
+
 	dragStart(piece) {
 		if (this.#isDragging)
 			this.#chess.onDragCancel()
@@ -371,6 +371,9 @@ class ChessUI {
 	}
 
 	unHint() {
+		if (this.#hinted.length === 0)
+			return
+
 		for (const code of this.#hinted[0]) {
 			let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.remove("moveable")
