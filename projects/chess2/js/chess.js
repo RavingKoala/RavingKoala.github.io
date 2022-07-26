@@ -18,9 +18,6 @@ var columnMarks = {
 	"g": 7,
 	"h": 8,
 }
-var pieces = {
-
-}
 
 var Side = {
 	"white": 0,
@@ -45,7 +42,7 @@ class Chess {
 	constructor (boardDOM) {
 		this.board = new ChessBoard()
 		this.#chessUI = new ChessUI(this, boardDOM)
-		this.#chessUI.initialize(this.board.board)
+		this.#chessUI.initialize(this.board)
 	}
 
 	onDrag(pieceDOM) {
@@ -102,6 +99,12 @@ class ChessBoard {
 		}
 
 		// board pieces
+		this.board["0"] = {}
+		this.board["0"]["0"] = new Bear()
+		// this.board["0"]["1"] = null // left/white jail top
+		// this.board["0"]["2"] = null // left/white jail bottom
+		// this.board["0"]["3"] = null // right/black jail top
+		// this.board["0"]["4"] = null // right/black jail bottom
 		// white
 		this.board["1"]["a"] = new Rook("w")
 		this.board["1"]["b"] = new Monkey("w")
@@ -149,15 +152,13 @@ class ChessBoard {
 	}
 
 	getPiece(row, column) {
-		//TODO: add if starts with j => its jail
-		//TODO: add if starts with c => center (for bear)
-
 		return this.board[row][column]
 	}
 
 	getPieceByCode(code) {
 		//TODO: add if starts with j => its jail
-		//TODO: add if starts with c => center (for bear)
+		if (code === "c")
+			return this.getPiece(0, 0)
 
 		let [row, column] = ChessBoard.splitCode(code)
 
@@ -169,6 +170,9 @@ class ChessBoard {
 	}
 
 	setPieceByCode(piece, code) {
+		if (code === "c")
+			return this.setPiece(0, 0)
+
 		let [row, column] = ChessBoard.splitCode(code)
 
 		this.board[row][column] = piece
@@ -291,12 +295,15 @@ class ChessUI {
 	initialize(board) {
 		// visual board
 		let squares = this.#boardDOM.querySelector(".squares")
-		for (const [row, rowArr] of Object.entries(board)) {
-			for (const [column, value] of Object.entries(rowArr)) {
-				if (value !== null)
-					squares.querySelector("[data-id='" + row + column + "']").innerHTML = value.toHTML()
+		for (const row of Object.keys(rowMarks)) {
+			for (const column of Object.keys(columnMarks)) {
+				let piece = board.board[row][column]
+				if (piece !== null)
+					squares.querySelector("[data-id='" + row + column + "']").innerHTML = piece.toHTML()
 			}
 		}
+		squares.querySelector("[data-id='c']").innerHTML = board.board["0"]["0"].toHTML()
+
 
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".piece").forEach((piece) => {
@@ -760,7 +767,7 @@ class Bear extends Piece {
 	possibleMoves(board, pos) {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
-		if (pos === null) {
+		if (pos === "c") {
 			let codes = ["4d", "4e", "5d", "5e"]
 			returnArr[0] = codes.filter((code) => !board.isOccupiedByCode(code))
 			return returnArr
@@ -774,10 +781,8 @@ class Bear extends Piece {
 		].filter((code) => code != null)
 
 		relPos.forEach((code) => {
-			if (!board.isOccupiedByCode(code)) {
+			if (!board.isOccupiedByCode(code))
 				returnArr[0].push(code)
-				return
-			}
 		})
 		return returnArr
 	}

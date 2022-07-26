@@ -159,11 +159,27 @@
 	flex-direction: row-reverse;
 }
 
+.squares .centerSquare {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.hidden {
+	display: none;
+}
+
 .square {
 	position: relative;
 	background-color: var(--chess-square-white-color);
 	width: min(8vw, 60px);
 	height: min(8vw, 60px);
+}
+
+.centerSquare .square {
+	display: block;
+	background-color: transparent;
 }
 
 .square.moveable::after {
@@ -221,6 +237,11 @@
 	z-index: 1;
 }
 
+/* TODO: fix misplacement in center square */
+.centerSquare .piece.dragging {
+	display: none;
+}
+
 /* pieces */
 .piece.wf {
 	background-image: url("../resources/Fishy1.png");
@@ -276,4 +297,8 @@
 
 .piece.br {
 	background-image: url("../resources/black_Rook.png");
+}
+
+.piece.b {
+	background-image: url("../resources/Bear.png");
 }
