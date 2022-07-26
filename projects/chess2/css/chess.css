@@ -165,10 +165,6 @@
 	top: calc(50% - min(4vw, 30px));
 }
 
-.hidden {
-	display: none;
-}
-
 .square {
 	position: relative;
 	background-color: var(--chess-square-white-color);
@@ -177,7 +173,6 @@
 }
 
 .centerSquare .square {
-	display: block;
 	background-color: transparent;
 }
 
@@ -214,6 +209,10 @@
 .play-board .squares .row:nth-of-type(2n+1) .square:nth-of-type(2n),
 .play-board .squares .row:nth-of-type(2n) .square:nth-of-type(2n+1) {
 	background-color: var(--chess-square-black-color);
+}
+
+.hidden {
+	display: none;
 }
 
 .piece {
