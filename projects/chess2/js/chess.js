@@ -109,7 +109,7 @@ class ChessBoard {
 		this.board["0"]["1"] = null // left/white jail top
 		this.board["0"]["2"] = null // left/white jail bottom
 		this.board["0"]["3"] = null // right/black jail top
-		this.board["0"]["4"] = null // right/black jail bottom
+		this.board["0"]["4"] = null  // right/black jail bottom
 		// white
 		this.board["1"]["a"] = new Rook("w")
 		this.board["1"]["b"] = new Monkey("w")
@@ -322,13 +322,23 @@ class ChessUI {
 		let squares = this.#boardDOM.querySelector(".squares")
 		for (const row of Object.keys(rowMarks)) {
 			for (const column of Object.keys(columnMarks)) {
-				let piece = board.board[row][column]
+				let piece = board.getPiece(row, column)
 				if (piece !== null)
 					squares.querySelector("[data-id='" + row + column + "']").innerHTML = piece.toHTML()
 			}
 		}
-		squares.querySelector("[data-id='c']").innerHTML = board.board["0"]["0"].toHTML()
-
+		let otherSquares = [
+			"c",
+			"jl1",
+			"jl2",
+			"jr1",
+			"jr2"
+		]
+		otherSquares.forEach((code) => {
+			let piece = board.getPieceByCode(code)
+			if (piece === null) return
+			this.#boardDOM.querySelector("[data-id='" + code + "']").innerHTML = piece.toHTML()
+		})
 
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".piece").forEach((piece) => {
@@ -443,11 +453,13 @@ class ChessUI {
 		toContainerDOM.innerHTML = ""
 		this.move(from, to)
 	}
-	
+
 	updatePiece(code, piece) {
 		this.#boardDOM.querySelector("[data-id='" + to + "']")
 	}
 }
+
+
 
 class Piece {
 	color
@@ -482,8 +494,7 @@ class Piece {
 
 		this.type = type
 		this.color = color
-		if (banana)
-			this.hasBanana = true;
+		this.hasBanana = banana;
 	}
 
 	#PIECEHTML = (type) => `<div class="piece ${type}"></div>`
@@ -528,8 +539,7 @@ class Piece {
 
 class King extends Piece {
 	constructor (color, hasBanana = false) {
-		super("k", color)
-		this.hasBanana = hasBanana
+		super("k", color, hasBanana)
 	}
 
 	possibleMoves(board, pos) {
@@ -754,8 +764,7 @@ class Rook extends Piece {
 
 class Monkey extends Piece {
 	constructor (color, hasBanana = false) {
-		super("m", color)
-		this.hasBanana = hasBanana
+		super("m", color, hasBanana)
 	}
 
 	possibleMoves(board, pos) {
@@ -771,7 +780,7 @@ class Monkey extends Piece {
 			new Vec2(-1, 0),
 			new Vec2(-1, 1),
 		]
-		
+
 		relVec.forEach((vec) => {
 			let code = ChessBoard.getRelativePosByCode(pos, vec, this.color)
 
@@ -796,39 +805,36 @@ class Monkey extends Piece {
 			}
 		})
 
-		let swaps = {
-			"5h": "jr1",
-			"4h": "jr2",
-			"5a": "jl1",
-			"4a": "jl2"
+		let move = (from, to) => {
+			if (from !== pos) return
+
+			let jailPiece = board.getPieceByCode(from)
+
+			if (jailPiece === null) return
+
+			if (jailPiece.hasBanana)
+				returnArr[1].push(to)
 		}
-		
-		
-		
-		if (this.color === "w" && pos === "5h") {
-			let jailPiece = board.getPieceByCode("jr1")
-			if (jailPiece !== null)
-				if (jailPiece.hasBanana())
-					returnArr[1].push("jr1")
+
+		let swaps = {}
+
+		// cant take from same color
+		if (this.color === "w")
+			swaps = {
+				"5h": "jl1",
+				"4h": "jl2",
+			}
+		if (this.color === "b")
+			swaps = {
+				"5a": "jr1",
+				"4a": "jr2",
+			}
+
+		for (const [key, value] of Object.entries(swaps)) {
+			move(key, value)
+			move(value, key)
 		}
-		if (this.color === "w" && pos === "4h") {
-			let jailPiece = board.getPieceByCode("jr2")
-			if (jailPiece !== null)
-				if (jailPiece.hasBanana())
-					returnArr[1].push("jr2")
-		}
-		if (this.color === "b" && pos === "5a") {
-			let jailPiece = board.getPieceByCode("jl1")
-			if (jailPiece !== null)
-				if (jailPiece.hasBanana())
-					returnArr[1].push("jl1")
-		}
-		if (this.color === "b" && pos === "4a") {
-			let jailPiece = board.getPieceByCode("jl2")
-			if (jailPiece !== null)
-				if (jailPiece.hasBanana())
-					returnArr[1].push("jl2")
-		}
+
 		return returnArr
 	}
 }

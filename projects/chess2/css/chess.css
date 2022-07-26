@@ -264,6 +264,10 @@
 	background-image: url("../resources/Monkey.png");
 }
 
+.piece[class~="wm^"] {
+ 	background-image: url("../resources/Monkey_Banana.png");
+ }
+
 .piece.wr {
 	background-image: url("../resources/Rook.png");
 }
@@ -294,6 +298,10 @@
 
 .piece.bm {
 	background-image: url("../resources/black_Monkey.png");
+}
+
+.piece[class~="bm^"] {
+	background-image: url("../resources/black_Monkey_Banana.png");
 }
 
 .piece.br {
