@@ -71,8 +71,11 @@ class Chess {
 		this.#chessUI.move(from, to)
 	}
 
-	take(from, to) {
+	take(from, to, takeDest) {
 		if (from === to) return
+
+		if (takeDest !== undefined)
+			this.move(to, takeDest)
 
 		this.board.take(from, to)
 		this.#chessUI.take(from, to)
@@ -103,10 +106,10 @@ class ChessBoard {
 		// board pieces
 		this.board["0"] = {}
 		this.board["0"]["0"] = new Bear()
-		// this.board["0"]["1"] = null // left/white jail top
-		// this.board["0"]["2"] = null // left/white jail bottom
-		// this.board["0"]["3"] = null // right/black jail top
-		// this.board["0"]["4"] = null // right/black jail bottom
+		this.board["0"]["1"] = null // left/white jail top
+		this.board["0"]["2"] = null // left/white jail bottom
+		this.board["0"]["3"] = null // right/black jail top
+		this.board["0"]["4"] = null // right/black jail bottom
 		// white
 		this.board["1"]["a"] = new Rook("w")
 		this.board["1"]["b"] = new Monkey("w")
@@ -158,9 +161,18 @@ class ChessBoard {
 	}
 
 	getPieceByCode(code) {
-		//TODO: add if starts with j => its jail
 		if (code === "c")
-			return this.getPiece(0, 0)
+			return this.getPiece("0", "0")
+		if (code.startsWith("j")) {
+			if (code === "jl1")
+				return this.getPiece("0", "1")
+			if (code === "jl2")
+				return this.getPiece("0", "2")
+			if (code === "jr1")
+				return this.getPiece("0", "3")
+			if (code === "jr2")
+				return this.getPiece("0", "4")
+		}
 
 		let [row, column] = ChessBoard.splitCode(code)
 
@@ -173,7 +185,17 @@ class ChessBoard {
 
 	setPieceByCode(piece, code) {
 		if (code === "c")
-			return this.setPiece(0, 0)
+			return this.setPiece("0", "0")
+		if (code.startsWith("j")) {
+			if (code === "jl1")
+				return this.getPiece("0", "1")
+			if (code === "jl2")
+				return this.getPiece("0", "2")
+			if (code === "jr1")
+				return this.getPiece("0", "3")
+			if (code === "jr2")
+				return this.getPiece("0", "4")
+		}
 
 		let [row, column] = ChessBoard.splitCode(code)
 
@@ -255,14 +277,15 @@ class ChessBoard {
 		return ChessBoard.vecToCode(vecPos)
 	}
 
-	static getRelativePos(row, column, vec, color = "w") {
+	static getRelativePos(row, column, vec, color) {
 		return ChessBoard.getRelativePosByCode(ChessBoard.createCode(row, column), vec, color)
 	}
 
-	static getRelativePosByCode(code, vec, color = "w") {
+	static getRelativePosByCode(code, vec, color) {
+		let tempVec = vec.clone()
 		if (color === "b")
-			vec.multiply(-1)
-		return this.getPosByCode(code, vec)
+			tempVec.multiply(-1)
+		return this.getPosByCode(code, tempVec)
 	}
 
 	toString() {
@@ -733,6 +756,7 @@ class Monkey extends Piece {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
 		let relVec = [
+			new Vec2(0, 1),
 			new Vec2(1, 1),
 			new Vec2(1, 0),
 			new Vec2(1, -1),
@@ -740,9 +764,8 @@ class Monkey extends Piece {
 			new Vec2(-1, -1),
 			new Vec2(-1, 0),
 			new Vec2(-1, 1),
-			new Vec2(0, 1),
 		]
-
+		
 		relVec.forEach((vec) => {
 			let code = ChessBoard.getRelativePosByCode(pos, vec, this.color)
 
@@ -753,7 +776,8 @@ class Monkey extends Piece {
 				return
 			}
 
-			code = ChessBoard.getRelativePosByCode(pos, vec.multiply(2), this.color)
+			code = ChessBoard.getRelativePosByCode(pos, vec.clone().multiply(2), this.color)
+
 			if (code == null)
 				return
 			if (!board.isOccupiedByCode(code)) {
@@ -766,7 +790,39 @@ class Monkey extends Piece {
 			}
 		})
 
-
+		let swaps = {
+			"5h": "jr1",
+			"4h": "jr2",
+			"5a": "jl1",
+			"4a": "jl2"
+		}
+		
+		
+		
+		if (this.color === "w" && pos === "5h") {
+			let jailPiece = board.getPieceByCode("jr1")
+			if (jailPiece !== null)
+				if (jailPiece.hasBanana())
+					returnArr[1].push("jr1")
+		}
+		if (this.color === "w" && pos === "4h") {
+			let jailPiece = board.getPieceByCode("jr2")
+			if (jailPiece !== null)
+				if (jailPiece.hasBanana())
+					returnArr[1].push("jr2")
+		}
+		if (this.color === "b" && pos === "5a") {
+			let jailPiece = board.getPieceByCode("jl1")
+			if (jailPiece !== null)
+				if (jailPiece.hasBanana())
+					returnArr[1].push("jl1")
+		}
+		if (this.color === "b" && pos === "4a") {
+			let jailPiece = board.getPieceByCode("jl2")
+			if (jailPiece !== null)
+				if (jailPiece.hasBanana())
+					returnArr[1].push("jl2")
+		}
 		return returnArr
 	}
 }
