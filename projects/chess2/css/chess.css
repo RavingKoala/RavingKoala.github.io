@@ -159,11 +159,10 @@
 	flex-direction: row-reverse;
 }
 
-.squares .centerSquare {
+.centerSquare {
 	position: absolute;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
+	left: calc(50% - min(4vw, 30px));
+	top: calc(50% - min(4vw, 30px));
 }
 
 .hidden {
@@ -235,11 +234,6 @@
 	position: fixed;
 	pointer-events: none;
 	z-index: 1;
-}
-
-/* TODO: fix misplacement in center square */
-.centerSquare .piece.dragging {
-	display: none;
 }
 
 /* pieces */
