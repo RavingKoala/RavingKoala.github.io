@@ -128,6 +128,16 @@ class ChessBoard {
 		this.board["7"]["h"] = new Fishy("b")
 	}
 
+	static splitCode(code) {
+		let row = code.substring(0, 1)
+		let column = code.substring(1, 2)
+		return [row, column]
+	}
+
+	static createCode(row, column) {
+		return row + "" + column
+	}
+
 	getPiece(row, column) {
 		return this.board[row][column]
 	}
@@ -135,8 +145,8 @@ class ChessBoard {
 	getPieceByCode(code) {
 		//TODO: add if starts with j => its jail
 		//TODO: add if starts with c => center (for bear)
-		let row = code.substring(0, 1)
-		let column = code.substring(1, 2)
+		let [row, column] = ChessBoard.splitCode(code)
+
 
 		return this.getPiece(row, column)
 	}
@@ -146,8 +156,7 @@ class ChessBoard {
 	}
 
 	setPieceByCode(piece, code) {
-		let row = code.substring(0, 1)
-		let column = code.substring(1, 2)
+		let [row, column] = ChessBoard.splitCode(code)
 
 		this.board[row][column] = piece
 	}
@@ -157,15 +166,73 @@ class ChessBoard {
 		this.setPieceByCode(piece, to)
 		this.setPieceByCode(null, from)
 	}
-	
+
 	isOccupied(row, column) {
 		return this.board[row][column] !== null
 	}
-	
+
 	isOccupiedByCode(code) {
-		let row = code.substring(0, 1)
-		let column = code.substring(1, 2)
+		let [row, column] = ChessBoard.splitCode(code)
+
 		return this.board[row][column] !== null
+	}
+
+	isTakable(row, column, color) {
+		return this.isTakableByCode(ChessBoard.createCode(row, column), color)
+	}
+
+	isTakableByCode(code, color) {
+		let piece = this.getPieceByCode(code)
+
+		if (piece === null) return false
+		if (piece.color === color) return false
+
+		return true
+	}
+
+	static codeToVec(code) {
+		let [row, column] = ChessBoard.splitCode(code)
+
+		if (!(Object.keys(rowMarks).includes(row) && Object.keys(columnMarks).includes(column)))
+			return null
+
+		return new Vec2(columnMarks[column], rowMarks[row])
+	}
+
+	static vecToCode(vec) {
+		if (!(Object.values(rowMarks).includes(vec.y) && Object.values(columnMarks).includes(vec.x)))
+			return null
+
+		let row = Object.entries(rowMarks).filter(([key, value]) => value === vec.y)[0][0]
+		let column = Object.entries(columnMarks).filter(([key, value]) => value === vec.x)[0][0]
+
+
+		return row + column
+	}
+
+	static getPos(row, column, vec) {
+		return ChessBoard.getPosByCode(ChessBoard.createCode(row, column), vec)
+	}
+
+	static getPosByCode(code, vec) {
+		let vec2 = ChessBoard.codeToVec(code)
+
+		if (vec2 === null)
+			return null
+
+		let vecPos = vec2.add(vec)
+
+		return ChessBoard.vecToCode(vecPos)
+	}
+
+	static getRelativePos(row, column, vec, color = "w") {
+		return ChessBoard.getRelativePosByCode(ChessBoard.createCode(row, column), vec, color)
+	}
+
+	static getRelativePosByCode(code, vec, color = "w") {
+		if (color === "b")
+			vec.multiply(-1)
+		return this.getPosByCode(code, vec)
 	}
 
 	toString() {
@@ -235,7 +302,6 @@ class ChessUI {
 		})
 		document.addEventListener("mouseup", (e) => {
 			this.#chess.onDragCancel()
-			console.log(this.#chess.board.toString());
 		})
 		document.addEventListener("mousemove", (e) => {
 			if (this.#isDragging)
@@ -253,18 +319,25 @@ class ChessUI {
 	}
 
 	hintSquares(squares) {
-		for (const code of squares) {
+		for (const code of squares[0]) {
 			let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.add("moveable")
+		}
+		for (const code of squares[1]) {
+			let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
+			tempDOM.classList.add("takeable")
 		}
 		this.#hinted = squares
 	}
 
 	unHint() {
-		console.log(this.#hinted);
-		for (const code of this.#hinted) {
-			let tempDOM2 = this.#boardDOM.querySelector("[data-id='" + code + "']")
-			tempDOM2.classList.remove("moveable")
+		for (const code of this.#hinted[0]) {
+			let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
+			tempDOM.classList.remove("moveable")
+		}
+		for (const code of this.#hinted[1]) {
+			let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
+			tempDOM.classList.remove("takeable")
 		}
 		this.#hinted = []
 	}
@@ -281,7 +354,7 @@ class ChessUI {
 			this.#draggingDOM = null
 		}
 		this.originPos = Vec2.zero
-		this.isDragging = false
+		this.#isDragging = false
 	}
 
 	#dragMove(pos) {
@@ -352,7 +425,9 @@ class Piece {
 
 
 	canMoveTo(board, pos, to) {
-		return this.possibleMoves(board, pos).includes(to)
+		let possibleMoves = this.possibleMoves(board, pos)
+		return (possibleMoves[0].includes(to)
+			|| possibleMoves[1].includes(to))
 	}
 
 	possibleMoves(board, pos) { // return [ moves ] (or maybe returns [[moves], [takes]]?)
@@ -377,7 +452,31 @@ class King extends Piece {
 	}
 
 	possibleMoves(board, pos) {
-		throw new Error('Method not implemented.');
+		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
+
+		let relPos = [
+			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 0), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(1, -1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(0, -1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, -1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 0), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(0, 1), this.color)
+		].filter((code) => code != null)
+
+		relPos.forEach((code) => {
+			if (!board.isOccupiedByCode(code)) {
+				returnArr[0].push(code)
+				return
+			}
+			if (board.isTakableByCode(code, this.color)) {
+				returnArr[1].push(code)
+				return
+			}
+		})
+
+		return returnArr
 	}
 }
 
@@ -387,7 +486,39 @@ class Queen extends Piece {
 	}
 
 	possibleMoves(board, pos) {
-		throw new Error('Method not implemented.');
+		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
+
+		let relVec = [
+			new Vec2(1, 1),
+			new Vec2(1, 0),
+			new Vec2(1, -1),
+			new Vec2(0, -1),
+			new Vec2(-1, -1),
+			new Vec2(-1, 0),
+			new Vec2(-1, 1),
+			new Vec2(0, 1),
+		]
+
+		relVec.forEach((vec) => {
+			for (let i = 1; i < 8; i++) { // 8 times for max board length or height (alternative is while true!)
+				let tempVec = vec.clone().multiply(i)
+				let code = ChessBoard.getRelativePosByCode(pos, tempVec, this.color)
+
+				if (code == null)
+					return
+				if (!board.isOccupiedByCode(code)) {
+					returnArr[0].push(code)
+					continue
+				}
+				if (board.isTakableByCode(code, this.color)) {
+					returnArr[1].push(code)
+					return
+				}
+				return
+			}
+		})
+
+		return returnArr
 	}
 }
 
@@ -397,15 +528,37 @@ class Fishy extends Piece {
 	}
 
 	possibleMoves(board, pos) {
-		let currentRow = pos.substring(0, 1)
-		let currentColumn = pos.substring(1, 2)
-		let returnArr = []
-		for (const row of Object.keys(rowMarks).reverse()) {
-			for (const column of Object.keys(columnMarks)) {
-				if (row !== currentRow || column !== currentColumn)
-					returnArr.push(row + column)
+		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
+
+		let relPos = [
+			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 1), this.color)
+		].filter((code) => code != null)
+
+		relPos.forEach((code) => {
+			if (!board.isOccupiedByCode(code)) {
+				returnArr[0].push(code)
+				return
 			}
-		}
+			if (board.isTakableByCode(code, this.color)) {
+				returnArr[1].push(code)
+				return
+			}
+		})
+
+		relPos = [
+			ChessBoard.getRelativePosByCode(pos, new Vec2(0, 1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 0), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 0), this.color)
+		].filter((code) => code != null)
+
+		relPos.forEach((code) => {
+			if (!board.isOccupiedByCode(code)) {
+				returnArr[0].push(code)
+				return
+			}
+		})
+
 		return returnArr
 	}
 }
@@ -416,7 +569,40 @@ class QueenFishy extends Piece {
 	}
 
 	possibleMoves(board, pos) {
-		throw new Error('Method not implemented.');
+		// copied from Queen class
+		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
+
+		let relVec = [
+			new Vec2(1, 1),
+			new Vec2(1, 0),
+			new Vec2(1, -1),
+			new Vec2(0, -1),
+			new Vec2(-1, -1),
+			new Vec2(-1, 0),
+			new Vec2(-1, 1),
+			new Vec2(0, 1),
+		]
+
+		relVec.forEach((vec) => {
+			for (let i = 1; i < 8; i++) { // 8 times for max board length or height (alternative is while true!)
+				let tempVec = vec.clone().multiply(i)
+				let code = ChessBoard.getRelativePosByCode(pos, tempVec, this.color)
+
+				if (code == null)
+					return
+				if (!board.isOccupiedByCode(code)) {
+					returnArr[0].push(code)
+					continue
+				}
+				if (board.isTakableByCode(code, this.color)) {
+					returnArr[1].push(code)
+					return
+				}
+				return
+			}
+		})
+
+		return returnArr
 	}
 }
 
@@ -426,7 +612,27 @@ class Elephant extends Piece {
 	}
 
 	possibleMoves(board, pos) {
-		throw new Error('Method not implemented.');
+		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
+
+		let relPos = [
+			ChessBoard.getRelativePosByCode(pos, new Vec2(-2, -2), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(2, 2), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(2, -2), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(-2, 2), this.color)
+		].filter((code) => code != null)
+
+		relPos.forEach((code) => {
+			if (!board.isOccupiedByCode(code)) {
+				returnArr[0].push(code)
+				return
+			}
+			if (board.isTakableByCode(code, this.color)) {
+				returnArr[1].push(code)
+				return
+			}
+		})
+
+		return returnArr
 	}
 }
 
@@ -436,7 +642,31 @@ class Rook extends Piece {
 	}
 
 	possibleMoves(board, pos) {
-		throw new Error('Method not implemented.');
+		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
+
+		let relPos = [
+			ChessBoard.getRelativePosByCode(pos, new Vec2(0, 1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 0), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(0, -1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 0), this.color)
+		].filter((code) => code != null)
+
+		relPos.forEach((code) => {
+			if (board.isTakableByCode(code, this.color)) {
+				returnArr[1].push(code)
+				return
+			}
+		})
+
+		Object.keys(rowMarks).forEach((row) => {
+			Object.keys(columnMarks).forEach((column) => {
+				let code = ChessBoard.createCode(row, column)
+				if (!board.isOccupiedByCode(code))
+					returnArr[0].push(code)
+			})
+		})
+
+		return returnArr
 	}
 }
 
@@ -446,7 +676,11 @@ class Monkey extends Piece {
 	}
 
 	possibleMoves(board, pos) {
+		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
+
 		throw new Error('Method not implemented.');
+
+		return returnArr
 	}
 }
 
@@ -456,6 +690,10 @@ class Bear extends Piece {
 	}
 
 	possibleMoves(board, pos) {
+		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
+
 		throw new Error('Method not implemented.');
+
+		return returnArr
 	}
 }
