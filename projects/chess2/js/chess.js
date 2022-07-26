@@ -60,6 +60,9 @@ class Chess {
 		let piece = this.board.getPieceByCode(from)
 		if (piece.canMoveTo(this.board, from, to))
 			this.move(from, to)
+
+		if (piece.canTakeTo(this.board, from, to))
+			this.take(from, to)
 	}
 
 	move(from, to) {
@@ -67,6 +70,13 @@ class Chess {
 
 		this.board.move(from, to)
 		this.#chessUI.move(from, to)
+	}
+
+	take(from, to) {
+		if (from === to) return
+
+		this.board.take(from, to)
+		this.#chessUI.take(from, to)
 	}
 
 	onDragCancel() {
@@ -139,14 +149,17 @@ class ChessBoard {
 	}
 
 	getPiece(row, column) {
+		//TODO: add if starts with j => its jail
+		//TODO: add if starts with c => center (for bear)
+
 		return this.board[row][column]
 	}
 
 	getPieceByCode(code) {
 		//TODO: add if starts with j => its jail
 		//TODO: add if starts with c => center (for bear)
-		let [row, column] = ChessBoard.splitCode(code)
 
+		let [row, column] = ChessBoard.splitCode(code)
 
 		return this.getPiece(row, column)
 	}
@@ -162,9 +175,20 @@ class ChessBoard {
 	}
 
 	move(from, to) {
+		if (this.getPieceByCode(to) !== null)
+			throw new Error("Can't move to " + to)
+
 		let piece = this.getPieceByCode(from)
 		this.setPieceByCode(piece, to)
 		this.setPieceByCode(null, from)
+	}
+
+	take(from, to) {
+		if (this.getPieceByCode(to) === null)
+			throw new Error("Can't take " + to + ". Has no piece to take")
+
+		this.setPieceByCode(null, to)
+		this.move(from, to)
 	}
 
 	isOccupied(row, column) {
@@ -371,6 +395,12 @@ class ChessUI {
 		let toContainerDOM = this.#boardDOM.querySelector("[data-id='" + to + "']")
 		toContainerDOM.appendChild(fromPieceDOM)
 	}
+
+	take(from, to) {
+		let toContainerDOM = this.#boardDOM.querySelector("[data-id='" + to + "']")
+		toContainerDOM.innerHTML = ""
+		this.move(from, to)
+	}
 }
 
 class Piece {
@@ -389,7 +419,7 @@ class Piece {
 		"k": "king",
 		"q": "queen",
 		"f": "fishy",
-		"qf": "queen fishy",
+		"fq": "fishy queen",
 		"e": "elephant",
 		"r": "rook",
 		"m": "monkey",
@@ -426,11 +456,15 @@ class Piece {
 
 	canMoveTo(board, pos, to) {
 		let possibleMoves = this.possibleMoves(board, pos)
-		return (possibleMoves[0].includes(to)
-			|| possibleMoves[1].includes(to))
+		return possibleMoves[0].includes(to)
 	}
 
-	possibleMoves(board, pos) { // return [ moves ] (or maybe returns [[moves], [takes]]?)
+	canTakeTo(board, pos, to) {
+		let possibleMoves = this.possibleMoves(board, pos)
+		return possibleMoves[1].includes(to)
+	}
+
+	possibleMoves(board, pos) { // return [[moves], [takes]]
 		throw new Error('Method not implemented.');
 	}
 
@@ -563,9 +597,9 @@ class Fishy extends Piece {
 	}
 }
 
-class QueenFishy extends Piece {
+class FishyQueen extends Piece {
 	constructor (color) {
-		super("qf", color)
+		super("fq", color)
 	}
 
 	possibleMoves(board, pos) {
@@ -651,6 +685,7 @@ class Rook extends Piece {
 			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 0), this.color)
 		].filter((code) => code != null)
 
+		// TODO: rook can only take if other color took something of you in the previous turn
 		relPos.forEach((code) => {
 			if (board.isTakableByCode(code, this.color)) {
 				returnArr[1].push(code)
@@ -678,7 +713,40 @@ class Monkey extends Piece {
 	possibleMoves(board, pos) {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
-		throw new Error('Method not implemented.');
+		let relVec = [
+			new Vec2(1, 1),
+			new Vec2(1, 0),
+			new Vec2(1, -1),
+			new Vec2(0, -1),
+			new Vec2(-1, -1),
+			new Vec2(-1, 0),
+			new Vec2(-1, 1),
+			new Vec2(0, 1),
+		]
+
+		relVec.forEach((vec) => {
+			let code = ChessBoard.getRelativePosByCode(pos, vec, this.color)
+
+			if (code == null)
+				return
+			if (!board.isOccupiedByCode(code)) {
+				returnArr[0].push(code)
+				return
+			}
+
+			code = ChessBoard.getRelativePosByCode(pos, vec.multiply(2), this.color)
+			if (code == null)
+				return
+			if (!board.isOccupiedByCode(code)) {
+				returnArr[0].push(code)
+				return
+			}
+			if (board.isTakableByCode(code, this.color)) {
+				returnArr[1].push(code)
+				return
+			}
+		})
+
 
 		return returnArr
 	}
@@ -691,20 +759,20 @@ class Bear extends Piece {
 
 	possibleMoves(board, pos) {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
-		
+
 		if (pos === null) {
 			let codes = ["4d", "4e", "5d", "5e"]
 			returnArr[0] = codes.filter((code) => !board.isOccupiedByCode(code))
 			return returnArr
 		}
-		
+
 		let relPos = [
 			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 0), this.color),
 			ChessBoard.getRelativePosByCode(pos, new Vec2(0, -1), this.color),
 			ChessBoard.getRelativePosByCode(pos, new Vec2(0, 1), this.color),
 			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 0), this.color),
 		].filter((code) => code != null)
-		
+
 		relPos.forEach((code) => {
 			if (!board.isOccupiedByCode(code)) {
 				returnArr[0].push(code)
