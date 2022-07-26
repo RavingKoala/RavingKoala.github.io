@@ -691,9 +691,26 @@ class Bear extends Piece {
 
 	possibleMoves(board, pos) {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
-
-		throw new Error('Method not implemented.');
-
+		
+		if (pos === null) {
+			let codes = ["4d", "4e", "5d", "5e"]
+			returnArr[0] = codes.filter((code) => !board.isOccupiedByCode(code))
+			return returnArr
+		}
+		
+		let relPos = [
+			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 0), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(0, -1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(0, 1), this.color),
+			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 0), this.color),
+		].filter((code) => code != null)
+		
+		relPos.forEach((code) => {
+			if (!board.isOccupiedByCode(code)) {
+				returnArr[0].push(code)
+				return
+			}
+		})
 		return returnArr
 	}
 }
