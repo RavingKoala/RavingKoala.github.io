@@ -1,0 +1,279 @@
+:root {
+	--chess-border-color: #000000;
+	--chess-square-black-color: #769656;
+	--chess-square-white-color: #EEEED2;
+	--chess-board-color: #ffffff;
+	--chess-hint-color: ;
+}
+
+/* board */
+.board {
+	display: flex;
+	flex-direction: row;
+	justify-items: center;
+	align-items: center;
+	width: min(100vw, 730px);
+	height: min(100vw, 730px);
+	margin: auto;
+}
+
+.board.black-view {
+	flex-direction: row-reverse;
+}
+
+.jail {
+	display: flex;
+	flex-direction: column;
+	margin: auto 0;
+	border: solid 4px var(--chess-border-color);
+}
+
+:not(.black-view) .jail.left {
+	margin-left: auto;
+}
+
+:not(.black-view) .jail.right {
+	margin-right: auto;
+}
+
+.black-view .jail.left {
+	margin-left: auto;
+}
+
+.black-view .jail.right {
+	margin-left: auto;
+}
+
+.black-view .jail {
+	flex-direction: column-reverse;
+}
+
+.inner-board {
+	position: relative;
+	border: solid 2px var(--chess-border-color);
+	background-color: var(--chess-board-color);
+	padding: 34px;
+}
+
+.marks {
+	position: absolute;
+}
+
+.marks.top,
+.marks.bottom {
+	left: 55px;
+	width: min(64vw, 480px);
+	display: flex;
+	flex-direction: row;
+}
+
+.black-view .marks.top,
+.black-view .marks.bottom {
+	flex-direction: row-reverse;
+}
+
+.marks.left,
+.marks.right {
+	top: 55px;
+	height: min(64vw, 480px);
+	display: flex;
+	flex-direction: column;
+}
+
+.black-view .marks.left,
+.black-view .marks.right {
+	flex-direction: column-reverse;
+}
+
+.marks.top {
+	top: 0;
+}
+
+.marks.left {
+	left: 0;
+}
+
+.marks.right {
+	right: 0;
+}
+
+.marks.bottom {
+	bottom: 0;
+}
+
+.marks span {
+	display: inline-block;
+	color: var(--chess-border-color);
+	font-size: 1.25rem;
+	font-weight: 600;
+	font-family: "Fira Sans";
+	text-align: center;
+
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.marks.top span,
+.marks.bottom span {
+	width: min(8vw, 60px);
+	height: 36px;
+	line-height: 36px;
+}
+
+.marks.left span,
+.marks.right span {
+	width: 36px;
+	height: min(8vw, 60px);
+	line-height: min(8vw, 60px);
+}
+
+
+.play-board {
+	border: solid 1px var(--chess-border-color);
+}
+
+.thicc-wall {
+	border: solid 13px var(--chess-border-color);
+	padding: 7px;
+}
+
+.squares {
+	display: flex;
+	flex-direction: column;
+}
+
+.black-view .squares {
+	display: flex;
+	flex-direction: column-reverse;
+}
+
+.squares .row {
+	display: flex;
+	flex-direction: row;
+}
+
+.black-view .squares .row {
+	display: flex;
+	flex-direction: row-reverse;
+}
+
+.square {
+	position: relative;
+	background-color: var(--chess-square-white-color);
+	width: min(8vw, 60px);
+	height: min(8vw, 60px);
+}
+
+.square.moveable::after {
+	content: "";
+	position: absolute;
+	width: min(3vw, 24px);
+	height: min(3vw, 24px);
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	background-color: rgba(0, 0, 0, 0.3);
+	border-radius: 50%;
+}
+
+.square.takeable::after {
+	/*TODO: make this more interesting? */
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	border: solid 5px rgba(0, 0, 0, 0.3);
+}
+
+.square.dropping {
+	box-shadow: inset 0 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.jail.left .square:nth-of-type(2n),
+.jail.right .square:nth-of-type(2n+1),
+.play-board .squares .row:nth-of-type(2n+1) .square:nth-of-type(2n),
+.play-board .squares .row:nth-of-type(2n) .square:nth-of-type(2n+1) {
+	background-color: var(--chess-square-black-color);
+}
+
+.piece {
+	position: relative;
+	cursor: pointer;
+	cursor: grab;
+	cursor: -webkit-grab;
+	width: inherit;
+	height: inherit;
+	background-repeat: no-repeat;
+	background-size: 100%;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.piece.dragging {
+	position: fixed;
+	pointer-events: none;
+	z-index: 1;
+}
+
+/* pieces */
+.piece.wf {
+	background-image: url("../resources/Fishy1.png");
+}
+
+.piece.wfq {
+	background-image: url("../resources/Fishy2.png");
+}
+
+.piece.we {
+	background-image: url("../resources/Elephant.png");
+}
+
+.piece.wk {
+	background-image: url("../resources/King.png");
+}
+
+.piece.wq {
+	background-image: url("../resources/Queen.png");
+}
+
+.piece.wm {
+	background-image: url("../resources/Monkey.png");
+}
+
+.piece.wr {
+	background-image: url("../resources/Rook.png");
+}
+
+.piece.bf {
+	background-image: url("../resources/black_Fishy1.png");
+}
+
+.piece.bfq {
+	background-image: url("../resources/black_Fishy2.png");
+}
+
+.piece.be {
+	background-image: url("../resources/black_Elephant.png");
+}
+
+.piece.bk {
+	background-image: url("../resources/black_King.png");
+}
+
+.piece.bq {
+	background-image: url("../resources/black_Queen.png");
+}
+
+.piece.bm {
+	background-image: url("../resources/black_Monkey.png");
+}
+
+.piece.br {
+	background-image: url("../resources/black_Rook.png");
+}

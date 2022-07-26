@@ -1,0 +1,20 @@
+:root {
+	--chess-border-color: #000000;
+	--chess-black-color: #769656;
+	--chess-white-color: #EEEED2;
+	--chess-background-color: #ffffff;
+
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+.container-thin {
+	min-height: 100vh;
+	width: min(100%, 840px);
+	margin: 0 auto;
+	background: var(--md-surface);
+}
