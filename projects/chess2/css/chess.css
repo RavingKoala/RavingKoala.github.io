@@ -159,11 +159,21 @@
 	flex-direction: row-reverse;
 }
 
+.centerSquare {
+	position: absolute;
+	left: calc(50% - min(4vw, 30px));
+	top: calc(50% - min(4vw, 30px));
+}
+
 .square {
 	position: relative;
 	background-color: var(--chess-square-white-color);
 	width: min(8vw, 60px);
 	height: min(8vw, 60px);
+}
+
+.centerSquare .square {
+	background-color: transparent;
 }
 
 .square.moveable::after {
@@ -201,6 +211,10 @@
 	background-color: var(--chess-square-black-color);
 }
 
+.hidden {
+	display: none;
+}
+
 .piece {
 	position: relative;
 	cursor: pointer;
@@ -223,11 +237,11 @@
 
 /* pieces */
 .piece.wf {
-	background-image: url("../resources/Fishy1.png");
+	background-image: url("../resources/Fishy.png");
 }
 
 .piece.wfq {
-	background-image: url("../resources/Fishy2.png");
+	background-image: url("../resources/FishyQueen.png");
 }
 
 .piece.we {
@@ -238,6 +252,10 @@
 	background-image: url("../resources/King.png");
 }
 
+.piece[class~="wk^"] {
+	background-image: url("../resources/King_Banana.png");
+}
+
 .piece.wq {
 	background-image: url("../resources/Queen.png");
 }
@@ -246,16 +264,20 @@
 	background-image: url("../resources/Monkey.png");
 }
 
+.piece[class~="wm^"] {
+ 	background-image: url("../resources/Monkey_Banana.png");
+ }
+
 .piece.wr {
 	background-image: url("../resources/Rook.png");
 }
 
 .piece.bf {
-	background-image: url("../resources/black_Fishy1.png");
+	background-image: url("../resources/black_Fishy.png");
 }
 
 .piece.bfq {
-	background-image: url("../resources/black_Fishy2.png");
+	background-image: url("../resources/black_FishyQueen.png");
 }
 
 .piece.be {
@@ -266,6 +288,10 @@
 	background-image: url("../resources/black_King.png");
 }
 
+.piece[class~="bk^"] {
+	background-image: url("../resources/black_King_Banana.png");
+}
+
 .piece.bq {
 	background-image: url("../resources/black_Queen.png");
 }
@@ -274,6 +300,14 @@
 	background-image: url("../resources/black_Monkey.png");
 }
 
+.piece[class~="bm^"] {
+	background-image: url("../resources/black_Monkey_Banana.png");
+}
+
 .piece.br {
 	background-image: url("../resources/black_Rook.png");
+}
+
+.piece.b {
+	background-image: url("../resources/Bear.png");
 }
