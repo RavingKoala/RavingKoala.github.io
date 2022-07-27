@@ -92,46 +92,56 @@ class ChessBoard {
 		return row + "" + column
 	}
 
-	getPiece(row, column) {
-		return this.board[row][column]
+	getCenterPiece() {
+		return this.board["0"]["0"]
 	}
 
-	getPieceByCode(code) {
+	getJailPiece(code) {
+		if (code === "jl1")
+			return this.board["0"]["1"]
+		if (code === "jl2")
+			return this.board["0"]["2"]
+		if (code === "jr1")
+			return this.board["0"]["3"]
+		if (code === "jr2")
+			return this.board["0"]["4"]
+
+		return null
+	}
+
+	getPiece(code) {
 		if (code === "c")
-			return this.getPiece("0", "0")
+			return this.getCenterPiece()
 		if (code.startsWith("j")) {
-			if (code === "jl1")
-				return this.getPiece("0", "1")
-			if (code === "jl2")
-				return this.getPiece("0", "2")
-			if (code === "jr1")
-				return this.getPiece("0", "3")
-			if (code === "jr2")
-				return this.getPiece("0", "4")
+			return this.getJailPiece(code)
 		}
 
 		let [row, column] = ChessBoard.splitCode(code)
 
-		return this.getPiece(row, column)
+		return this.board[row][column]
 	}
 
-	setPiece(piece, row, column) {
-		this.board[row][column] = piece
+	setCenterPiece(piece) {
+		return this.board["0"]["0"] = piece
+
 	}
 
-	setPieceByCode(piece, code) {
+	setJailPiece(piece, code) {
+		if (code === "jl1")
+			return this.board["0"]["1"] = piece
+		if (code === "jl2")
+			return this.board["0"]["2"] = piece
+		if (code === "jr1")
+			return this.board["0"]["3"] = piece
+		if (code === "jr2")
+			return this.board["0"]["4"] = piece
+	}
+
+	setPiece(piece, code) {
 		if (code === "c")
-			return this.setPiece("0", "0")
-		if (code.startsWith("j")) {
-			if (code === "jl1")
-				return this.getPiece("0", "1")
-			if (code === "jl2")
-				return this.getPiece("0", "2")
-			if (code === "jr1")
-				return this.getPiece("0", "3")
-			if (code === "jr2")
-				return this.getPiece("0", "4")
-		}
+			return this.setCenterPiece(piece)
+		if (code.startsWith("j"))
+			return this.setJailPiece(piece, code)
 
 		let [row, column] = ChessBoard.splitCode(code)
 
@@ -139,19 +149,19 @@ class ChessBoard {
 	}
 
 	move(from, to) {
-		if (this.getPieceByCode(to) !== null)
+		if (this.getPiece(to) !== null)
 			throw new Error("Can't move to " + to)
 
-		let piece = this.getPieceByCode(from)
-		this.setPieceByCode(piece, to)
-		this.setPieceByCode(null, from)
+		let piece = this.getPiece(from)
+		this.setPiece(piece, to)
+		this.setPiece(null, from)
 	}
 
 	take(from, to) {
-		if (this.getPieceByCode(to) === null)
+		if (this.getPiece(to) === null)
 			throw new Error("Can't take " + to + ". Has no piece to take")
 
-		this.setPieceByCode(null, to)
+		this.setPiece(null, to)
 		this.move(from, to)
 	}
 
@@ -159,18 +169,14 @@ class ChessBoard {
 		return this.board[row][column] !== null
 	}
 
-	isOccupiedByCode(code) {
+	isOccupied(code) {
 		let [row, column] = ChessBoard.splitCode(code)
 
 		return this.board[row][column] !== null
 	}
 
-	isTakable(row, column, color) {
-		return this.isTakableByCode(ChessBoard.createCode(row, column), color)
-	}
-
-	isTakableByCode(code, color) {
-		let piece = this.getPieceByCode(code)
+	isTakable(code, color) {
+		let piece = this.getPiece(code)
 
 		if (piece === null) return false
 		if (piece.color === color) return false
@@ -198,11 +204,7 @@ class ChessBoard {
 		return row + column
 	}
 
-	static getPos(row, column, vec) {
-		return ChessBoard.getPosByCode(ChessBoard.createCode(row, column), vec)
-	}
-
-	static getPosByCode(code, vec) {
+	static getPos(code, vec) {
 		let vec2 = ChessBoard.codeToVec(code)
 
 		if (vec2 === null)
@@ -213,15 +215,11 @@ class ChessBoard {
 		return ChessBoard.vecToCode(vecPos)
 	}
 
-	static getRelativePos(row, column, vec, color) {
-		return ChessBoard.getRelativePosByCode(ChessBoard.createCode(row, column), vec, color)
-	}
-
-	static getRelativePosByCode(code, vec, color) {
+	static getRelativePos(code, vec, color) {
 		let tempVec = vec.clone()
 		if (color === "b")
 			tempVec.multiply(-1)
-		return this.getPosByCode(code, tempVec)
+		return this.getPos(code, tempVec)
 	}
 
 	toString() {

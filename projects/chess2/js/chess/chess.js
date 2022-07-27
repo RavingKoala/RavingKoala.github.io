@@ -23,12 +23,12 @@ class Chess {
 		//suggest pieces to move/take
 		this.#chessUI.dragStart(pieceDOM)
 		let pieceCode = pieceDOM.parentNode.dataset.id
-		let hints = this.board.getPieceByCode(pieceCode).possibleMoves(this.board, pieceCode)
+		let hints = this.board.getPiece(pieceCode).possibleMoves(this.board, pieceCode)
 		this.#chessUI.hintSquares(hints)
 	}
 
 	onMove(from, to) {
-		let piece = this.board.getPieceByCode(from)
+		let piece = this.board.getPiece(from)
 		if (piece.canMoveTo(this.board, from, to)) {
 			this.move(from, to)
 			if (from === "c")

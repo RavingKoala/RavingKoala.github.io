@@ -83,22 +83,22 @@ class King extends Piece {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
 		let relPos = [
-			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 0), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(1, -1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(0, -1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, -1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 0), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(0, 1), this.color)
+			ChessBoard.getRelativePos(pos, new Vec2(1, 1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(1, 0), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(1, -1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(0, -1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(-1, -1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(-1, 0), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(-1, 1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(0, 1), this.color)
 		].filter((code) => code != null)
 
 		relPos.forEach((code) => {
-			if (!board.isOccupiedByCode(code)) {
+			if (!board.isOccupied(code)) {
 				returnArr[0].push(code)
 				return
 			}
-			if (board.isTakableByCode(code, this.color)) {
+			if (board.isTakable(code, this.color)) {
 				returnArr[1].push(code)
 				return
 			}
@@ -130,15 +130,15 @@ class Queen extends Piece {
 		relVec.forEach((vec) => {
 			for (let i = 1; i < 8; i++) { // 8 times for max board length or height (alternative is while true!)
 				let tempVec = vec.clone().multiply(i)
-				let code = ChessBoard.getRelativePosByCode(pos, tempVec, this.color)
+				let code = ChessBoard.getRelativePos(pos, tempVec, this.color)
 
 				if (code == null)
 					return
-				if (!board.isOccupiedByCode(code)) {
+				if (!board.isOccupied(code)) {
 					returnArr[0].push(code)
 					continue
 				}
-				if (board.isTakableByCode(code, this.color)) {
+				if (board.isTakable(code, this.color)) {
 					returnArr[1].push(code)
 					return
 				}
@@ -159,29 +159,29 @@ class Fishy extends Piece {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
 		let relPos = [
-			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 1), this.color)
+			ChessBoard.getRelativePos(pos, new Vec2(-1, 1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(1, 1), this.color)
 		].filter((code) => code != null)
 
 		relPos.forEach((code) => {
-			if (!board.isOccupiedByCode(code)) {
+			if (!board.isOccupied(code)) {
 				returnArr[0].push(code)
 				return
 			}
-			if (board.isTakableByCode(code, this.color)) {
+			if (board.isTakable(code, this.color)) {
 				returnArr[1].push(code)
 				return
 			}
 		})
 
 		relPos = [
-			ChessBoard.getRelativePosByCode(pos, new Vec2(0, 1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 0), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 0), this.color)
+			ChessBoard.getRelativePos(pos, new Vec2(0, 1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(-1, 0), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(1, 0), this.color)
 		].filter((code) => code != null)
 
 		relPos.forEach((code) => {
-			if (!board.isOccupiedByCode(code)) {
+			if (!board.isOccupied(code)) {
 				returnArr[0].push(code)
 				return
 			}
@@ -214,15 +214,15 @@ class FishyQueen extends Piece {
 		relVec.forEach((vec) => {
 			for (let i = 1; i < 8; i++) { // 8 times for max board length or height (alternative is while true!)
 				let tempVec = vec.clone().multiply(i)
-				let code = ChessBoard.getRelativePosByCode(pos, tempVec, this.color)
+				let code = ChessBoard.getRelativePos(pos, tempVec, this.color)
 
 				if (code == null)
 					return
-				if (!board.isOccupiedByCode(code)) {
+				if (!board.isOccupied(code)) {
 					returnArr[0].push(code)
 					continue
 				}
-				if (board.isTakableByCode(code, this.color)) {
+				if (board.isTakable(code, this.color)) {
 					returnArr[1].push(code)
 					return
 				}
@@ -243,18 +243,18 @@ class Elephant extends Piece {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
 		let relPos = [
-			ChessBoard.getRelativePosByCode(pos, new Vec2(-2, -2), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(2, 2), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(2, -2), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(-2, 2), this.color)
+			ChessBoard.getRelativePos(pos, new Vec2(-2, -2), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(2, 2), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(2, -2), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(-2, 2), this.color)
 		].filter((code) => code != null)
 
 		relPos.forEach((code) => {
-			if (!board.isOccupiedByCode(code)) {
+			if (!board.isOccupied(code)) {
 				returnArr[0].push(code)
 				return
 			}
-			if (board.isTakableByCode(code, this.color)) {
+			if (board.isTakable(code, this.color)) {
 				returnArr[1].push(code)
 				return
 			}
@@ -273,15 +273,15 @@ class Rook extends Piece {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
 		let relPos = [
-			ChessBoard.getRelativePosByCode(pos, new Vec2(0, 1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 0), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(0, -1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 0), this.color)
+			ChessBoard.getRelativePos(pos, new Vec2(0, 1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(1, 0), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(0, -1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(-1, 0), this.color)
 		].filter((code) => code != null)
 
 		// TODO: rook can only take if other color took something of you in the previous turn
 		relPos.forEach((code) => {
-			if (board.isTakableByCode(code, this.color)) {
+			if (board.isTakable(code, this.color)) {
 				returnArr[1].push(code)
 				return
 			}
@@ -290,7 +290,7 @@ class Rook extends Piece {
 		Object.keys(rowMarks).forEach((row) => {
 			Object.keys(columnMarks).forEach((column) => {
 				let code = ChessBoard.createCode(row, column)
-				if (!board.isOccupiedByCode(code))
+				if (!board.isOccupied(code))
 					returnArr[0].push(code)
 			})
 		})
@@ -319,24 +319,24 @@ class Monkey extends Piece {
 		]
 
 		relVec.forEach((vec) => {
-			let code = ChessBoard.getRelativePosByCode(pos, vec, this.color)
+			let code = ChessBoard.getRelativePos(pos, vec, this.color)
 
 			if (code == null)
 				return
-			if (!board.isOccupiedByCode(code)) {
+			if (!board.isOccupied(code)) {
 				returnArr[0].push(code)
 				return
 			}
 
-			code = ChessBoard.getRelativePosByCode(pos, vec.clone().multiply(2), this.color)
+			code = ChessBoard.getRelativePos(pos, vec.clone().multiply(2), this.color)
 
 			if (code == null)
 				return
-			if (!board.isOccupiedByCode(code)) {
+			if (!board.isOccupied(code)) {
 				returnArr[0].push(code)
 				return
 			}
-			if (board.isTakableByCode(code, this.color)) {
+			if (board.isTakable(code, this.color)) {
 				returnArr[1].push(code)
 				return
 			}
@@ -345,7 +345,7 @@ class Monkey extends Piece {
 		let move = (from, to) => {
 			if (from !== pos) return
 
-			let jailPiece = board.getPieceByCode(from)
+			let jailPiece = board.getPiece(from)
 
 			if (jailPiece === null) return
 
@@ -386,19 +386,19 @@ class Bear extends Piece {
 
 		if (pos === "c") {
 			let codes = ["4d", "4e", "5d", "5e"]
-			returnArr[0] = codes.filter((code) => !board.isOccupiedByCode(code))
+			returnArr[0] = codes.filter((code) => !board.isOccupied(code))
 			return returnArr
 		}
 
 		let relPos = [
-			ChessBoard.getRelativePosByCode(pos, new Vec2(1, 0), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(0, -1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(0, 1), this.color),
-			ChessBoard.getRelativePosByCode(pos, new Vec2(-1, 0), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(1, 0), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(0, -1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(0, 1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(-1, 0), this.color),
 		].filter((code) => code != null)
 
 		relPos.forEach((code) => {
-			if (!board.isOccupiedByCode(code))
+			if (!board.isOccupied(code))
 				returnArr[0].push(code)
 		})
 		return returnArr

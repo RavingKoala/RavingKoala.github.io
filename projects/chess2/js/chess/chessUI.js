@@ -17,9 +17,10 @@ class ChessUI {
 		let squares = this.#boardDOM.querySelector(".squares")
 		for (const row of Object.keys(rowMarks)) {
 			for (const column of Object.keys(columnMarks)) {
-				let piece = board.getPiece(row, column)
+				let code = ChessBoard.createCode(row, column)
+				let piece = board.getPiece(code)
 				if (piece !== null)
-					squares.querySelector("[data-id='" + row + column + "']").innerHTML = piece.toHTML()
+					squares.querySelector("[data-id='" + code + "']").innerHTML = piece.toHTML()
 			}
 		}
 		let otherSquares = [
@@ -30,7 +31,7 @@ class ChessUI {
 			"jr2"
 		]
 		otherSquares.forEach((code) => {
-			let piece = board.getPieceByCode(code)
+			let piece = board.getPiece(code)
 			if (piece === null) return
 			this.#boardDOM.querySelector("[data-id='" + code + "']").innerHTML = piece.toHTML()
 		})
