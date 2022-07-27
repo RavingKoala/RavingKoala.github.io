@@ -42,10 +42,10 @@ class ChessBoard {
 		// board pieces
 		this.board["0"] = {}
 		this.board["0"]["0"] = new Bear()
-		this.board["0"]["1"] = null // left/white jail top
-		this.board["0"]["2"] = null // left/white jail bottom
-		this.board["0"]["3"] = null // right/black jail top
-		this.board["0"]["4"] = null  // right/black jail bottom
+		this.board["0"]["1"] = null // left/white jail top (row 5)
+		this.board["0"]["2"] = null // left/white jail bottom (row 4)
+		this.board["0"]["3"] = null // right/black jail top (row 5)
+		this.board["0"]["4"] = null // right/black jail bottom (row 4)
 		// white
 		this.board["1"]["a"] = new Rook("w")
 		this.board["1"]["b"] = new Monkey("w")
@@ -163,10 +163,6 @@ class ChessBoard {
 
 		this.setPiece(null, to)
 		this.move(from, to)
-	}
-
-	isOccupied(row, column) {
-		return this.board[row][column] !== null
 	}
 
 	isOccupied(code) {
