@@ -38,30 +38,40 @@ class ChessUI {
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
 			square.addEventListener("mouseover", (e) => {
-				if (this.#isDragging)
-					square.classList.add("dropping")
+				if (!this.#isDragging) return
+
+				square.classList.add("dropping")
+
+				let origin = this.#draggingDOM.parentNode.dataset.id
+				let to = square.dataset.id
+
+				if (this.#hinted[0].includes(to)) {
+					this.#chess.onMultiMove(origin, to)
+				}
 			})
 			square.addEventListener("mouseleave", (e) => {
-				if (this.#isDragging)
-					square.classList.remove("dropping")
+				if (!this.#isDragging) return
+
+				square.classList.remove("dropping")
 			})
 			square.addEventListener("mouseup", (e) => {
-				if (this.#isDragging) {
-					square.classList.remove("dropping")
+				if (!this.#isDragging) return
 
-					let from = this.#draggingDOM.parentNode.dataset.id
-					let to = square.dataset.id
+				square.classList.remove("dropping")
 
-					this.#chess.onMove(from, to)
-				}
+				let from = this.#draggingDOM.parentNode.dataset.id
+				let to = square.dataset.id
+
+				this.#chess.onMove(from, to)
 			})
 		})
 		document.addEventListener("mouseup", (e) => {
 			this.#chess.onDragCancel()
 		})
 		document.addEventListener("mousemove", (e) => {
-			if (this.#isDragging)
-				this.#dragMove(new Vec2(e.clientX, e.clientY))
+			if (!this.#isDragging) return
+
+			this.#dragMove(new Vec2(e.clientX, e.clientY))
 		})
 	}
 
@@ -131,6 +141,7 @@ class ChessUI {
 	}
 
 	move(from, to) {
+		console.log(from, to);
 		let fromPieceDOM = this.#boardDOM.querySelector("[data-id='" + from + "'] .piece")
 		let toContainerDOM = this.#boardDOM.querySelector("[data-id='" + to + "']")
 		toContainerDOM.appendChild(fromPieceDOM)

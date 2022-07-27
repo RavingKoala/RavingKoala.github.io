@@ -2,6 +2,7 @@ class Piece {
 	color
 	type
 	hasBanana
+	canMultiMove
 
 	get code() { return `${this.color}${this.type}${this.hasBanana ? "^" : ""}` }
 	get name() { return `${Piece.#COLORS[this.color]} ${Piece.#TYPES[this.type]}${this.hasBanana ? " with banana" : ""}` }
@@ -22,6 +23,7 @@ class Piece {
 		"b": "bear"
 	}
 	constructor (type, color, banana = false) {
+		this.canMultiMove = false // default unless overwritten
 		if (type === "b") { // bear exeption
 			this.type = type
 			this.color = ""
@@ -49,13 +51,25 @@ class Piece {
 
 
 	canMoveTo(board, pos, to) {
+		if (this.canMultiMove) {
+			let possibleMoves = this.possibleMultiMoves(board, pos)
+			return possibleMoves[2].includes(to)
+		}
 		let possibleMoves = this.possibleMoves(board, pos)
 		return possibleMoves[0].includes(to)
 	}
 
 	canTakeTo(board, pos, to) {
+		if (this.canMultiMove) {
+			let possibleMoves = this.possibleMultiMoves(board, pos)
+			return possibleMoves[3].includes(to)
+		}
 		let possibleMoves = this.possibleMoves(board, pos)
 		return possibleMoves[1].includes(to)
+	}
+
+	possibleMultiMoves(board, pos) {
+		throw new Error('Method not implemented.');
 	}
 
 	possibleMoves(board, pos) { // return [[moves], [takes]]
@@ -302,6 +316,48 @@ class Rook extends Piece {
 class Monkey extends Piece {
 	constructor (color, hasBanana = false) {
 		super("m", color, hasBanana)
+		this.canMultiMove = true
+	}
+
+	possibleMultiMoves(board, pos) {
+		let returnArr = [[], [], [], []] // [   [...movesHints], [...takesHints], [...possible eventual moves], [...possible eventual takes]   ]
+
+		let relVec = [
+			new Vec2(0, 1),
+			new Vec2(1, 1),
+			new Vec2(1, 0),
+			new Vec2(1, -1),
+			new Vec2(0, -1),
+			new Vec2(-1, -1),
+			new Vec2(-1, 0),
+			new Vec2(-1, 1),
+		]
+
+		relVec.forEach((vec) => {
+			let code = ChessBoard.getRelativePos(pos, vec, this.color)
+			if (code == null)
+				return
+			if (!board.isOccupied(code))
+				return
+
+			code = ChessBoard.getRelativePos(pos, vec.clone().multiply(2), this.color)
+			if (code == null)
+				return
+			if (!board.isOccupied(code)) {
+				returnArr[0].push(code)
+				return
+			}
+			if (board.isTakable(code, this.color)) {
+				returnArr[1].push(code)
+				return
+			}
+		})
+		
+		// TODO: implement monkey algorithm by:
+		// fill returnArr[2] with possible eventual moves
+		// fill returnArr[3] with possible eventual takes
+		
+		return returnArr
 	}
 
 	possibleMoves(board, pos) {
@@ -327,50 +383,37 @@ class Monkey extends Piece {
 				returnArr[0].push(code)
 				return
 			}
-
-			code = ChessBoard.getRelativePos(pos, vec.clone().multiply(2), this.color)
-
-			if (code == null)
-				return
-			if (!board.isOccupied(code)) {
-				returnArr[0].push(code)
-				return
-			}
-			if (board.isTakable(code, this.color)) {
-				returnArr[1].push(code)
-				return
-			}
 		})
 
-		let move = (from, to) => {
-			if (from !== pos) return
+		// let move = (from, to) => {
+		// 	if (from !== pos) return
 
-			let jailPiece = board.getPiece(from)
+		// 	let jailPiece = board.getPiece(from)
 
-			if (jailPiece === null) return
+		// 	if (jailPiece === null) return
 
-			if (jailPiece.hasBanana)
-				returnArr[1].push(to)
-		}
+		// 	if (jailPiece.hasBanana)
+		// 		returnArr[1].push(to)
+		// }
 
-		let swaps = {}
+		// let swaps = {}
 
-		// cant take from same color
-		if (this.color === "w")
-			swaps = {
-				"5h": "jl1",
-				"4h": "jl2",
-			}
-		if (this.color === "b")
-			swaps = {
-				"5a": "jr1",
-				"4a": "jr2",
-			}
+		// // cant take from same color
+		// if (this.color === "w")
+		// 	swaps = {
+		// 		"5h": "jl1",
+		// 		"4h": "jl2",
+		// 	}
+		// if (this.color === "b")
+		// 	swaps = {
+		// 		"5a": "jr1",
+		// 		"4a": "jr2",
+		// 	}
 
-		for (const [key, value] of Object.entries(swaps)) {
-			move(key, value)
-			move(value, key)
-		}
+		// for (const [key, value] of Object.entries(swaps)) {
+		// 	move(key, value)
+		// 	move(value, key)
+		// }
 
 		return returnArr
 	}

@@ -1,6 +1,7 @@
-const PieceEvents = {
+const ChessEvents = {
 	onMove: "onMove", // piece, from, to
 	onTake: "onTake", // pieceTaking, pieceTaken, from, to
+	onMultiMove: "onMultiMove" // piece, origin, to
 }
 
 class Chess {
@@ -16,19 +17,19 @@ class Chess {
 	 *     [1a, 1b, 1c, 1d, 1e, 1f, 1g, 1h] // white
 	 * ]
 	 */
-	board // 8x8 array ([row][column])
+	#board // 8x8 array ([row][column])
 	#chessUI
 	constructor (boardDOM) {
-		this.board = new ChessBoard()
+		this.#board = new ChessBoard()
 		this.#chessUI = new ChessUI(this, boardDOM)
 		this.initialize()
 	}
 
 	initialize() {
-		this.#chessUI.initialize(this.board)
+		this.#chessUI.initialize(this.#board)
 		// set board rule
 		// change fishy into fishy queen
-		document.addEventListener(PieceEvents.onMove, (event) => {
+		document.addEventListener(ChessEvents.onMove, (event) => {
 			let piece = event.detail.piece
 			let code = event.detail.currentPos
 			if ((piece.code === "wf" && code.startsWith("8"))
@@ -36,7 +37,7 @@ class Chess {
 				this.#change(piece.code, (piece) => new FishyQueen(piece.color))
 			}
 		})
-		document.addEventListener(PieceEvents.onTake, (event) => {
+		document.addEventListener(ChessEvents.onTake, (event) => {
 			let piece = event.detail.pieceTaking
 			let code = event.detail.currentPos
 			if ((piece.code === "wf" && code.startsWith("8"))
@@ -45,21 +46,28 @@ class Chess {
 			}
 		})
 		// capture king/queen to jail
-		document.addEventListener(PieceEvents.onTake, (event) => {
+		document.addEventListener(ChessEvents.onTake, (event) => {
 			let piece = event.detail.pieceTaken
 			if (piece.code.startsWith("wk") || piece.code === "wq") {
-				let destCode = !this.board.isOccupied("jl1") ? "jl1" : "jl2"
+				let destCode = !this.#board.isOccupied("jl1") ? "jl1" : "jl2"
 
-				this.board.setJailPiece(piece, destCode)
+				this.#board.setJailPiece(piece, destCode)
 				this.#chessUI.setPiece(piece, destCode)
 			}
 
 			if (piece.code.startsWith("bk") || piece.code === "bq") {
-				let destCode = !this.board.isOccupied("jr1") ? "jr1" : "jr2"
+				let destCode = !this.#board.isOccupied("jr1") ? "jr1" : "jr2"
 
-				this.board.setJailPiece(piece, destCode)
+				this.#board.setJailPiece(piece, destCode)
 				this.#chessUI.setPiece(piece, destCode)
 			}
+		})
+		document.addEventListener(ChessEvents.onMultiMove, (event) => {
+			let piece = event.detail.piece
+			// let from = event.detail.from
+			let to = event.detail.to
+			this.#chessUI.unHint()
+			this.#chessUI.hintSquares(piece.possibleMultiMoves(this.#board, to).splice(0, 2)) // TODO: uncertain if works
 		})
 	}
 
@@ -67,34 +75,43 @@ class Chess {
 		//suggest pieces to move/take
 		this.#chessUI.dragStart(pieceDOM)
 		let pieceCode = pieceDOM.parentNode.dataset.id
-		let hints = this.board.getPiece(pieceCode).possibleMoves(this.board, pieceCode)
+
+		let piece = this.#board.getPiece(pieceCode)
+		let hints = piece.possibleMoves(this.#board, pieceCode)
+		// check if multimove
+		// if multimove give both multimove hints as normal hints
+		if (piece.canMultiMove) {
+			let multiMovesHints = piece.possibleMultiMoves(this.#board, pieceCode)
+			hints[0] = hints[0].concat(multiMovesHints[0])
+			hints[1] = hints[1].concat(multiMovesHints[1])
+		}
 		this.#chessUI.hintSquares(hints)
 	}
 
 	onMove(from, to) {
 		if (from === to) return
 
-		let piece = this.board.getPiece(from)
-		if (piece.canMoveTo(this.board, from, to)) {
+		let piece = this.#board.getPiece(from)
+		if (piece.canMoveTo(this.#board, from, to)) {
 			this.#move(from, to)
 			if (from === "c")
 				this.#chessUI.hideCenterSquare()
 
-			document.dispatchEvent(new CustomEvent(PieceEvents.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
+			document.dispatchEvent(new CustomEvent(ChessEvents.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
 		}
-		if (piece.canTakeTo(this.board, from, to)) {
-			let pieceTaken = this.board.getPiece(to) // for event
+		if (piece.canTakeTo(this.#board, from, to)) {
+			let pieceTaken = this.#board.getPiece(to) // for event
 
 			this.#take(from, to)
 
-			document.dispatchEvent(new CustomEvent(PieceEvents.onTake, { detail: { "pieceTaking": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } })) // pieceTaking, pieceTaken, from, to
+			document.dispatchEvent(new CustomEvent(ChessEvents.onTake, { detail: { "pieceTaking": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } })) // pieceTaking, pieceTaken, from, to
 		}
 	}
 
 	#move(from, to) {
 		if (from === to) return
 
-		this.board.move(from, to)
+		this.#board.move(from, to)
 		this.#chessUI.move(from, to)
 	}
 
@@ -104,14 +121,14 @@ class Chess {
 		if (takeDest !== undefined)
 			this.#move(to, takeDest)
 
-		this.board.take(from, to)
+		this.#board.take(from, to)
 		this.#chessUI.take(from, to)
 	}
 
 	#change(code, func) {
-		let piece = this.board.getPiece(code)
+		let piece = this.#board.getPiece(code)
 		piece = func(piece)
-		this.board.setPiece(piece, code)
+		this.#board.setPiece(piece, code)
 
 		this.#chessUI.setPiece(piece, code)
 	}
@@ -119,5 +136,14 @@ class Chess {
 	onDragCancel() {
 		this.#chessUI.dragCancel()
 		this.#chessUI.unHint()
+	}
+
+	onMultiMove(origin, to) {
+		let piece = this.#board.getPiece(origin)
+
+		if (!piece.canMultiMove) return
+		if (piece.possibleMultiMoves(this.#board, origin)[3].includes(to)) return
+
+		document.dispatchEvent(new CustomEvent(ChessEvents.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
 	}
 }
