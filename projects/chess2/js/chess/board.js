@@ -166,9 +166,9 @@ class ChessBoard {
 	}
 
 	isOccupied(code) {
-		let [row, column] = ChessBoard.splitCode(code)
+		let piece = this.getPiece(code)
 
-		return this.board[row][column] !== null
+		return piece !== null
 	}
 
 	isTakable(code, color) {

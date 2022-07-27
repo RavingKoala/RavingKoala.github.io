@@ -14,7 +14,6 @@ class ChessUI {
 
 	initialize(board) {
 		// visual board
-		let squares = this.#boardDOM.querySelector(".squares")
 		for (const row of Object.keys(rowMarks)) {
 			for (const column of Object.keys(columnMarks)) {
 				let code = ChessBoard.createCode(row, column)

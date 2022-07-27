@@ -45,6 +45,22 @@ class Chess {
 			}
 		})
 		// capture king/queen to jail
+		document.addEventListener(PieceEvents.onTake, (event) => {
+			let piece = event.detail.pieceTaken
+			if (piece.code.startsWith("wk") || piece.code === "wq") {
+				let destCode = !this.board.isOccupied("jl1") ? "jl1" : "jl2"
+
+				this.board.setJailPiece(piece, destCode)
+				this.#chessUI.setPiece(piece, destCode)
+			}
+
+			if (piece.code.startsWith("bk") || piece.code === "bq") {
+				let destCode = !this.board.isOccupied("jr1") ? "jr1" : "jr2"
+
+				this.board.setJailPiece(piece, destCode)
+				this.#chessUI.setPiece(piece, destCode)
+			}
+		})
 	}
 
 	onDrag(pieceDOM) {
