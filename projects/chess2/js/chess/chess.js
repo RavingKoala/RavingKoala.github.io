@@ -1,3 +1,8 @@
+const PieceEvents = {
+	onMove: "onMove", // piece, from, to
+	onTake: "onTake", // pieceTaking, pieceTaken, from, to
+}
+
 class Chess {
 	/* board layout
 	 * [
@@ -16,7 +21,30 @@ class Chess {
 	constructor (boardDOM) {
 		this.board = new ChessBoard()
 		this.#chessUI = new ChessUI(this, boardDOM)
+		this.initialize()
+	}
+
+	initialize() {
 		this.#chessUI.initialize(this.board)
+		// set board rule
+		// change fishy into fishy queen
+		document.addEventListener(PieceEvents.onMove, (event) => {
+			let piece = event.detail.piece
+			let code = event.detail.currentPos
+			if ((piece.code === "wf" && code.startsWith("8"))
+				|| (piece.code === "bf" && code.startsWith("1"))) {
+				this.#change(piece.code, (piece) => new FishyQueen(piece.color))
+			}
+		})
+		document.addEventListener(PieceEvents.onTake, (event) => {
+			let piece = event.detail.pieceTaking
+			let code = event.detail.currentPos
+			if ((piece.code === "wf" && code.startsWith("8"))
+				|| (piece.code === "bf" && code.startsWith("1"))) {
+				this.#change(code, (piece) => new FishyQueen(piece.color))
+			}
+		})
+		// capture king/queen to jail
 	}
 
 	onDrag(pieceDOM) {
@@ -28,31 +56,48 @@ class Chess {
 	}
 
 	onMove(from, to) {
+		if (from === to) return
+
 		let piece = this.board.getPiece(from)
 		if (piece.canMoveTo(this.board, from, to)) {
-			this.move(from, to)
+			this.#move(from, to)
 			if (from === "c")
 				this.#chessUI.hideCenterSquare()
+
+			document.dispatchEvent(new CustomEvent(PieceEvents.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
 		}
-		if (piece.canTakeTo(this.board, from, to))
-			this.take(from, to)
+		if (piece.canTakeTo(this.board, from, to)) {
+			let pieceTaken = this.board.getPiece(to) // for event
+
+			this.#take(from, to)
+
+			document.dispatchEvent(new CustomEvent(PieceEvents.onTake, { detail: { "pieceTaking": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } })) // pieceTaking, pieceTaken, from, to
+		}
 	}
 
-	move(from, to) {
+	#move(from, to) {
 		if (from === to) return
 
 		this.board.move(from, to)
 		this.#chessUI.move(from, to)
 	}
 
-	take(from, to, takeDest) {
+	#take(from, to, takeDest) {
 		if (from === to) return
 
 		if (takeDest !== undefined)
-			this.move(to, takeDest)
+			this.#move(to, takeDest)
 
 		this.board.take(from, to)
 		this.#chessUI.take(from, to)
+	}
+
+	#change(code, func) {
+		let piece = this.board.getPiece(code)
+		piece = func(piece)
+		this.board.setPiece(piece, code)
+
+		this.#chessUI.setPiece(piece, code)
 	}
 
 	onDragCancel() {

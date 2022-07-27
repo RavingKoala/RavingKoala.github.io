@@ -3,8 +3,8 @@ class Piece {
 	type
 	hasBanana
 
-	code = () => `${this.color}${this.type}${this.hasBanana ? "^" : ""}`
-	name = () => `${Piece.#COLORS[this.color]} ${Piece.#TYPES[this.type]}${this.hasBanana ? " with banana" : ""}`
+	get code() { return `${this.color}${this.type}${this.hasBanana ? "^" : ""}` }
+	get name() { return `${Piece.#COLORS[this.color]} ${Piece.#TYPES[this.type]}${this.hasBanana ? " with banana" : ""}` }
 
 	static #COLORS = {
 		"w": "white",

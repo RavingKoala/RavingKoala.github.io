@@ -20,7 +20,7 @@ class ChessUI {
 				let code = ChessBoard.createCode(row, column)
 				let piece = board.getPiece(code)
 				if (piece !== null)
-					squares.querySelector("[data-id='" + code + "']").innerHTML = piece.toHTML()
+					this.setPiece(piece, code)
 			}
 		}
 		let otherSquares = [
@@ -33,17 +33,10 @@ class ChessUI {
 		otherSquares.forEach((code) => {
 			let piece = board.getPiece(code)
 			if (piece === null) return
-			this.#boardDOM.querySelector("[data-id='" + code + "']").innerHTML = piece.toHTML()
+			this.setPiece(piece, code)
 		})
 
 		// append actionlistners
-		this.#boardDOM.querySelectorAll(".piece").forEach((piece) => {
-			piece.addEventListener("mousedown", (e) => {
-				e.preventDefault();
-				this.#chess.onDrag(piece)
-				this.#dragMove(new Vec2(e.clientX, e.clientY))
-			})
-		})
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
 			square.addEventListener("mouseover", (e) => {
 				if (this.#isDragging)
@@ -150,7 +143,15 @@ class ChessUI {
 		this.move(from, to)
 	}
 
-	updatePiece(code, piece) {
-		this.#boardDOM.querySelector("[data-id='" + to + "']")
+	setPiece(piece, code) {
+		this.#boardDOM.querySelector("[data-id='" + code + "']").innerHTML = piece.toHTML()
+
+		let pieceDOM = this.#boardDOM.querySelector("[data-id='" + code + "'] .piece")
+
+		pieceDOM.addEventListener("mousedown", (e) => {
+			e.preventDefault();
+			this.#chess.onDrag(pieceDOM)
+			this.#dragMove(new Vec2(e.clientX, e.clientY))
+		})
 	}
 }
