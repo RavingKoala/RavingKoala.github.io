@@ -334,13 +334,13 @@ class Monkey extends Piece {
 		]
 
 		relVec.forEach((vec) => {
-			let code = ChessBoard.getRelativePos(pos, vec, this.color)
+			let code = ChessBoard.getPos(pos, vec)
 			if (code == null)
 				return
 			if (!board.isOccupied(code))
 				return
 
-			code = ChessBoard.getRelativePos(pos, vec.clone().multiply(2), this.color)
+			code = ChessBoard.getPos(pos, vec.clone().multiply(2))
 			if (code == null)
 				return
 			if (!board.isOccupied(code)) {
@@ -352,11 +352,53 @@ class Monkey extends Piece {
 				return
 			}
 		})
-		
-		// TODO: implement monkey algorithm by:
+
+
+		let isJumpableDirection = (board, pos, vec) => {
+			let code = ChessBoard.getPos(pos, vec)
+			if (code == null)
+				return false
+			if (!board.isOccupied(code))
+				return false
+			code = ChessBoard.getPos(pos, vec.clone().multiply(2))
+			if (code == null)
+				return false
+			if (!board.isOccupied(code))
+				return [true, code, "move"]
+
+			if (board.isTakable(code, this.color))
+				return [true, code, "take"]
+
+			return false
+		}
+
 		// fill returnArr[2] with possible eventual moves
 		// fill returnArr[3] with possible eventual takes
-		
+
+		// searching all positions
+		let searched = []
+		let searching = [pos]
+
+		while (searching.length > 0 && searching.length < 34) {
+			let doing = searching.shift()
+
+			relVec.forEach((vec) => {
+				let jumpable = isJumpableDirection(board, doing, vec)
+				if (jumpable === false) return
+
+				if (jumpable[2] === "move")
+					returnArr[2].push(jumpable[1])
+				if (jumpable[2] === "take")
+					returnArr[3].push(jumpable[1])
+				
+				if (!(searching.includes(jumpable[1]) || searched.includes(jumpable[1])))
+					searching.push(jumpable[1])
+			})
+
+			searched.push(doing)
+		}
+
+
 		return returnArr
 	}
 
@@ -375,7 +417,7 @@ class Monkey extends Piece {
 		]
 
 		relVec.forEach((vec) => {
-			let code = ChessBoard.getRelativePos(pos, vec, this.color)
+			let code = ChessBoard.getPos(pos, vec)
 
 			if (code == null)
 				return

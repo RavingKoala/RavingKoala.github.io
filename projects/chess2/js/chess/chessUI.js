@@ -141,7 +141,6 @@ class ChessUI {
 	}
 
 	move(from, to) {
-		console.log(from, to);
 		let fromPieceDOM = this.#boardDOM.querySelector("[data-id='" + from + "'] .piece")
 		let toContainerDOM = this.#boardDOM.querySelector("[data-id='" + to + "']")
 		toContainerDOM.appendChild(fromPieceDOM)

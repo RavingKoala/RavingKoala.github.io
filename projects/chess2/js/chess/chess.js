@@ -142,8 +142,8 @@ class Chess {
 		let piece = this.#board.getPiece(origin)
 
 		if (!piece.canMultiMove) return
-		if (piece.possibleMultiMoves(this.#board, origin)[3].includes(to)) return
-
+		if (!piece.possibleMultiMoves(this.#board, origin)[2].includes(to)) return
+		
 		document.dispatchEvent(new CustomEvent(ChessEvents.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
 	}
 }
