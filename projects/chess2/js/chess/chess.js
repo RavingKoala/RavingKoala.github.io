@@ -76,7 +76,7 @@ class Chess {
 			let origin = event.detail.origin
 			let to = event.detail.to
 			this.#chessUI.unHint()
-			let hints = piece.possibleMultiMoves(this.#board, to).splice(0, 2)
+			let hints = piece.getMultiMoveHints(this.#board, to)
 			hints[0].push(origin)
 			this.#chessUI.hintSquares(to, hints)
 		})
@@ -116,7 +116,7 @@ class Chess {
 		// check if multimove
 		// if multimove give both multimove hints and normal hints
 		if (piece.canMultiMove) {
-			let multiMovesHints = piece.possibleMultiMoves(this.#board, code)
+			let multiMovesHints = piece.getMultiMoveHints(this.#board, code)
 			hints[0] = hints[0].concat(multiMovesHints[0])
 			hints[1] = hints[1].concat(multiMovesHints[1])
 		}
@@ -173,7 +173,7 @@ class Chess {
 		this.#chessUI.unHint()
 
 		if (this.state !== states.waiting
-			&& this.state !== states.pickingJail){ // on successful turn
+			&& this.state !== states.pickingJail) { // on successful turn
 			this.state = states.turn
 		}
 	}
@@ -182,7 +182,7 @@ class Chess {
 		let piece = this.#board.getPiece(origin)
 
 		if (!piece.canMultiMove) return
-		if (!piece.possibleMultiMoves(this.#board, origin)[2].includes(to)) return
+		if (!piece.getMultiMoves(this.#board, origin)[2].includes(to)) return
 
 		this.state = states.multiMove
 

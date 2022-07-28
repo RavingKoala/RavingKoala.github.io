@@ -176,5 +176,6 @@ class ChessUI {
 			this.#chess.onDrag(pieceDOM)
 			this.#dragMove(new Vec2(e.clientX, e.clientY))
 		})
+		
 	}
 }

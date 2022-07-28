@@ -24,12 +24,12 @@ const Side = {
 }
 
 class ChessBoard {
-	board
+	#board
 	constructor () {
-		this.initialize()
+		this.#initialize()
 	}
 
-	initialize() {
+	#initialize() {
 
 		/*
 		[
@@ -45,15 +45,15 @@ class ChessBoard {
 		*/
 
 		// board
-		this.board = {}
+		this.#board = {}
 		for (const row of Object.keys(rowMarks)) {
-			this.board[row] = {}
+			this.#board[row] = {}
 			for (const column of Object.keys(columnMarks)) {
-				this.board[row][column] = null
+				this.#board[row][column] = null
 			}
 		}
 		// board pieces
-		this.board["0"] = {}
+		this.#board["0"] = {}
 		this.#setPiece(new Bear(), "0", "0")
 		this.#setPiece(null, "0", "1") // left/white jail top (row 5)
 		this.#setPiece(null, "0", "2") // left/white jail bottom (row 4)
@@ -64,7 +64,7 @@ class ChessBoard {
 		this.#setPiece(new Monkey("w"), "1", "b")
 		this.#setPiece(new Fishy("w"), "1", "c")
 		this.#setPiece(new Queen("w"), "1", "d")
-		this.#setPiece(new King("w", null, true), "1", "e")
+		this.#setPiece(new King("w", true), "1", "e")
 		this.#setPiece(new Fishy("w"), "1", "f")
 		this.#setPiece(new Monkey("w"), "1", "g")
 		this.#setPiece(new Rook("w"), "1", "h")
@@ -81,7 +81,7 @@ class ChessBoard {
 		this.#setPiece(new Monkey("b"), "8", "b")
 		this.#setPiece(new Fishy("b"), "8", "c")
 		this.#setPiece(new Queen("b"), "8", "d")
-		this.#setPiece(new King("b", null, true), "8", "e")
+		this.#setPiece(new King("b", true), "8", "e")
 		this.#setPiece(new Fishy("b"), "8", "f")
 		this.#setPiece(new Monkey("b"), "8", "g")
 		this.#setPiece(new Rook("b"), "8", "h")
@@ -106,7 +106,7 @@ class ChessBoard {
 	}
 
 	#getPiece(row, column) {
-		return this.board[row][column]
+		return this.#board[row][column]
 	}
 
 	getCenterPiece() {
@@ -129,9 +129,8 @@ class ChessBoard {
 	getPiece(code) {
 		if (code === "c")
 			return this.getCenterPiece()
-		if (code.startsWith("j")) {
+		if (code.startsWith("j"))
 			return this.getJailPiece(code)
-		}
 
 		let [row, column] = ChessBoard.splitCode(code)
 
@@ -141,7 +140,7 @@ class ChessBoard {
 	#setPiece(piece, row, column) {
 		if (piece instanceof Piece)
 			piece.position = ChessBoard.createCode(row, column)
-		this.board[row][column] = piece
+		this.#board[row][column] = piece
 	}
 
 	setCenterPiece(piece) {
@@ -201,6 +200,30 @@ class ChessBoard {
 
 		return true
 	}
+	
+	static #whiteSquares
+	isWhiteSquare(code) {
+		if (ChessBoard.#whiteSquares === undefined)
+			return ChessBoard.#whiteSquares.includes(code)
+			
+		let whiteSquares = []
+		Object.entries(rowMarks).forEach( ([row, rowNr]) => {
+			Object.entries(columnMarks).forEach(([column, columnNr]) => {
+				if (rowNr % 2 === 0 && columnNr % 2 === 1)
+					return whiteSquares.push(this.createCode(row, column))
+				if (rowNr % 2 === 1 && columnNr % 2 === 0)
+					return whiteSquares.push(this.createCode(row, column))
+			});
+		});
+		
+		whiteSquares.push("jl1", "jr2")
+		
+		ChessBoard.#whiteSquares = whiteSquares
+	}
+	
+	isBlackSquare(code) {
+		return !this.isWhiteSquare(code)
+	}
 
 	static codeToVec(code) {
 		let [row, column] = ChessBoard.splitCode(code)
@@ -224,8 +247,7 @@ class ChessBoard {
 	static getPos(code, vec) {
 		let vec2 = ChessBoard.codeToVec(code)
 
-		if (vec2 === null)
-			return null
+		if (vec2 === null) return null
 
 		let vecPos = vec2.add(vec)
 

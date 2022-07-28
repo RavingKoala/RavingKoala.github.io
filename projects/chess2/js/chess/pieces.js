@@ -24,11 +24,10 @@ class Piece {
 
 		"b": "bear"
 	}
-	constructor (type, color, position, banana = false) {
+	constructor (type, color, banana = false) {
 		this.canMultiMove = false // default unless overwritten
 		this.canSave = false // default unless overwritten
 		this.type = type
-		this.position = position
 		if (type === "b") { // bear exeption
 			this.color = ""
 			Piece.#TYPES[this.type = "b"]
@@ -55,7 +54,7 @@ class Piece {
 
 	canMoveTo(board, pos, to) {
 		if (this.canMultiMove) {
-			let possibleMoves = this.possibleMultiMoves(board, pos)
+			let possibleMoves = this.getMultiMoves(board, pos)
 			if (possibleMoves[2].includes(to))
 				return true
 		}
@@ -65,7 +64,7 @@ class Piece {
 
 	canTakeTo(board, pos, to) {
 		if (this.canMultiMove) {
-			let possibleMoves = this.possibleMultiMoves(board, pos)
+			let possibleMoves = this.getMultiMoves(board, pos)
 			if (possibleMoves[3].includes(to))
 				return true
 		}
@@ -73,7 +72,11 @@ class Piece {
 		return possibleMoves[1].includes(to)
 	}
 
-	possibleMultiMoves(board, pos) {
+	getMultiMoveHints(board, pos) {
+		throw new Error('Method not implemented.');
+	}
+
+	getMultiMoves(board, pos) {
 		throw new Error('Method not implemented.');
 	}
 
@@ -94,8 +97,8 @@ class Piece {
 }
 
 class King extends Piece {
-	constructor (color, position = null, hasBanana = false) {
-		super("k", color, position, hasBanana)
+	constructor (color = null, hasBanana = false) {
+		super("k", color, hasBanana)
 	}
 
 	possibleMoves(board, pos) {
@@ -128,8 +131,8 @@ class King extends Piece {
 }
 
 class Queen extends Piece {
-	constructor (color, position = null) {
-		super("q", color, position)
+	constructor (color = null) {
+		super("q", color)
 	}
 
 	possibleMoves(board, pos) {
@@ -170,8 +173,8 @@ class Queen extends Piece {
 }
 
 class Fishy extends Piece {
-	constructor (color, position = null) {
-		super("f", color, position)
+	constructor (color = null) {
+		super("f", color)
 	}
 
 	possibleMoves(board, pos) {
@@ -211,8 +214,8 @@ class Fishy extends Piece {
 }
 
 class FishyQueen extends Piece {
-	constructor (color, position = null) {
-		super("fq", color, position)
+	constructor (color = null) {
+		super("fq", color)
 	}
 
 	possibleMoves(board, pos) {
@@ -254,8 +257,8 @@ class FishyQueen extends Piece {
 }
 
 class Elephant extends Piece {
-	constructor (color, position = null) {
-		super("e", color, position)
+	constructor (color = null) {
+		super("e", color)
 	}
 
 	possibleMoves(board, pos) {
@@ -284,8 +287,8 @@ class Elephant extends Piece {
 }
 
 class Rook extends Piece {
-	constructor (color, position = null) {
-		super("r", color, position)
+	constructor (color = null) {
+		super("r", color)
 	}
 
 	possibleMoves(board, pos) {
@@ -319,22 +322,51 @@ class Rook extends Piece {
 }
 
 class Monkey extends Piece {
-	constructor (color, position = null, hasBanana = false) {
-		super("m", color, position, hasBanana)
+	constructor (color = null, hasBanana = false) {
+		super("m", color, hasBanana)
 		this.canMultiMove = true
 		this.canSave = true
 	}
 
-	saveCondition(board, pos) {
+	saveCondition(board, toPos) {
 
 	}
 
 	canSave(board, pos) {
+		let piece = board.getPiece(pos)
+		let onWhiteSquare = board.isWhiteSquare(pos)
+		let isWhitePiece = piece.color === "w"
+		let jump
 
+		if (isWhitePiece) {
+			if (!onWhiteSquare)
+				jump = { from: "5a", to: "jl1" }
+			else // onWhiteSquare
+				jump = { from: "4a", to: "jl2" }
+		} else {
+			if (onWhiteSquare)
+				jump = { from: "5h", to: "jr1" }
+			else // onWhiteSquare
+				jump = { from: "4h", to: "jr2" }
+		}
+
+		// quick check if possible
+		let savingPiece = board.getJailPiece(jump.to)
+		if (savingPiece === null) return false
+		if (!savingPiece.hasBanana) return false
+
+
+		let multiMoves = this.getMultiMoves(board, pos)
+
+		if ((pos === jump.from && multiMoves[0].length > 0 || multiMoves[0].length > 1) ||
+			multiMoves.includes(jump.from))
+			return true
+
+		return false
 	}
 
-	possibleMultiMoves(board, pos) {
-		let returnArr = [[], [], [], []] // [   [...movesHints], [...takesHints], [...possible eventual moves], [...possible eventual takes]   ]
+	getMultiMoveHints(board, pos) {
+		let returnArr = [[], []] // [ [...movesHints], [...takesHints] ]
 
 		let relVec = [
 			new Vec2(0, 1),
@@ -368,6 +400,23 @@ class Monkey extends Piece {
 			}
 		})
 
+		return returnArr
+	}
+
+	getMultiMoves(board, pos) {
+		let returnArr = [[], []] // [ [...possible eventual moves], [...possible eventual takes] ]
+
+		let relVec = [
+			new Vec2(0, 1),
+			new Vec2(1, 1),
+			new Vec2(1, 0),
+			new Vec2(1, -1),
+			new Vec2(0, -1),
+			new Vec2(-1, -1),
+			new Vec2(-1, 0),
+			new Vec2(-1, 1),
+		]
+
 		// eventual moves
 		let isJumpableDirection = (board, pos, vec) => {
 			let code = ChessBoard.getPos(pos, vec)
@@ -378,7 +427,7 @@ class Monkey extends Piece {
 			code = ChessBoard.getPos(pos, vec.clone().multiply(2))
 			if (code == null)
 				return false
-			if (!board.isOccupied(code))
+			if (!board.isOccupied(code) && code !== this.position)
 				return [true, code, "move"]
 
 			if (board.isTakable(code, this.color))
@@ -393,7 +442,7 @@ class Monkey extends Piece {
 		let searched = []
 		let searching = [pos]
 
-		while (searching.length > 0 && searching.length < 34) {
+		while (searching.length > 0) {
 			let doing = searching.shift()
 
 			relVec.forEach((vec) => {
@@ -402,13 +451,14 @@ class Monkey extends Piece {
 					return
 
 				if (jumpable[2] === "take") {
-					returnArr[3].push(jumpable[1])
+					returnArr[1].push(jumpable[1])
 					return
 				}
 				if (jumpable[2] === "move")
-					returnArr[2].push(jumpable[1])
+					returnArr[0].push(jumpable[1])
 
-				if (!(searching.includes(jumpable[1]) || searched.includes(jumpable[1])))
+
+				if (!searching.includes(jumpable[1]) && !searched.includes(jumpable[1]))
 					searching.push(jumpable[1])
 			})
 
@@ -442,36 +492,6 @@ class Monkey extends Piece {
 				return
 			}
 		})
-
-		// let move = (from, to) => {
-		// 	if (from !== pos) return
-
-		// 	let jailPiece = board.getPiece(from)
-
-		// 	if (jailPiece === null) return
-
-		// 	if (jailPiece.hasBanana)
-		// 		returnArr[1].push(to)
-		// }
-
-		// let swaps = {}
-
-		// // cant take from same color
-		// if (this.color === "w")
-		// 	swaps = {
-		// 		"5h": "jl1",
-		// 		"4h": "jl2",
-		// 	}
-		// if (this.color === "b")
-		// 	swaps = {
-		// 		"5a": "jr1",
-		// 		"4a": "jr2",
-		// 	}
-
-		// for (const [key, value] of Object.entries(swaps)) {
-		// 	move(key, value)
-		// 	move(value, key)
-		// }
 
 		return returnArr
 	}
