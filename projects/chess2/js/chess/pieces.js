@@ -385,10 +385,9 @@ class Monkey extends Piece {
 			return false
 		}
 
+		// searching all positions
 		// fill returnArr[2] with possible eventual moves
 		// fill returnArr[3] with possible eventual takes
-
-		// searching all positions
 		let searched = []
 		let searching = [pos]
 
@@ -399,10 +398,13 @@ class Monkey extends Piece {
 				let jumpable = isJumpableDirection(board, doing, vec)
 				if (jumpable === false) return
 
+
+				if (jumpable[2] === "take") {
+					returnArr[3].push(jumpable[1])
+					return
+				}
 				if (jumpable[2] === "move")
 					returnArr[2].push(jumpable[1])
-				if (jumpable[2] === "take")
-					returnArr[3].push(jumpable[1])
 
 				if (!(searching.includes(jumpable[1]) || searched.includes(jumpable[1])))
 					searching.push(jumpable[1])
