@@ -173,7 +173,6 @@ body {
 	background-color: var(--md-surface);
 }
 
-
 /** settings panel **/
 #settingsPopup .panelContent {
 	display: flex;
@@ -196,7 +195,6 @@ body {
 }
 
 /** Info panel **/
-
 
 /* #endregion */
 

@@ -11,7 +11,6 @@
 - tablet size
 - phone size
 
-
 ### Add selector for mic
 - dropdown like with
 

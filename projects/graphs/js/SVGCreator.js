@@ -38,7 +38,6 @@ class NSComponent {
 	#_attributes = this.#baseAttributes
 	innerHTML = ""
 
-
 	constructor (namespaceURI, type) {
 		this.#namespaceURI = namespaceURI
 		this.#type = type

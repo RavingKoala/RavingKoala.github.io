@@ -51,7 +51,6 @@ class Piece {
 		this.hasBanana = true
 	}
 
-
 	canMoveTo(board, pos, to) {
 		if (this.canMultiMove) {
 			let possibleMoves = this.possibleMultiMoves(board, pos)
@@ -334,6 +333,8 @@ class Monkey extends Piece {
 
 	possibleMultiMoves(board, pos) {
 		let returnArr = [[], [], [], []] // [   [...movesHints], [...takesHints], [...possible eventual moves], [...possible eventual takes]   ]
+		console.trace()
+		console.log(pos);
 
 		let relVec = [
 			new Vec2(0, 1),
@@ -346,6 +347,7 @@ class Monkey extends Piece {
 			new Vec2(-1, 1),
 		]
 
+		// hints
 		relVec.forEach((vec) => {
 			let code = ChessBoard.getPos(pos, vec)
 			if (code == null)
@@ -365,8 +367,8 @@ class Monkey extends Piece {
 				return
 			}
 		})
-
-
+		
+		// eventual moves
 		let isJumpableDirection = (board, pos, vec) => {
 			let code = ChessBoard.getPos(pos, vec)
 			if (code == null)
@@ -399,7 +401,6 @@ class Monkey extends Piece {
 				if (jumpable === false)
 					return
 
-
 				if (jumpable[2] === "take") {
 					returnArr[3].push(jumpable[1])
 					return
@@ -413,7 +414,6 @@ class Monkey extends Piece {
 
 			searched.push(doing)
 		}
-
 
 		return returnArr
 	}

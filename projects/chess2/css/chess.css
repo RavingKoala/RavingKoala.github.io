@@ -129,7 +129,6 @@
 	line-height: min(8vw, 60px);
 }
 
-
 .play-board {
 	border: solid 1px var(--chess-border-color);
 }

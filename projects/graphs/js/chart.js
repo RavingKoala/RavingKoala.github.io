@@ -52,7 +52,6 @@ class Chart {
 	static #axisLineStartValue // Vec2(): start value for chart interval numbers
 	static #axisLineEndValue // Vec2(): max value for chart interval numbers
 
-
 	/* temps */
 	static #maxValue // Vec2(): max value of data
 	static #minValue // Vec2(): min value of data
@@ -62,7 +61,7 @@ class Chart {
 	static #incrementValue // increment of chart label values (chars have a size so could be rough)
 	static #gridOffset // distance between nodes in px
 
-
+	
 	static createChart(data, parentDOMid) {
 		if (!this.validateData(data)) return
 		let parent = document.getElementById(parentDOMid)

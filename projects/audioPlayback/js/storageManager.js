@@ -26,7 +26,6 @@ class LocalDataStorage extends Storage {
 		return localStorage.getItem(key)
 	}
 
-
 	static getKeys() {
 		return Object.keys(localStorage)
 	}
