@@ -67,7 +67,7 @@ class Chess {
 			// let from = event.detail.from
 			let to = event.detail.to
 			this.#chessUI.unHint()
-			this.#chessUI.hintSquares(piece.possibleMultiMoves(this.#board, to).splice(0, 2)) // TODO: uncertain if works
+			this.#chessUI.hintSquares(piece.possibleMultiMoves(this.#board, to).splice(0, 2))
 		})
 	}
 
@@ -92,6 +92,7 @@ class Chess {
 		if (from === to) return
 
 		let piece = this.#board.getPiece(from)
+		console.log(piece.canMoveTo(this.#board, from, to))
 		if (piece.canMoveTo(this.#board, from, to)) {
 			this.#move(from, to)
 			if (from === "c")
@@ -109,15 +110,11 @@ class Chess {
 	}
 
 	#move(from, to) {
-		if (from === to) return
-
 		this.#board.move(from, to)
 		this.#chessUI.move(from, to)
 	}
 
 	#take(from, to, takeDest) {
-		if (from === to) return
-
 		if (takeDest !== undefined)
 			this.#move(to, takeDest)
 
