@@ -94,8 +94,8 @@ class Piece {
 }
 
 class King extends Piece {
-	constructor (color, hasBanana = false) {
-		super("k", color, hasBanana)
+	constructor (color, position = null, hasBanana = false) {
+		super("k", color, position, hasBanana)
 	}
 
 	possibleMoves(board, pos) {
@@ -128,8 +128,8 @@ class King extends Piece {
 }
 
 class Queen extends Piece {
-	constructor (color) {
-		super("q", color)
+	constructor (color, position = null) {
+		super("q", color, position)
 	}
 
 	possibleMoves(board, pos) {
@@ -170,8 +170,8 @@ class Queen extends Piece {
 }
 
 class Fishy extends Piece {
-	constructor (color) {
-		super("f", color)
+	constructor (color, position = null) {
+		super("f", color, position)
 	}
 
 	possibleMoves(board, pos) {
@@ -211,8 +211,8 @@ class Fishy extends Piece {
 }
 
 class FishyQueen extends Piece {
-	constructor (color) {
-		super("fq", color)
+	constructor (color, position = null) {
+		super("fq", color, position)
 	}
 
 	possibleMoves(board, pos) {
@@ -254,8 +254,8 @@ class FishyQueen extends Piece {
 }
 
 class Elephant extends Piece {
-	constructor (color) {
-		super("e", color)
+	constructor (color, position = null) {
+		super("e", color, position)
 	}
 
 	possibleMoves(board, pos) {
@@ -284,8 +284,8 @@ class Elephant extends Piece {
 }
 
 class Rook extends Piece {
-	constructor (color) {
-		super("r", color)
+	constructor (color, position = null) {
+		super("r", color, position)
 	}
 
 	possibleMoves(board, pos) {
@@ -319,8 +319,8 @@ class Rook extends Piece {
 }
 
 class Monkey extends Piece {
-	constructor (color, hasBanana = false) {
-		super("m", color, hasBanana)
+	constructor (color, position = null, hasBanana = false) {
+		super("m", color, position, hasBanana)
 		this.canMultiMove = true
 		this.canSave = true
 	}
@@ -367,7 +367,7 @@ class Monkey extends Piece {
 				return
 			}
 		})
-		
+
 		// eventual moves
 		let isJumpableDirection = (board, pos, vec) => {
 			let code = ChessBoard.getPos(pos, vec)
@@ -414,7 +414,7 @@ class Monkey extends Piece {
 
 			searched.push(doing)
 		}
-		
+
 		return returnArr
 	}
 
