@@ -106,8 +106,6 @@ class Chess {
 			let multiMovesHints = piece.possibleMultiMoves(this.#board, code)
 			hints[0] = hints[0].concat(multiMovesHints[0])
 			hints[1] = hints[1].concat(multiMovesHints[1])
-			// hints[0] = multiMovesHints[2]
-			// hints[1] = multiMovesHints[3]
 		}
 		this.#chessUI.hintSquares(code, hints)
 

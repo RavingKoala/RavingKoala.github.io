@@ -123,7 +123,6 @@ class ChessBoard {
 
 	setCenterPiece(piece) {
 		return this.board["0"]["0"] = piece
-
 	}
 
 	setJailPiece(piece, code) {
@@ -195,7 +194,6 @@ class ChessBoard {
 
 		let row = Object.entries(rowMarks).filter(([key, value]) => value === vec.y)[0][0]
 		let column = Object.entries(columnMarks).filter(([key, value]) => value === vec.x)[0][0]
-
 
 		return row + column
 	}

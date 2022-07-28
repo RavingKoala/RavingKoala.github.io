@@ -396,7 +396,8 @@ class Monkey extends Piece {
 
 			relVec.forEach((vec) => {
 				let jumpable = isJumpableDirection(board, doing, vec)
-				if (jumpable === false) return
+				if (jumpable === false)
+					return
 
 
 				if (jumpable[2] === "take") {
