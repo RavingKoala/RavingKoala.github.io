@@ -335,7 +335,6 @@ class Monkey extends Piece {
 
 	possibleMultiMoves(board, pos) {
 		let returnArr = [[], [], [], []] // [   [...movesHints], [...takesHints], [...possible eventual moves], [...possible eventual takes]   ]
-		// console.trace(pos)
 
 		let relVec = [
 			new Vec2(0, 1),

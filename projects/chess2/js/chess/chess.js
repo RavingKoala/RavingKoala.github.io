@@ -67,7 +67,6 @@ class Chess {
 		document.addEventListener(ChessEvents.onTake, (event) => {
 			let piece = event.detail.pieceTaken
 			if (/[wb][qk]\^?/.test(piece.code)) { //regex for [white or black] [queen or king] maybe a banana
-				console.trace(this.state, states.pickingJail)
 				this.state = states.pickingJail
 				this.#pickingPiece = piece
 			}
@@ -93,7 +92,6 @@ class Chess {
 		// console.clear()
 		// console.log(this.#board.toString());
 
-		console.trace(this.state, states.turn)
 		this.state = states.turn
 	}
 
@@ -104,7 +102,6 @@ class Chess {
 			|| (/b[qk]\^?/.test(this.#pickingPiece.code) && /jr[12]/.test(code))) {
 			this.#board.setJailPiece(this.#pickingPiece, code)
 			this.#chessUI.setPiece(this.#pickingPiece, code)
-			console.trace(this.state, states.turn)
 			this.state = states.turn
 		}
 	}
@@ -125,7 +122,6 @@ class Chess {
 		}
 		this.#chessUI.hintSquares(code, hints)
 
-		console.trace(this.state, states.moving)
 		this.state = states.moving
 	}
 
@@ -138,7 +134,6 @@ class Chess {
 			if (from === "c")
 				this.#chessUI.hideCenterSquare()
 
-			console.trace(this.state, states.waiting)
 			this.state = states.waiting
 			document.dispatchEvent(new CustomEvent(ChessEvents.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
 		}
@@ -147,7 +142,6 @@ class Chess {
 
 			this.#take(from, to)
 
-			console.trace(this.state, states.waiting)
 			this.state = states.waiting
 			document.dispatchEvent(new CustomEvent(ChessEvents.onTake, { detail: { "pieceTaking": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } })) // pieceTaking, pieceTaken, from, to
 		}
@@ -180,7 +174,6 @@ class Chess {
 
 		if (this.state !== states.waiting
 			&& this.state !== states.pickingJail){ // on successful turn
-			console.trace(this.state, states.turn)
 			this.state = states.turn
 		}
 	}
@@ -191,7 +184,6 @@ class Chess {
 		if (!piece.canMultiMove) return
 		if (!piece.possibleMultiMoves(this.#board, origin)[2].includes(to)) return
 
-		console.trace(this.state, states.multiMove)
 		this.state = states.multiMove
 
 		document.dispatchEvent(new CustomEvent(ChessEvents.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
