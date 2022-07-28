@@ -49,7 +49,7 @@ class ChessUI {
 				let origin = this.#draggingDOM.parentNode.dataset.id
 				let to = square.dataset.id
 
-				if (this.#hinted[0].includes(to)) {
+				if (this.#hinted[1].includes(to)) {
 					this.#chess.onMultiMove(origin, to)
 				}
 			})
@@ -93,28 +93,36 @@ class ChessUI {
 		this.#draggingDOM = piece
 	}
 
-	hintSquares(squares) {
+	hintSquares(source, squares) {
+		let tempDOM = this.#boardDOM.querySelector("[data-id='" + source + "']")
+		tempDOM.classList.add("origin")
+		this.#hinted.push(source)
+		
 		for (const code of squares[0]) {
-			let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
+			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.add("moveable")
 		}
 		for (const code of squares[1]) {
-			let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
+			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.add("takeable")
 		}
-		this.#hinted = squares
+		
+		this.#hinted = this.#hinted.concat(squares)
 	}
 
 	unHint() {
 		if (this.#hinted.length === 0)
 			return
 
-		for (const code of this.#hinted[0]) {
-			let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
+		let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[0] + "']")
+		tempDOM.classList.remove("origin")
+		
+		for (const code of this.#hinted[1]) {
+			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.remove("moveable")
 		}
-		for (const code of this.#hinted[1]) {
-			let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
+		for (const code of this.#hinted[2]) {
+			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.remove("takeable")
 		}
 		this.#hinted = []

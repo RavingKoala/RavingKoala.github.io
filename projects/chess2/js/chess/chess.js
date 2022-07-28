@@ -76,7 +76,7 @@ class Chess {
 			// let from = event.detail.from
 			let to = event.detail.to
 			this.#chessUI.unHint()
-			this.#chessUI.hintSquares(piece.possibleMultiMoves(this.#board, to).splice(0, 2))
+			this.#chessUI.hintSquares(to, piece.possibleMultiMoves(this.#board, to).splice(0, 2))
 		})
 
 		this.state = states.turn
@@ -96,18 +96,20 @@ class Chess {
 	onDrag(pieceDOM) {
 		//suggest pieces to move/take
 		this.#chessUI.dragStart(pieceDOM)
-		let pieceCode = pieceDOM.parentNode.dataset.id
+		let code = pieceDOM.parentNode.dataset.id
 
-		let piece = this.#board.getPiece(pieceCode)
-		let hints = piece.possibleMoves(this.#board, pieceCode)
+		let piece = this.#board.getPiece(code)
+		let hints = piece.possibleMoves(this.#board, code)
 		// check if multimove
 		// if multimove give both multimove hints and normal hints
 		if (piece.canMultiMove) {
-			let multiMovesHints = piece.possibleMultiMoves(this.#board, pieceCode)
+			let multiMovesHints = piece.possibleMultiMoves(this.#board, code)
 			hints[0] = hints[0].concat(multiMovesHints[0])
 			hints[1] = hints[1].concat(multiMovesHints[1])
+			// hints[0] = multiMovesHints[2]
+			// hints[1] = multiMovesHints[3]
 		}
-		this.#chessUI.hintSquares(hints)
+		this.#chessUI.hintSquares(code, hints)
 
 		this.state = states.moving
 	}
