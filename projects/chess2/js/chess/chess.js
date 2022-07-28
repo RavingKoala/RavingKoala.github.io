@@ -182,7 +182,7 @@ class Chess {
 		let piece = this.#board.getPiece(origin)
 
 		if (!piece.canMultiMove) return
-		if (!piece.getMultiMoves(this.#board, origin)[2].includes(to)) return
+		if (!piece.getMultiMoves(this.#board, origin)[0].includes(to)) return
 
 		this.state = states.multiMove
 

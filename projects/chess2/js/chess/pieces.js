@@ -55,7 +55,7 @@ class Piece {
 	canMoveTo(board, pos, to) {
 		if (this.canMultiMove) {
 			let possibleMoves = this.getMultiMoves(board, pos)
-			if (possibleMoves[2].includes(to))
+			if (possibleMoves[0].includes(to))
 				return true
 		}
 		let possibleMoves = this.possibleMoves(board, pos)
@@ -65,7 +65,7 @@ class Piece {
 	canTakeTo(board, pos, to) {
 		if (this.canMultiMove) {
 			let possibleMoves = this.getMultiMoves(board, pos)
-			if (possibleMoves[3].includes(to))
+			if (possibleMoves[1].includes(to))
 				return true
 		}
 		let possibleMoves = this.possibleMoves(board, pos)
@@ -329,7 +329,27 @@ class Monkey extends Piece {
 	}
 
 	saveCondition(board, toPos) {
+		let piece = board.getPiece(pos)
+		let onWhiteSquare = board.isWhiteSquare(pos)
+		let isWhitePiece = piece.color === "w"
+		let jump
 
+		if (isWhitePiece) {
+			if (!onWhiteSquare)
+				jump = { from: "5a", to: "jl1" }
+			else // onWhiteSquare
+				jump = { from: "4a", to: "jl2" }
+		} else {
+			if (onWhiteSquare)
+				jump = { from: "5h", to: "jr1" }
+			else // onWhiteSquare
+				jump = { from: "4h", to: "jr2" }
+		} 
+		
+		if (toPos !== jump.from)
+			return true
+		
+		return false
 	}
 
 	canSave(board, pos) {
