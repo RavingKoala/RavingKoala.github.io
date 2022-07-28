@@ -1,6 +1,7 @@
 class Piece {
 	color
 	type
+	position
 	hasBanana
 	canMultiMove
 	canSave
@@ -23,11 +24,12 @@ class Piece {
 
 		"b": "bear"
 	}
-	constructor (type, color, banana = false) {
+	constructor (type, color, position, banana = false) {
 		this.canMultiMove = false // default unless overwritten
 		this.canSave = false // default unless overwritten
+		this.type = type
+		this.position = position
 		if (type === "b") { // bear exeption
-			this.type = type
 			this.color = ""
 			Piece.#TYPES[this.type = "b"]
 			return
@@ -333,8 +335,7 @@ class Monkey extends Piece {
 
 	possibleMultiMoves(board, pos) {
 		let returnArr = [[], [], [], []] // [   [...movesHints], [...takesHints], [...possible eventual moves], [...possible eventual takes]   ]
-		console.trace()
-		console.log(pos);
+		// console.trace(pos)
 
 		let relVec = [
 			new Vec2(0, 1),
@@ -414,7 +415,7 @@ class Monkey extends Piece {
 
 			searched.push(doing)
 		}
-
+		
 		return returnArr
 	}
 

@@ -30,6 +30,20 @@ class ChessBoard {
 	}
 
 	initialize() {
+
+		/*
+		[
+			[br,bm,bf,bq,bk,bf,bm,br]
+			[bf,bf,be,bf,bf,be,bf,bf]
+			[  ,  ,  ,  ,  ,  ,  ,  ]
+		[  ][  ,  ,  ,  ,  ,  ,  ,  ][  ]
+		[  ][  ,  ,  ,  ,  ,  ,  ,  ][  ]
+			[  ,  ,  ,  ,  ,  ,  ,  ]
+			[wf,wf,we,wf,wf,we,wf,wf]
+			[wr,wm,wf,wq,wk,wf,wm,wr]
+		]
+		*/
+
 		// board
 		this.board = {}
 		for (const row of Object.keys(rowMarks)) {
@@ -38,48 +52,47 @@ class ChessBoard {
 				this.board[row][column] = null
 			}
 		}
-
 		// board pieces
 		this.board["0"] = {}
-		this.board["0"]["0"] = new Bear()
-		this.board["0"]["1"] = null // left/white jail top (row 5)
-		this.board["0"]["2"] = null // left/white jail bottom (row 4)
-		this.board["0"]["3"] = null // right/black jail top (row 5)
-		this.board["0"]["4"] = null // right/black jail bottom (row 4)
+		this.#setPiece(new Bear(), "0", "0")
+		this.#setPiece(null, "0", "1") // left/white jail top (row 5)
+		this.#setPiece(null, "0", "2") // left/white jail bottom (row 4)
+		this.#setPiece(null, "0", "3") // right/black jail top (row 5)
+		this.#setPiece(null, "0", "4") // right/black jail bottom (row 4)
 		// white
-		this.board["1"]["a"] = new Rook("w")
-		this.board["1"]["b"] = new Monkey("w")
-		this.board["1"]["c"] = new Fishy("w")
-		this.board["1"]["d"] = new Queen("w")
-		this.board["1"]["e"] = new King("w", true)
-		this.board["1"]["f"] = new Fishy("w")
-		this.board["1"]["g"] = new Monkey("w")
-		this.board["1"]["h"] = new Rook("w")
-		this.board["2"]["a"] = new Fishy("w")
-		this.board["2"]["b"] = new Fishy("w")
-		this.board["2"]["c"] = new Elephant("w")
-		this.board["2"]["d"] = new Fishy("w")
-		this.board["2"]["e"] = new Fishy("w")
-		this.board["2"]["f"] = new Elephant("w")
-		this.board["2"]["g"] = new Fishy("w")
-		this.board["2"]["h"] = new Fishy("w")
+		this.#setPiece(new Rook("w"), "1", "a")
+		this.#setPiece(new Monkey("w"), "1", "b")
+		this.#setPiece(new Fishy("w"), "1", "c")
+		this.#setPiece(new Queen("w"), "1", "d")
+		this.#setPiece(new King("w", true), "1", "e")
+		this.#setPiece(new Fishy("w"), "1", "f")
+		this.#setPiece(new Monkey("w"), "1", "g")
+		this.#setPiece(new Rook("w"), "1", "h")
+		this.#setPiece(new Fishy("w"), "2", "a")
+		this.#setPiece(new Fishy("w"), "2", "b")
+		this.#setPiece(new Elephant("w"), "2", "c")
+		this.#setPiece(new Fishy("w"), "2", "d")
+		this.#setPiece(new Fishy("w"), "2", "e")
+		this.#setPiece(new Elephant("w"), "2", "f")
+		this.#setPiece(new Fishy("w"), "2", "g")
+		this.#setPiece(new Fishy("w"), "2", "h")
 		// black
-		this.board["8"]["a"] = new Rook("b")
-		this.board["8"]["b"] = new Monkey("b")
-		this.board["8"]["c"] = new Fishy("b")
-		this.board["8"]["d"] = new Queen("b")
-		this.board["8"]["e"] = new King("b", true)
-		this.board["8"]["f"] = new Fishy("b")
-		this.board["8"]["g"] = new Monkey("b")
-		this.board["8"]["h"] = new Rook("b")
-		this.board["7"]["a"] = new Fishy("b")
-		this.board["7"]["b"] = new Fishy("b")
-		this.board["7"]["c"] = new Elephant("b")
-		this.board["7"]["d"] = new Fishy("b")
-		this.board["7"]["e"] = new Fishy("b")
-		this.board["7"]["f"] = new Elephant("b")
-		this.board["7"]["g"] = new Fishy("b")
-		this.board["7"]["h"] = new Fishy("b")
+		this.#setPiece(new Rook("b"), "8", "a")
+		this.#setPiece(new Monkey("b"), "8", "b")
+		this.#setPiece(new Fishy("b"), "8", "c")
+		this.#setPiece(new Queen("b"), "8", "d")
+		this.#setPiece(new King("b", true), "8", "e")
+		this.#setPiece(new Fishy("b"), "8", "f")
+		this.#setPiece(new Monkey("b"), "8", "g")
+		this.#setPiece(new Rook("b"), "8", "h")
+		this.#setPiece(new Fishy("b"), "7", "a")
+		this.#setPiece(new Fishy("b"), "7", "b")
+		this.#setPiece(new Elephant("b"), "7", "c")
+		this.#setPiece(new Fishy("b"), "7", "d")
+		this.#setPiece(new Fishy("b"), "7", "e")
+		this.#setPiece(new Elephant("b"), "7", "f")
+		this.#setPiece(new Fishy("b"), "7", "g")
+		this.#setPiece(new Fishy("b"), "7", "h")
 	}
 
 	static splitCode(code) {
@@ -92,19 +105,23 @@ class ChessBoard {
 		return row + "" + column
 	}
 
+	#getPiece(row, column) {
+		return this.board[row][column]
+	}
+
 	getCenterPiece() {
-		return this.board["0"]["0"]
+		return this.#getPiece("0", "0")
 	}
 
 	getJailPiece(code) {
 		if (code === "jl1")
-			return this.board["0"]["1"]
+			return this.#getPiece("0", "1")
 		if (code === "jl2")
-			return this.board["0"]["2"]
+			return this.#getPiece("0", "2")
 		if (code === "jr1")
-			return this.board["0"]["3"]
+			return this.#getPiece("0", "3")
 		if (code === "jr2")
-			return this.board["0"]["4"]
+			return this.#getPiece("0", "4")
 
 		return null
 	}
@@ -118,22 +135,28 @@ class ChessBoard {
 
 		let [row, column] = ChessBoard.splitCode(code)
 
-		return this.board[row][column]
+		return this.#getPiece(row, column)
+	}
+
+	#setPiece(piece, row, column) {
+		if (piece instanceof Piece)
+			piece.position = ChessBoard.createCode(row, column)
+		this.board[row][column] = piece
 	}
 
 	setCenterPiece(piece) {
-		return this.board["0"]["0"] = piece
+		return this.#setPiece(piece, "0", "0")
 	}
 
 	setJailPiece(piece, code) {
 		if (code === "jl1")
-			return this.board["0"]["1"] = piece
+			return this.#setPiece(piece, "0", "1")
 		if (code === "jl2")
-			return this.board["0"]["2"] = piece
+			return this.#setPiece(piece, "0", "2")
 		if (code === "jr1")
-			return this.board["0"]["3"] = piece
+			return this.#setPiece(piece, "0", "3")
 		if (code === "jr2")
-			return this.board["0"]["4"] = piece
+			return this.#setPiece(piece, "0", "4")
 	}
 
 	setPiece(piece, code) {
@@ -144,7 +167,7 @@ class ChessBoard {
 
 		let [row, column] = ChessBoard.splitCode(code)
 
-		this.board[row][column] = piece
+		this.#setPiece(piece, row, column)
 	}
 
 	move(from, to) {
@@ -217,14 +240,30 @@ class ChessBoard {
 	}
 
 	toString() {
+		let getPieceStr = (code) => {
+			let piece = this.getPiece(code)
+			return (piece !== null ? piece : "  ")
+		}
+
 		let retString = "[\n"
 		for (const row of Object.keys(rowMarks).reverse()) {
-			retString += "  ["
+			if (row === "5")
+				retString += "[" + getPieceStr("jl1") + "]["
+			else if (row === "4")
+				retString += "[" + getPieceStr("jl2") + "]["
+			else
+				retString += "    ["
 			for (const column of Object.keys(columnMarks)) {
-				retString += (this.board[row][column] !== null ? this.board[row][column] : "  ") + ","
+				let code = ChessBoard.createCode(row, column)
+				retString += getPieceStr(code) + ","
 			}
 			retString = retString.slice(0, -1)
-			retString += "]\n"
+			if (row === "5")
+				retString += "[" + getPieceStr("jr1") + "]\n"
+			else if (row === "4")
+				retString += "[" + getPieceStr("jr2") + "]\n"
+			else
+				retString += "]\n"
 		}
 		retString += "]\n"
 		return retString
