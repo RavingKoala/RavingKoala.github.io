@@ -63,7 +63,8 @@ class Piece {
 	canTakeTo(board, pos, to) {
 		if (this.canMultiMove) {
 			let possibleMoves = this.possibleMultiMoves(board, pos)
-			return possibleMoves[3].includes(to)
+			if (possibleMoves[3].includes(to))
+				return true
 		}
 		let possibleMoves = this.possibleMoves(board, pos)
 		return possibleMoves[1].includes(to)
@@ -391,7 +392,7 @@ class Monkey extends Piece {
 					returnArr[2].push(jumpable[1])
 				if (jumpable[2] === "take")
 					returnArr[3].push(jumpable[1])
-				
+
 				if (!(searching.includes(jumpable[1]) || searched.includes(jumpable[1])))
 					searching.push(jumpable[1])
 			})
