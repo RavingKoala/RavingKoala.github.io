@@ -79,7 +79,7 @@ class Chess {
 		let piece = this.#board.getPiece(pieceCode)
 		let hints = piece.possibleMoves(this.#board, pieceCode)
 		// check if multimove
-		// if multimove give both multimove hints as normal hints
+		// if multimove give both multimove hints and normal hints
 		if (piece.canMultiMove) {
 			let multiMovesHints = piece.possibleMultiMoves(this.#board, pieceCode)
 			hints[0] = hints[0].concat(multiMovesHints[0])
