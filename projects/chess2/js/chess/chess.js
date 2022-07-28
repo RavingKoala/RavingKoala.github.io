@@ -41,10 +41,6 @@ class Chess {
 		this.state = states.idle
 
 		this.initialize()
-		
-		// setInterval(() => {
-		// 	console.log(this.state);
-		// }, 20);
 	}
 
 	initialize() {
