@@ -3,7 +3,6 @@ class Piece {
 	type
 	hasBanana
 	canMultiMove
-
 	canSave
 
 	get code() { return `${this.color}${this.type}${this.hasBanana ? "^" : ""}` }
@@ -326,13 +325,13 @@ class Monkey extends Piece {
 	}
 
 	saveCondition(board, pos) {
-		
+
 	}
-	
+
 	canSave(board, pos) {
-			
+
 	}
-	
+
 	possibleMultiMoves(board, pos) {
 		let returnArr = [[], [], [], []] // [   [...movesHints], [...takesHints], [...possible eventual moves], [...possible eventual takes]   ]
 

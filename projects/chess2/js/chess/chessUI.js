@@ -163,7 +163,7 @@ class ChessUI {
 
 		pieceDOM.addEventListener("mousedown", (e) => {
 			if (this.#chess.state === states.pickingJail) return
-			
+
 			e.preventDefault();
 			this.#chess.onDrag(pieceDOM)
 			this.#dragMove(new Vec2(e.clientX, e.clientY))

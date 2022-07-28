@@ -12,9 +12,9 @@ const sides = {
 const states = {
 	idle: "idle", // before and after game
 	turn: "turn", // when it is the start of a turn and nothing happened yet
-	waiting: "waiting",
-	// moving: "moving", // dragging a piece
-	// multiMove: "multiMove", // Multimoving a piece
+	waiting: "waiting", // waiting for the opponent to make a turn
+	moving: "moving", // dragging a piece
+	multiMove: "multiMove", // Multimoving a piece
 	pickingJail: "pickingJail" // picking a jail for the Queen/King to go
 }
 
@@ -39,8 +39,10 @@ class Chess {
 		this.#board = new ChessBoard()
 		this.#chessUI = new ChessUI(this, boardDOM)
 		this.state = states.idle
-		
+
 		this.initialize()
+
+		setInterval(() => { console.log(this.state) }, 20);
 	}
 
 	initialize() {
@@ -79,17 +81,17 @@ class Chess {
 			this.#chessUI.hintSquares(piece.possibleMultiMoves(this.#board, to).splice(0, 2))
 		})
 
-		this.state = states.startTurn
+		this.state = states.turn
 	}
 
 	onSquarePicked(code) {
-		if (this.state !== states.pickingJail) return 
-		
+		if (this.state !== states.pickingJail) return
+
 		if ((/w[qk]\^?/.test(this.#pickingPiece.code) && /jl[12]/.test(code))
 			|| (/b[qk]\^?/.test(this.#pickingPiece.code) && /jr[12]/.test(code))) {
 			this.#board.setJailPiece(this.#pickingPiece, code)
 			this.#chessUI.setPiece(this.#pickingPiece, code)
-			this.state = states.startTurn
+			this.state = states.turn
 		}
 	}
 
@@ -108,6 +110,8 @@ class Chess {
 			hints[1] = hints[1].concat(multiMovesHints[1])
 		}
 		this.#chessUI.hintSquares(hints)
+
+		this.state = states.moving
 	}
 
 	onMove(from, to) {
@@ -119,6 +123,7 @@ class Chess {
 			if (from === "c")
 				this.#chessUI.hideCenterSquare()
 
+			this.state = states.waiting
 			document.dispatchEvent(new CustomEvent(ChessEvents.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
 		}
 		if (piece.canTakeTo(this.#board, from, to)) {
@@ -126,6 +131,7 @@ class Chess {
 
 			this.#take(from, to)
 
+			this.state = states.waiting
 			document.dispatchEvent(new CustomEvent(ChessEvents.onTake, { detail: { "pieceTaking": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } })) // pieceTaking, pieceTaken, from, to
 		}
 	}
@@ -154,6 +160,9 @@ class Chess {
 	onDragCancel() {
 		this.#chessUI.dragCancel()
 		this.#chessUI.unHint()
+
+		if (this.state !== states.waiting) // on successful turn
+			this.state = states.turn
 	}
 
 	onMultiMove(origin, to) {
@@ -161,6 +170,8 @@ class Chess {
 
 		if (!piece.canMultiMove) return
 		if (!piece.possibleMultiMoves(this.#board, origin)[2].includes(to)) return
+
+		this.state = states.multiMove
 
 		document.dispatchEvent(new CustomEvent(ChessEvents.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
 	}
