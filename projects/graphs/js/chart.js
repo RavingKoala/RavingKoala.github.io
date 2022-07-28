@@ -207,7 +207,7 @@ class Chart {
 		let points = " "
 		data.forEach((dataPoint) => {
 			let dataPos = new Vec2()
-			// TODO: make positions work with inner data area (when it skips the)
+			// TODO: make positions work with inner data area (when it skips the 0 mark)
 			dataPos.x = this.#chartStartPoint.x + this.#chartSize.x * (dataPoint.x - this.#minValue.x) / (this.#maxValue.x - this.#minValue.x)
 			dataPos.y = this.#chartStartPoint.y + this.#chartSize.y * (dataPoint.y - this.#minValue.y) / (this.#maxValue.y - this.#minValue.y)
 			points += dataPos.x + "," +dataPos.y+" "
