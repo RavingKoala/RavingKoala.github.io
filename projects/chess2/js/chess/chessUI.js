@@ -37,6 +37,10 @@ class ChessUI {
 
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
+			square.addEventListener("mousedown", (e) => {
+				let code = square.dataset.id
+				this.#chess.onSquarePicked(code)
+			})
 			square.addEventListener("mouseover", (e) => {
 				if (!this.#isDragging) return
 
@@ -158,6 +162,8 @@ class ChessUI {
 		let pieceDOM = this.#boardDOM.querySelector("[data-id='" + code + "'] .piece")
 
 		pieceDOM.addEventListener("mousedown", (e) => {
+			if (this.#chess.state === states.pickingJail) return
+			
 			e.preventDefault();
 			this.#chess.onDrag(pieceDOM)
 			this.#dragMove(new Vec2(e.clientX, e.clientY))

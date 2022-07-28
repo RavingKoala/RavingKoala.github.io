@@ -4,6 +4,8 @@ class Piece {
 	hasBanana
 	canMultiMove
 
+	canSave
+
 	get code() { return `${this.color}${this.type}${this.hasBanana ? "^" : ""}` }
 	get name() { return `${Piece.#COLORS[this.color]} ${Piece.#TYPES[this.type]}${this.hasBanana ? " with banana" : ""}` }
 
@@ -24,6 +26,7 @@ class Piece {
 	}
 	constructor (type, color, banana = false) {
 		this.canMultiMove = false // default unless overwritten
+		this.canSave = false // default unless overwritten
 		if (type === "b") { // bear exeption
 			this.type = type
 			this.color = ""
@@ -319,8 +322,17 @@ class Monkey extends Piece {
 	constructor (color, hasBanana = false) {
 		super("m", color, hasBanana)
 		this.canMultiMove = true
+		this.canSave = true
 	}
 
+	saveCondition(board, pos) {
+		
+	}
+	
+	canSave(board, pos) {
+			
+	}
+	
 	possibleMultiMoves(board, pos) {
 		let returnArr = [[], [], [], []] // [   [...movesHints], [...takesHints], [...possible eventual moves], [...possible eventual takes]   ]
 

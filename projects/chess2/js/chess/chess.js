@@ -4,6 +4,20 @@ const ChessEvents = {
 	onMultiMove: "onMultiMove" // piece, origin, to
 }
 
+const sides = {
+	white: "white",
+	black: "black"
+}
+
+const states = {
+	idle: "idle", // before and after game
+	turn: "turn", // when it is the start of a turn and nothing happened yet
+	waiting: "waiting",
+	// moving: "moving", // dragging a piece
+	// multiMove: "multiMove", // Multimoving a piece
+	pickingJail: "pickingJail" // picking a jail for the Queen/King to go
+}
+
 class Chess {
 	/* board layout
 	 * [
@@ -19,9 +33,13 @@ class Chess {
 	 */
 	#board // 8x8 array ([row][column])
 	#chessUI
+	state
+	#pickingPiece
 	constructor (boardDOM) {
 		this.#board = new ChessBoard()
 		this.#chessUI = new ChessUI(this, boardDOM)
+		this.state = states.idle
+		
 		this.initialize()
 	}
 
@@ -48,18 +66,9 @@ class Chess {
 		// capture king/queen to jail
 		document.addEventListener(ChessEvents.onTake, (event) => {
 			let piece = event.detail.pieceTaken
-			if (piece.code.startsWith("wk") || piece.code === "wq") {
-				let destCode = !this.#board.isOccupied("jl1") ? "jl1" : "jl2"
-
-				this.#board.setJailPiece(piece, destCode)
-				this.#chessUI.setPiece(piece, destCode)
-			}
-
-			if (piece.code.startsWith("bk") || piece.code === "bq") {
-				let destCode = !this.#board.isOccupied("jr1") ? "jr1" : "jr2"
-
-				this.#board.setJailPiece(piece, destCode)
-				this.#chessUI.setPiece(piece, destCode)
+			if (/[wb][qk]\^?/.test(piece.code)) { //regex for [white or black] [queen or king] maybe a banana
+				this.state = states.pickingJail
+				this.#pickingPiece = piece
 			}
 		})
 		document.addEventListener(ChessEvents.onMultiMove, (event) => {
@@ -69,6 +78,19 @@ class Chess {
 			this.#chessUI.unHint()
 			this.#chessUI.hintSquares(piece.possibleMultiMoves(this.#board, to).splice(0, 2))
 		})
+
+		this.state = states.startTurn
+	}
+
+	onSquarePicked(code) {
+		if (this.state !== states.pickingJail) return 
+		
+		if ((/w[qk]\^?/.test(this.#pickingPiece.code) && /jl[12]/.test(code))
+			|| (/b[qk]\^?/.test(this.#pickingPiece.code) && /jr[12]/.test(code))) {
+			this.#board.setJailPiece(this.#pickingPiece, code)
+			this.#chessUI.setPiece(this.#pickingPiece, code)
+			this.state = states.startTurn
+		}
 	}
 
 	onDrag(pieceDOM) {
@@ -92,7 +114,6 @@ class Chess {
 		if (from === to) return
 
 		let piece = this.#board.getPiece(from)
-		console.log(piece.canMoveTo(this.#board, from, to))
 		if (piece.canMoveTo(this.#board, from, to)) {
 			this.#move(from, to)
 			if (from === "c")
@@ -140,7 +161,7 @@ class Chess {
 
 		if (!piece.canMultiMove) return
 		if (!piece.possibleMultiMoves(this.#board, origin)[2].includes(to)) return
-		
+
 		document.dispatchEvent(new CustomEvent(ChessEvents.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
 	}
 }

@@ -1,4 +1,4 @@
-var rowMarks = {
+const rowMarks = {
 	"1": 1,
 	"2": 2,
 	"3": 3,
@@ -8,7 +8,7 @@ var rowMarks = {
 	"7": 7,
 	"8": 8,
 }
-var columnMarks = {
+const columnMarks = {
 	"a": 1,
 	"b": 2,
 	"c": 3,
@@ -18,7 +18,7 @@ var columnMarks = {
 	"g": 7,
 	"h": 8,
 }
-var Side = {
+const Side = {
 	"white": 0,
 	"black": 1
 }
