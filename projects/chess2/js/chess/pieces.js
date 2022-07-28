@@ -53,7 +53,8 @@ class Piece {
 	canMoveTo(board, pos, to) {
 		if (this.canMultiMove) {
 			let possibleMoves = this.possibleMultiMoves(board, pos)
-			return possibleMoves[2].includes(to)
+			if (possibleMoves[2].includes(to))
+				return true
 		}
 		let possibleMoves = this.possibleMoves(board, pos)
 		return possibleMoves[0].includes(to)
