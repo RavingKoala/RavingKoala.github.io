@@ -54,11 +54,11 @@ class ChessBoard {
 		}
 		// board pieces
 		this.#board["0"] = {}
-		this.#setPiece(new Bear(), "0", "0")
-		this.#setPiece(null, "0", "1") // left/white jail top (row 5)
-		this.#setPiece(null, "0", "2") // left/white jail bottom (row 4)
-		this.#setPiece(null, "0", "3") // right/black jail top (row 5)
-		this.#setPiece(null, "0", "4") // right/black jail bottom (row 4)
+		this.setCenterPiece(new Bear())
+		this.setJailPiece(null, "jl1") // left/white jail top (row 5)
+		this.setJailPiece(null, "jl2") // left/white jail bottom (row 4)
+		this.setJailPiece(null, "jr1") // right/black jail top (row 5)
+		this.setJailPiece(null, "jr2") // right/black jail bottom (row 4)
 		// white
 		this.#setPiece(new Rook("w"), "1", "a")
 		this.#setPiece(new Monkey("w"), "1", "b")
@@ -96,12 +96,25 @@ class ChessBoard {
 	}
 
 	static splitCode(code) {
+		if (code === "c") return ["0", "0"]
+		if (code === "jl1") return ["0", "1"]
+		if (code === "jl2") return ["0", "2"]
+		if (code === "jr1") return ["0", "3"]
+		if (code === "jr2") return ["0", "4"]
 		let row = code.substring(0, 1)
 		let column = code.substring(1, 2)
 		return [row, column]
 	}
 
 	static createCode(row, column) {
+		if (row === "0" || row === 0) {
+			if (column === "0" || column === 0) return "c"
+			if (column === "1" || column === 1) return "jl1"
+			if (column === "2" || column === 2) return "jl2"
+			if (column === "3" || column === 3) return "jr1"
+			if (column === "4" || column === 4) return "jr2"
+		}
+
 		return row + "" + column
 	}
 
@@ -171,7 +184,7 @@ class ChessBoard {
 
 	move(from, to) {
 		if (this.getPiece(to) !== null)
-			throw new Error("Can't move to " + to)
+			throw new Error("Can't move from " + from + " to " + to)
 
 		let piece = this.getPiece(from)
 		this.setPiece(piece, to)
@@ -200,27 +213,27 @@ class ChessBoard {
 
 		return true
 	}
-	
+
 	static #whiteSquares
 	isWhiteSquare(code) {
-		if (ChessBoard.#whiteSquares === undefined)
+		if (ChessBoard.#whiteSquares !== undefined)
 			return ChessBoard.#whiteSquares.includes(code)
-			
+
 		let whiteSquares = []
-		Object.entries(rowMarks).forEach( ([row, rowNr]) => {
+		Object.entries(rowMarks).forEach(([row, rowNr]) => {
 			Object.entries(columnMarks).forEach(([column, columnNr]) => {
 				if (rowNr % 2 === 0 && columnNr % 2 === 1)
-					return whiteSquares.push(this.createCode(row, column))
+					return whiteSquares.push(ChessBoard.createCode(row, column))
 				if (rowNr % 2 === 1 && columnNr % 2 === 0)
-					return whiteSquares.push(this.createCode(row, column))
+					return whiteSquares.push(ChessBoard.createCode(row, column))
 			});
 		});
-		
+
 		whiteSquares.push("jl1", "jr2")
-		
+
 		ChessBoard.#whiteSquares = whiteSquares
 	}
-	
+
 	isBlackSquare(code) {
 		return !this.isWhiteSquare(code)
 	}

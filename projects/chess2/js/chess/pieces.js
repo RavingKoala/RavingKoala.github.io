@@ -72,6 +72,14 @@ class Piece {
 		return possibleMoves[1].includes(to)
 	}
 
+	saveCondition(board, toPos) {
+		throw new Error('Method not implemented.');
+	}
+
+	canSavePiece(board, pos) {
+		throw new Error('Method not implemented.');
+	}
+
 	getMultiMoveHints(board, pos) {
 		throw new Error('Method not implemented.');
 	}
@@ -329,8 +337,8 @@ class Monkey extends Piece {
 	}
 
 	saveCondition(board, toPos) {
-		let piece = board.getPiece(pos)
-		let onWhiteSquare = board.isWhiteSquare(pos)
+		let piece = board.getPiece(this.position)
+		let onWhiteSquare = board.isWhiteSquare(this.position)
 		let isWhitePiece = piece.color === "w"
 		let jump
 
@@ -344,17 +352,17 @@ class Monkey extends Piece {
 				jump = { from: "5h", to: "jr1" }
 			else // onWhiteSquare
 				jump = { from: "4h", to: "jr2" }
-		} 
-		
+		}
+
 		if (toPos !== jump.from)
 			return true
-		
+
 		return false
 	}
 
-	canSave(board, pos) {
-		let piece = board.getPiece(pos)
-		let onWhiteSquare = board.isWhiteSquare(pos)
+	canSavePiece(board, pos) {
+		let piece = board.getPiece(this.position)
+		let onWhiteSquare = board.isWhiteSquare(this.position)
 		let isWhitePiece = piece.color === "w"
 		let jump
 
@@ -372,16 +380,16 @@ class Monkey extends Piece {
 
 		// quick check if possible
 		let savingPiece = board.getJailPiece(jump.to)
-		if (savingPiece === null) return false
-		if (!savingPiece.hasBanana) return false
+		if (savingPiece === null) return null
+		if (!savingPiece.hasBanana) return null
 
-		let multiMoves = this.getMultiMoves(board, pos)
+		let multiMoves = this.getMultiMoves(board, this.position)
 
-		if ((pos === jump.from && multiMoves[0].length > 0 || multiMoves[0].length > 1) ||
+		if ((this.position === jump.from && multiMoves[0].length > 0 || multiMoves[0].length > 1) ||
 			multiMoves.includes(jump.from))
-			return true
+			return { from: jump.to, to: jump.from }
 
-		return false
+		return null
 	}
 
 	getMultiMoveHints(board, pos) {
@@ -446,7 +454,7 @@ class Monkey extends Piece {
 			code = ChessBoard.getPos(pos, vec.clone().multiply(2))
 			if (code == null)
 				return false
-			if (!board.isOccupied(code) && code !== this.position)
+			if (!board.isOccupied(code) && code !== pos)
 				return [true, code, "move"]
 
 			if (board.isTakable(code, this.color))
@@ -459,7 +467,7 @@ class Monkey extends Piece {
 		// fill returnArr[2] with possible eventual moves
 		// fill returnArr[3] with possible eventual takes
 		let searched = []
-		let searching = [pos]
+		let searching = [this.position]
 
 		while (searching.length > 0) {
 			let doing = searching.shift()
@@ -501,7 +509,7 @@ class Monkey extends Piece {
 		]
 
 		relVec.forEach((vec) => {
-			let code = ChessBoard.getPos(pos, vec)
+			let code = ChessBoard.getPos(this.position, vec)
 
 			if (code == null)
 				return
@@ -523,17 +531,19 @@ class Bear extends Piece {
 	possibleMoves(board, pos) {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
-		if (pos === "c") {
+		console.log(this.position, pos)
+		
+		if (this.position === "c") {
 			let codes = ["4d", "4e", "5d", "5e"]
 			returnArr[0] = codes.filter((code) => !board.isOccupied(code))
 			return returnArr
 		}
 
 		let relPos = [
-			ChessBoard.getRelativePos(pos, new Vec2(1, 0), this.color),
-			ChessBoard.getRelativePos(pos, new Vec2(0, -1), this.color),
-			ChessBoard.getRelativePos(pos, new Vec2(0, 1), this.color),
-			ChessBoard.getRelativePos(pos, new Vec2(-1, 0), this.color),
+			ChessBoard.getRelativePos(this.position, new Vec2(1, 0), this.color),
+			ChessBoard.getRelativePos(this.position, new Vec2(0, -1), this.color),
+			ChessBoard.getRelativePos(this.position, new Vec2(0, 1), this.color),
+			ChessBoard.getRelativePos(this.position, new Vec2(-1, 0), this.color),
 		].filter((code) => code != null)
 
 		relPos.forEach((code) => {

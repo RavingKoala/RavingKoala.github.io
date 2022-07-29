@@ -35,10 +35,13 @@ class Chess {
 	#chessUI
 	state
 	#pickingPiece
+	#saving
 	constructor (boardDOM) {
 		this.#board = new ChessBoard()
 		this.#chessUI = new ChessUI(this, boardDOM)
 		this.state = states.idle
+		console.log(this.state);
+		this.#saving = null
 
 		this.initialize()
 	}
@@ -66,8 +69,10 @@ class Chess {
 		// capture king/queen to jail
 		document.addEventListener(ChessEvents.onTake, (event) => {
 			let piece = event.detail.pieceTaken
-			if (/[wb][qk]\^?/.test(piece.code)) { //regex for [white or black] [queen or king] maybe a banana
+			console.log(piece.code);
+			if (/[wb][qk]\^?/.test(piece.code)) { //regex for [white or black] [queen or king] (banana optionally)
 				this.state = states.pickingJail
+				console.log(this.state);
 				this.#pickingPiece = piece
 			}
 		})
@@ -83,6 +88,8 @@ class Chess {
 		// document.addEventListener(ChessEvents.onMove, (e) => {
 		// 	console.clear()
 		// 	console.log(this.#board.toString());
+
+		// 	this.#board.getJailPiece("jr1")
 		// })
 		// document.addEventListener(ChessEvents.onTake, (e) => {
 		// 	console.clear()
@@ -92,6 +99,7 @@ class Chess {
 		// console.log(this.#board.toString());
 
 		this.state = states.turn
+		console.log(this.state);
 	}
 
 	onSquarePicked(code) {
@@ -102,6 +110,7 @@ class Chess {
 			this.#board.setJailPiece(this.#pickingPiece, code)
 			this.#chessUI.setPiece(this.#pickingPiece, code)
 			this.state = states.turn
+			console.log(this.state);
 		}
 	}
 
@@ -122,41 +131,55 @@ class Chess {
 		this.#chessUI.hintSquares(code, hints)
 
 		this.state = states.moving
+		console.log(this.state);
 	}
 
 	onMove(from, to) {
 		if (from === to) return
 
 		let piece = this.#board.getPiece(from)
+
+		if (this.#saving !== null) {
+			if (piece.saveCondition(this.#board, to)) {
+				this.#move(from, to)
+
+				this.#move(this.#saving.from, this.#saving.to)
+				this.#saving == null
+				return
+			}
+		}
+
 		if (piece.canMoveTo(this.#board, from, to)) {
 			this.#move(from, to)
 			if (from === "c")
 				this.#chessUI.hideCenterSquare()
-
-			this.state = states.waiting
-			document.dispatchEvent(new CustomEvent(ChessEvents.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
 		}
 		if (piece.canTakeTo(this.#board, from, to)) {
-			let pieceTaken = this.#board.getPiece(to) // for event
-
 			this.#take(from, to)
-
-			this.state = states.waiting
-			document.dispatchEvent(new CustomEvent(ChessEvents.onTake, { detail: { "pieceTaking": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } })) // pieceTaking, pieceTaken, from, to
 		}
 	}
 
 	#move(from, to) {
+		let piece = this.#board.getPiece(from) // for event
+
 		this.#board.move(from, to)
 		this.#chessUI.move(from, to)
+
+		this.state = states.waiting
+
+		document.dispatchEvent(new CustomEvent(ChessEvents.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
 	}
 
-	#take(from, to, takeDest) {
-		if (takeDest !== undefined)
-			this.#move(to, takeDest)
+	#take(from, to) {
+		let piece = this.#board.getPiece(from) // for event
+		let pieceTaken = this.#board.getPiece(to) // for event
 
 		this.#board.take(from, to)
 		this.#chessUI.take(from, to)
+
+		this.state = states.waiting
+
+		document.dispatchEvent(new CustomEvent(ChessEvents.onTake, { detail: { "pieceTaking": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } }))
 	}
 
 	#change(code, func) {
@@ -174,7 +197,10 @@ class Chess {
 		if (this.state !== states.waiting // on successful turn
 			&& this.state !== states.pickingJail) {
 			this.state = states.turn
+			console.log(this.state);
 		}
+		if (this.#saving !== null)
+			this.#saving = null
 	}
 
 	onMultiMove(origin, to) {
@@ -184,7 +210,19 @@ class Chess {
 		if (!piece.getMultiMoves(this.#board, origin)[0].includes(to)) return
 
 		this.state = states.multiMove
+		console.log(this.state);
 
 		document.dispatchEvent(new CustomEvent(ChessEvents.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
+	}
+
+	onSave(origin, jail) {
+		let piece = this.#board.getPiece(origin)
+
+		if (!piece.canSave) return
+		let save = piece.canSavePiece(this.#board, origin)
+		if (save !== null) {
+			console.log(save);
+			this.#saving = save
+		}
 	}
 }

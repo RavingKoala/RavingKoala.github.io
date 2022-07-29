@@ -69,6 +69,16 @@ class ChessUI {
 				this.#chess.onMove(from, to)
 			})
 		})
+		this.#boardDOM.querySelectorAll(".square[data-id^='j']").forEach((square) => {
+			square.addEventListener("mouseenter", (e) => {
+				if (!this.#isDragging) return
+
+				let origin = this.#draggingDOM.parentNode.dataset.id
+				let jail = square.dataset.id
+				
+				this.#chess.onSave(origin, jail)
+			})
+		});
 		document.addEventListener("mouseup", (e) => {
 			this.#chess.onDragCancel()
 		})
