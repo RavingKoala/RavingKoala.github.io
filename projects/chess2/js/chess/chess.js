@@ -77,7 +77,6 @@ class Chess {
 			let to = event.detail.to
 			this.#chessUI.unHint()
 			let hints = piece.getMultiMoveHints(this.#board, to)
-			hints[0].push(origin)
 			this.#chessUI.hintSquares(to, hints)
 		})
 		// // console version
@@ -172,8 +171,8 @@ class Chess {
 		this.#chessUI.dragCancel()
 		this.#chessUI.unHint()
 
-		if (this.state !== states.waiting
-			&& this.state !== states.pickingJail) { // on successful turn
+		if (this.state !== states.waiting // on successful turn
+			&& this.state !== states.pickingJail) {
 			this.state = states.turn
 		}
 	}

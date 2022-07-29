@@ -199,7 +199,7 @@
 	border: solid 5px rgba(0, 0, 0, 0.3);
 }
 
-.square.origin::after {
+.square.source::after {
 	/*TODO: make this more interesting? */
 	content: "";
 	position: absolute;
@@ -209,6 +209,16 @@
 	height: 60%;
 	border-radius: 50%;
 	border: solid 5px rgba(0, 0, 0, 0.3);
+}
+
+.square.origin::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.3);
 }
 
 .square.dropping {

@@ -93,11 +93,11 @@ class ChessUI {
 		this.#draggingDOM = piece
 	}
 
-	hintSquares(source, squares) {
+	hintSquares(source, squares, origin = null) {
 		let tempDOM = this.#boardDOM.querySelector("[data-id='" + source + "']")
-		tempDOM.classList.add("origin")
+		tempDOM.classList.add("source")
 		this.#hinted.push(source)
-		
+
 		for (const code of squares[0]) {
 			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.add("moveable")
@@ -105,6 +105,12 @@ class ChessUI {
 		for (const code of squares[1]) {
 			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.add("takeable")
+		}
+
+		if (origin !== null) {
+			let tempDOM = this.#boardDOM.querySelector("[data-id='" + origin + "']")
+			tempDOM.classList.add("origin")
+			this.#hinted.push(origin)
 		}
 		
 		this.#hinted = this.#hinted.concat(squares)
@@ -115,8 +121,8 @@ class ChessUI {
 			return
 
 		let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[0] + "']")
-		tempDOM.classList.remove("origin")
-		
+		tempDOM.classList.remove("source")
+
 		for (const code of this.#hinted[1]) {
 			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.remove("moveable")
@@ -124,6 +130,11 @@ class ChessUI {
 		for (const code of this.#hinted[2]) {
 			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.remove("takeable")
+		}
+
+		if (this.#hinted[3] !== undefined) {
+			let tempDOM = this.#boardDOM.querySelector("[data-id='" + origin + "']")
+			tempDOM.classList.remove("origin")
 		}
 		this.#hinted = []
 	}
