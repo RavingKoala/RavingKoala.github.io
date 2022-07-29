@@ -188,7 +188,6 @@
 }
 
 .square.takeable::after {
-	/*TODO: make this more interesting? */
 	content: "";
 	position: absolute;
 	left: 0;
@@ -196,11 +195,9 @@
 	width: 100%;
 	height: 100%;
 	border-radius: 50%;
-	border: solid 5px rgba(0, 0, 0, 0.3);
 }
 
 .square.source::after {
-	/*TODO:  */
 	content: "";
 	position: absolute;
 	left: 50%;
