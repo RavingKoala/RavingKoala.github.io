@@ -200,11 +200,12 @@
 }
 
 .square.source::after {
-	/*TODO: make this more interesting? */
+	/*TODO:  */
 	content: "";
 	position: absolute;
-	left: 20%;
-	top: 20%;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
 	width: 60%;
 	height: 60%;
 	border-radius: 50%;
@@ -223,6 +224,13 @@
 
 .square.dropping {
 	box-shadow: inset 0 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.square.jailPick {
+	box-shadow: inset 0 0 0 5px rgba(255, 0, 0, 0.3);
+}
+.square.jailSave {
+	box-shadow: inset 0 0 0 5px rgba(0, 255, 0, 0.3);
 }
 
 .jail.left .square:nth-of-type(2n),

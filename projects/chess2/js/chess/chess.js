@@ -40,7 +40,6 @@ class Chess {
 		this.#board = new ChessBoard()
 		this.#chessUI = new ChessUI(this, boardDOM)
 		this.state = states.idle
-		console.log(this.state);
 		this.#saving = null
 
 		this.initialize()
@@ -69,10 +68,8 @@ class Chess {
 		// capture king/queen to jail
 		document.addEventListener(ChessEvents.onTake, (event) => {
 			let piece = event.detail.pieceTaken
-			console.log(piece.code);
 			if (/[wb][qk]\^?/.test(piece.code)) { //regex for [white or black] [queen or king] (banana optionally)
 				this.state = states.pickingJail
-				console.log(this.state);
 				this.#pickingPiece = piece
 			}
 		})
@@ -99,7 +96,6 @@ class Chess {
 		// console.log(this.#board.toString());
 
 		this.state = states.turn
-		console.log(this.state);
 	}
 
 	onSquarePicked(code) {
@@ -110,7 +106,6 @@ class Chess {
 			this.#board.setJailPiece(this.#pickingPiece, code)
 			this.#chessUI.setPiece(this.#pickingPiece, code)
 			this.state = states.turn
-			console.log(this.state);
 		}
 	}
 
@@ -131,23 +126,23 @@ class Chess {
 		this.#chessUI.hintSquares(code, hints)
 
 		this.state = states.moving
-		console.log(this.state);
 	}
 
 	onMove(from, to) {
-		if (from === to) return
+		if (from === to && !this.#saving !== null) return
 
 		let piece = this.#board.getPiece(from)
 
 		if (this.#saving !== null) {
 			if (piece.saveCondition(this.#board, from, to)) {
-				console.log("CAN save to " + to);
 				this.#move(from, to) // TODO: check if still can TAKE this way
 
-				this.#move(this.#saving.from, this.#saving.to)
+				this.#move(this.#saving.to, this.#saving.from)
 				this.#saving == null
 				return
 			}
+			
+			return
 		}
 
 		if (piece.canMoveTo(this.#board, from, to)) {
@@ -198,7 +193,6 @@ class Chess {
 		if (this.state !== states.waiting // on successful turn
 			&& this.state !== states.pickingJail) {
 			this.state = states.turn
-			console.log(this.state);
 		}
 		if (this.#saving !== null)
 			this.#saving = null
@@ -211,7 +205,6 @@ class Chess {
 		if (!piece.getMultiMoves(this.#board, origin)[0].includes(to)) return
 
 		this.state = states.multiMove
-		console.log(this.state);
 
 		document.dispatchEvent(new CustomEvent(ChessEvents.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
 	}
@@ -223,9 +216,8 @@ class Chess {
 		let save = piece.canSavePiece(this.#board, origin)
 		if (save !== null) {
 			this.#chessUI.unHint()
-			let hints = piece.getMultiMoveHints(this.#board, save.to)
-			console.log(save.to, hints);
-			this.#chessUI.hintSquares(save.to, hints)
+			let hints = piece.getMultiMoveHints(this.#board, save.from)
+			this.#chessUI.hintSquares(save.from, hints)
 			this.#saving = save
 		}
 	}

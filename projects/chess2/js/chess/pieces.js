@@ -72,7 +72,7 @@ class Piece {
 		return possibleMoves[1].includes(to)
 	}
 
-	saveCondition(board, toPos) {
+	saveCondition(board, pos, toPos) {
 		throw new Error('Method not implemented.');
 	}
 
@@ -354,7 +354,13 @@ class Monkey extends Piece {
 				jump = { from: "4h", to: "jr2" }
 		}
 
-		if (toPos !== jump.from) // TODO: can save with a 1 space move. This is WRONG (should only be able to save when jumping)
+		
+		let movesFromSaveSpot = this.getMultiMoves(board, jump.from) // dumb name i know
+		console.log(toPos, jump.from, toPos !== jump.from);
+		console.log(movesFromSaveSpot[0], toPos, movesFromSaveSpot[0].includes(toPos));
+		console.log(movesFromSaveSpot[1], toPos, movesFromSaveSpot[1].includes(toPos));
+		console.log(movesFromSaveSpot[0].includes(toPos) || movesFromSaveSpot[1].includes(toPos));
+		if (toPos !== jump.from && (movesFromSaveSpot[0].includes(toPos) || movesFromSaveSpot[1].includes(toPos)))
 			return true
 
 		return false
@@ -386,12 +392,12 @@ class Monkey extends Piece {
 		let multiMoves = this.getMultiMoves(board, pos)
 
 		// 2 edge cases:
-		//  1. going back to the previous position should still save
+		//  1. going back to the origional position should still save
 		//  2. on saving can still move 1 step when saving
-		
+
 		if ((pos === jump.from && (multiMoves[0].length > 0 || multiMoves[1].length > 0)) ||
 			multiMoves.includes(jump.from))
-			return { from: jump.to, to: jump.from }
+			return jump
 
 		return null
 	}
@@ -419,6 +425,10 @@ class Monkey extends Piece {
 				return
 
 			code = ChessBoard.getPos(pos, vec.clone().multiply(2))
+			if (code === this.position) {
+				returnArr[0].push(code)
+				return
+			}
 			if (code == null)
 				return
 			if (!board.isOccupied(code)) {
@@ -436,6 +446,8 @@ class Monkey extends Piece {
 
 	getMultiMoves(board, pos) {
 		let returnArr = [[], []] // [ [...possible eventual moves], [...possible eventual takes] ]
+
+		returnArr[0].push(pos)
 
 		let relVec = [
 			new Vec2(0, 1),
@@ -536,7 +548,7 @@ class Bear extends Piece {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
 		console.log(pos, pos)
-		
+
 		if (pos === "c") {
 			let codes = ["4d", "4e", "5d", "5e"]
 			returnArr[0] = codes.filter((code) => !board.isOccupied(code))

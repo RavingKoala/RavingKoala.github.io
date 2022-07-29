@@ -41,7 +41,7 @@ class ChessUI {
 				let code = square.dataset.id
 				this.#chess.onSquarePicked(code)
 			})
-			square.addEventListener("mouseover", (e) => {
+			square.addEventListener("mouseenter", (e) => {
 				if (!this.#isDragging) return
 
 				square.classList.add("dropping")
