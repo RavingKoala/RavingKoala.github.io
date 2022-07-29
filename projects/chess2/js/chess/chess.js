@@ -124,7 +124,7 @@ class Chess {
 		// check if multimove
 		// if multimove give both multimove hints and normal hints
 		if (piece.canMultiMove) {
-			let multiMovesHints = piece.getMultiMoveHints(this.#board, code)
+			let multiMovesHints = piece.getMultiMoves(this.#board, code)
 			hints[0] = hints[0].concat(multiMovesHints[0])
 			hints[1] = hints[1].concat(multiMovesHints[1])
 		}
@@ -140,8 +140,9 @@ class Chess {
 		let piece = this.#board.getPiece(from)
 
 		if (this.#saving !== null) {
-			if (piece.saveCondition(this.#board, to)) {
-				this.#move(from, to)
+			if (piece.saveCondition(this.#board, from, to)) {
+				console.log("CAN save to " + to);
+				this.#move(from, to) // TODO: check if still can TAKE this way
 
 				this.#move(this.#saving.from, this.#saving.to)
 				this.#saving == null
@@ -221,7 +222,10 @@ class Chess {
 		if (!piece.canSave) return
 		let save = piece.canSavePiece(this.#board, origin)
 		if (save !== null) {
-			console.log(save);
+			this.#chessUI.unHint()
+			let hints = piece.getMultiMoveHints(this.#board, save.to)
+			console.log(save.to, hints);
+			this.#chessUI.hintSquares(save.to, hints)
 			this.#saving = save
 		}
 	}

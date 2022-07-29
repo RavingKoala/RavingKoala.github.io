@@ -336,9 +336,9 @@ class Monkey extends Piece {
 		this.canSave = true
 	}
 
-	saveCondition(board, toPos) {
-		let piece = board.getPiece(this.position)
-		let onWhiteSquare = board.isWhiteSquare(this.position)
+	saveCondition(board, pos, toPos) {
+		let piece = board.getPiece(pos)
+		let onWhiteSquare = board.isWhiteSquare(pos)
 		let isWhitePiece = piece.color === "w"
 		let jump
 
@@ -354,15 +354,15 @@ class Monkey extends Piece {
 				jump = { from: "4h", to: "jr2" }
 		}
 
-		if (toPos !== jump.from)
+		if (toPos !== jump.from) // TODO: can save with a 1 space move. This is WRONG (should only be able to save when jumping)
 			return true
 
 		return false
 	}
 
 	canSavePiece(board, pos) {
-		let piece = board.getPiece(this.position)
-		let onWhiteSquare = board.isWhiteSquare(this.position)
+		let piece = board.getPiece(pos)
+		let onWhiteSquare = board.isWhiteSquare(pos)
 		let isWhitePiece = piece.color === "w"
 		let jump
 
@@ -383,9 +383,13 @@ class Monkey extends Piece {
 		if (savingPiece === null) return null
 		if (!savingPiece.hasBanana) return null
 
-		let multiMoves = this.getMultiMoves(board, this.position)
+		let multiMoves = this.getMultiMoves(board, pos)
 
-		if ((this.position === jump.from && multiMoves[0].length > 0 || multiMoves[0].length > 1) ||
+		// 2 edge cases:
+		//  1. going back to the previous position should still save
+		//  2. on saving can still move 1 step when saving
+		
+		if ((pos === jump.from && (multiMoves[0].length > 0 || multiMoves[1].length > 0)) ||
 			multiMoves.includes(jump.from))
 			return { from: jump.to, to: jump.from }
 
@@ -467,7 +471,7 @@ class Monkey extends Piece {
 		// fill returnArr[2] with possible eventual moves
 		// fill returnArr[3] with possible eventual takes
 		let searched = []
-		let searching = [this.position]
+		let searching = [pos]
 
 		while (searching.length > 0) {
 			let doing = searching.shift()
@@ -509,7 +513,7 @@ class Monkey extends Piece {
 		]
 
 		relVec.forEach((vec) => {
-			let code = ChessBoard.getPos(this.position, vec)
+			let code = ChessBoard.getPos(pos, vec)
 
 			if (code == null)
 				return
@@ -531,19 +535,19 @@ class Bear extends Piece {
 	possibleMoves(board, pos) {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
-		console.log(this.position, pos)
+		console.log(pos, pos)
 		
-		if (this.position === "c") {
+		if (pos === "c") {
 			let codes = ["4d", "4e", "5d", "5e"]
 			returnArr[0] = codes.filter((code) => !board.isOccupied(code))
 			return returnArr
 		}
 
 		let relPos = [
-			ChessBoard.getRelativePos(this.position, new Vec2(1, 0), this.color),
-			ChessBoard.getRelativePos(this.position, new Vec2(0, -1), this.color),
-			ChessBoard.getRelativePos(this.position, new Vec2(0, 1), this.color),
-			ChessBoard.getRelativePos(this.position, new Vec2(-1, 0), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(1, 0), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(0, -1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(0, 1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(-1, 0), this.color),
 		].filter((code) => code != null)
 
 		relPos.forEach((code) => {
