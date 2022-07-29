@@ -120,8 +120,6 @@ class ChessUI {
 		if (this.#hinted.length === 0)
 			return
 			
-		console.log(this.#hinted);
-
 		let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[0] + "']")
 		tempDOM.classList.remove("source")
 

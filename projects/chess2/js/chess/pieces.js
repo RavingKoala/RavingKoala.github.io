@@ -375,7 +375,6 @@ class Monkey extends Piece {
 		if (savingPiece === null) return false
 		if (!savingPiece.hasBanana) return false
 
-
 		let multiMoves = this.getMultiMoves(board, pos)
 
 		if ((pos === jump.from && multiMoves[0].length > 0 || multiMoves[0].length > 1) ||
@@ -476,7 +475,6 @@ class Monkey extends Piece {
 				}
 				if (jumpable[2] === "move")
 					returnArr[0].push(jumpable[1])
-
 
 				if (!searching.includes(jumpable[1]) && !searched.includes(jumpable[1]))
 					searching.push(jumpable[1])
