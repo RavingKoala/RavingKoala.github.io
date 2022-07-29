@@ -551,9 +551,13 @@ class Bear extends Piece {
 
 		let relPos = [
 			ChessBoard.getRelativePos(pos, new Vec2(1, 0), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(1, -1), this.color),
 			ChessBoard.getRelativePos(pos, new Vec2(0, -1), this.color),
-			ChessBoard.getRelativePos(pos, new Vec2(0, 1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(-1, -1), this.color),
 			ChessBoard.getRelativePos(pos, new Vec2(-1, 0), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(-1, 1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(0, 1), this.color),
+			ChessBoard.getRelativePos(pos, new Vec2(1, 1), this.color),
 		].filter((code) => code != null)
 
 		relPos.forEach((code) => {

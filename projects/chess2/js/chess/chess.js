@@ -1,24 +1,28 @@
-const ChessEvents = {
-	onMove: "onMove", // piece, from, to
-	onTake: "onTake", // pieceTaking, pieceTaken, from, to
-	onMultiMove: "onMultiMove" // piece, origin, to
-}
 
-const sides = {
-	white: "white",
-	black: "black"
-}
-
-const states = {
-	idle: "idle", // before and after game
-	turn: "turn", // when it is the start of a turn and nothing happened yet
-	waiting: "waiting", // waiting for the opponent to make a turn
-	moving: "moving", // dragging a piece
-	multiMove: "multiMove", // Multimoving a piece
-	pickingJail: "pickingJail" // picking a jail for the Queen/King to go
-}
 
 class Chess {
+	/* enums */
+	static events = {
+		onMove: "onMove", // piece, from, to
+		onTake: "onTake", // pieceTaking, pieceTaken, from, to
+		onMultiMove: "onMultiMove" // piece, origin, to
+	}
+
+	static sides = {
+		white: "w",
+		black: "b"
+	}
+
+	static states = {
+		idle: "idle", // before and after game
+		turn: "turn", // when it is the start of a turn and nothing happened yet
+		waiting: "waiting", // waiting for the opponent to make a turn
+		moving: "moving", // dragging a piece
+		multiMove: "multiMove", // Multimoving a piece
+		pickingJail: "pickingJail", // picking a jail for the Queen/King to go
+		finished: "finished" // game is over
+	}
+
 	/* board layout
 	 * [
 	 *     [8a, 8b, 8c, 8d, 8e, 8f, 8g, 8h] // black
@@ -36,10 +40,11 @@ class Chess {
 	state
 	#pickingPiece
 	#saving
+	#turn
 	constructor (boardDOM) {
 		this.#board = new ChessBoard()
 		this.#chessUI = new ChessUI(this, boardDOM)
-		this.state = states.idle
+		this.state = Chess.states.idle
 		this.#saving = null
 
 		this.initialize()
@@ -49,7 +54,7 @@ class Chess {
 		this.#chessUI.initialize(this.#board)
 		// set board rule
 		// change fishy into fishy queen
-		document.addEventListener(ChessEvents.onMove, (event) => {
+		document.addEventListener(Chess.events.onMove, (event) => {
 			let piece = event.detail.piece
 			let code = event.detail.currentPos
 			if ((piece.code === "wf" && code.startsWith("8"))
@@ -57,7 +62,7 @@ class Chess {
 				this.#change(piece.code, (piece) => new FishyQueen(piece.color))
 			}
 		})
-		document.addEventListener(ChessEvents.onTake, (event) => {
+		document.addEventListener(Chess.events.onTake, (event) => {
 			let piece = event.detail.pieceTaking
 			let code = event.detail.currentPos
 			if ((piece.code === "wf" && code.startsWith("8"))
@@ -66,14 +71,14 @@ class Chess {
 			}
 		})
 		// capture king/queen to jail
-		document.addEventListener(ChessEvents.onTake, (event) => {
+		document.addEventListener(Chess.events.onTake, (event) => {
 			let piece = event.detail.pieceTaken
 			if (/[wb][qk]\^?/.test(piece.code)) { //regex for [white or black] [queen or king] (banana optionally)
-				this.state = states.pickingJail
+				this.state = Chess.states.pickingJail
 				this.#pickingPiece = piece
 			}
 		})
-		document.addEventListener(ChessEvents.onMultiMove, (event) => {
+		document.addEventListener(Chess.events.onMultiMove, (event) => {
 			let piece = event.detail.piece
 			let origin = event.detail.origin
 			let to = event.detail.to
@@ -82,30 +87,30 @@ class Chess {
 			this.#chessUI.hintSquares(to, hints, origin)
 		})
 		// // console version
-		// document.addEventListener(ChessEvents.onMove, (e) => {
+		// document.addEventListener(Chess.events.onMove, (e) => {
 		// 	console.clear()
 		// 	console.log(this.#board.toString());
 
 		// 	this.#board.getJailPiece("jr1")
 		// })
-		// document.addEventListener(ChessEvents.onTake, (e) => {
+		// document.addEventListener(Chess.events.onTake, (e) => {
 		// 	console.clear()
 		// 	console.log(this.#board.toString());
 		// })
 		// console.clear()
 		// console.log(this.#board.toString());
 
-		this.state = states.turn
+		this.state = Chess.states.turn
 	}
 
 	onSquarePicked(code) {
-		if (this.state !== states.pickingJail) return
+		if (this.state !== Chess.states.pickingJail) return
 
 		if ((/w[qk]\^?/.test(this.#pickingPiece.code) && /jl[12]/.test(code))
 			|| (/b[qk]\^?/.test(this.#pickingPiece.code) && /jr[12]/.test(code))) {
 			this.#board.setJailPiece(this.#pickingPiece, code)
 			this.#chessUI.setPiece(this.#pickingPiece, code)
-			this.state = states.turn
+			this.state = Chess.states.turn
 		}
 	}
 
@@ -125,7 +130,7 @@ class Chess {
 		}
 		this.#chessUI.hintSquares(code, hints)
 
-		this.state = states.moving
+		this.state = Chess.states.moving
 	}
 
 	onMove(from, to) {
@@ -141,7 +146,7 @@ class Chess {
 				this.#saving == null
 				return
 			}
-			
+
 			return
 		}
 
@@ -161,9 +166,9 @@ class Chess {
 		this.#board.move(from, to)
 		this.#chessUI.move(from, to)
 
-		this.state = states.waiting
+		this.state = Chess.states.waiting
 
-		document.dispatchEvent(new CustomEvent(ChessEvents.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
+		document.dispatchEvent(new CustomEvent(Chess.events.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
 	}
 
 	#take(from, to) {
@@ -173,9 +178,9 @@ class Chess {
 		this.#board.take(from, to)
 		this.#chessUI.take(from, to)
 
-		this.state = states.waiting
+		this.state = Chess.states.waiting
 
-		document.dispatchEvent(new CustomEvent(ChessEvents.onTake, { detail: { "pieceTaking": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } }))
+		document.dispatchEvent(new CustomEvent(Chess.events.onTake, { detail: { "pieceTaking": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } }))
 	}
 
 	#change(code, func) {
@@ -190,9 +195,9 @@ class Chess {
 		this.#chessUI.dragCancel()
 		this.#chessUI.unHint()
 
-		if (this.state !== states.waiting // on successful turn
-			&& this.state !== states.pickingJail) {
-			this.state = states.turn
+		if (this.state !== Chess.states.waiting // on successful turn
+			&& this.state !== Chess.states.pickingJail) {
+			this.state = Chess.states.turn
 		}
 		if (this.#saving !== null)
 			this.#saving = null
@@ -204,9 +209,9 @@ class Chess {
 		if (!piece.canMultiMove) return
 		if (!piece.getMultiMoves(this.#board, origin)[0].includes(to)) return
 
-		this.state = states.multiMove
+		this.state = Chess.states.multiMove
 
-		document.dispatchEvent(new CustomEvent(ChessEvents.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
+		document.dispatchEvent(new CustomEvent(Chess.events.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
 	}
 
 	onSave(origin, jail) {

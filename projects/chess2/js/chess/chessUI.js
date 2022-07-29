@@ -75,7 +75,7 @@ class ChessUI {
 
 				let origin = this.#draggingDOM.parentNode.dataset.id
 				let jail = square.dataset.id
-				
+
 				this.#chess.onSave(origin, jail)
 			})
 		});
@@ -104,6 +104,7 @@ class ChessUI {
 	}
 
 	hintSquares(source, squares, origin = null) {
+		console.log("do hints", squares);
 		let tempDOM = this.#boardDOM.querySelector("[data-id='" + source + "']")
 		tempDOM.classList.add("source")
 		this.#hinted.push(source)
@@ -116,9 +117,9 @@ class ChessUI {
 			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.add("takeable")
 		}
-		
+
 		this.#hinted = this.#hinted.concat(squares)
-		
+
 		if (origin !== null) {
 			let tempDOM = this.#boardDOM.querySelector("[data-id='" + origin + "']")
 			tempDOM.classList.add("origin")
@@ -129,7 +130,7 @@ class ChessUI {
 	unHint() {
 		if (this.#hinted.length === 0)
 			return
-			
+
 		let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[0] + "']")
 		tempDOM.classList.remove("source")
 
@@ -191,12 +192,12 @@ class ChessUI {
 		let pieceDOM = this.#boardDOM.querySelector("[data-id='" + code + "'] .piece")
 
 		pieceDOM.addEventListener("mousedown", (e) => {
-			if (this.#chess.state === states.pickingJail) return
+			if (this.#chess.state === Chess.states.pickingJail) return
 
 			e.preventDefault();
 			this.#chess.onDrag(pieceDOM)
 			this.#dragMove(new Vec2(e.clientX, e.clientY))
 		})
-		
+
 	}
 }

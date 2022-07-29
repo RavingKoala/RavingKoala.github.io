@@ -18,10 +18,6 @@ const columnMarks = {
 	"g": 7,
 	"h": 8,
 }
-const Side = {
-	"white": 0,
-	"black": 1
-}
 
 class ChessBoard {
 	#board
