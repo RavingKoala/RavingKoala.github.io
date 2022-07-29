@@ -354,12 +354,8 @@ class Monkey extends Piece {
 				jump = { from: "4h", to: "jr2" }
 		}
 
-		
+
 		let movesFromSaveSpot = this.getMultiMoves(board, jump.from) // dumb name i know
-		console.log(toPos, jump.from, toPos !== jump.from);
-		console.log(movesFromSaveSpot[0], toPos, movesFromSaveSpot[0].includes(toPos));
-		console.log(movesFromSaveSpot[1], toPos, movesFromSaveSpot[1].includes(toPos));
-		console.log(movesFromSaveSpot[0].includes(toPos) || movesFromSaveSpot[1].includes(toPos));
 		if (toPos !== jump.from && (movesFromSaveSpot[0].includes(toPos) || movesFromSaveSpot[1].includes(toPos)))
 			return true
 
@@ -546,8 +542,6 @@ class Bear extends Piece {
 
 	possibleMoves(board, pos) {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
-
-		console.log(pos, pos)
 
 		if (pos === "c") {
 			let codes = ["4d", "4e", "5d", "5e"]
