@@ -106,19 +106,21 @@ class ChessUI {
 			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.add("takeable")
 		}
-
+		
+		this.#hinted = this.#hinted.concat(squares)
+		
 		if (origin !== null) {
 			let tempDOM = this.#boardDOM.querySelector("[data-id='" + origin + "']")
 			tempDOM.classList.add("origin")
 			this.#hinted.push(origin)
 		}
-		
-		this.#hinted = this.#hinted.concat(squares)
 	}
 
 	unHint() {
 		if (this.#hinted.length === 0)
 			return
+			
+		console.log(this.#hinted);
 
 		let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[0] + "']")
 		tempDOM.classList.remove("source")
@@ -133,7 +135,7 @@ class ChessUI {
 		}
 
 		if (this.#hinted[3] !== undefined) {
-			let tempDOM = this.#boardDOM.querySelector("[data-id='" + origin + "']")
+			let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[3] + "']")
 			tempDOM.classList.remove("origin")
 		}
 		this.#hinted = []

@@ -77,7 +77,7 @@ class Chess {
 			let to = event.detail.to
 			this.#chessUI.unHint()
 			let hints = piece.getMultiMoveHints(this.#board, to)
-			this.#chessUI.hintSquares(to, hints)
+			this.#chessUI.hintSquares(to, hints, origin)
 		})
 		// // console version
 		// document.addEventListener(ChessEvents.onMove, (e) => {
