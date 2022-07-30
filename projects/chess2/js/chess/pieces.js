@@ -5,6 +5,7 @@ class Piece {
 	hasBanana
 	canMultiMove
 	canSave
+	canPromote
 
 	get code() { return `${this.color}${this.type}${this.hasBanana ? "^" : ""}` }
 	get name() { return `${Piece.#COLORS[this.color]} ${Piece.#TYPES[this.type]}${this.hasBanana ? " with banana" : ""}` }
@@ -27,6 +28,7 @@ class Piece {
 	constructor (type, color, banana = false) {
 		this.canMultiMove = false // default unless overwritten
 		this.canSave = false // default unless overwritten
+		this.canPromote = false // default unless overwritten
 		this.type = type
 		if (type === "b") { // bear exeption
 			this.color = ""
@@ -70,6 +72,10 @@ class Piece {
 		}
 		let possibleMoves = this.possibleMoves(board, pos)
 		return possibleMoves[1].includes(to)
+	}
+
+	promotionCondition(board, pos) {
+		throw new Error('Method not implemented.');
 	}
 
 	saveCondition(board, pos, toPos) {
@@ -183,6 +189,11 @@ class Queen extends Piece {
 class Fishy extends Piece {
 	constructor (color = null) {
 		super("f", color)
+		this.canPromote = true
+	}
+
+	promotionCondition(board, pos) {
+		return (this.color === "w" && pos.startsWith("8")) || (this.color === "b" && pos.startsWith("1"))
 	}
 
 	possibleMoves(board, pos) {
@@ -317,8 +328,8 @@ class Rook extends Piece {
 			}
 		})
 
-		Object.keys(rowMarks).forEach((row) => {
-			Object.keys(columnMarks).forEach((column) => {
+		Object.keys(ChessBoard.rowMarks).forEach((row) => {
+			Object.keys(ChessBoard.columnMarks).forEach((column) => {
 				let code = ChessBoard.createCode(row, column)
 				if (!board.isOccupied(code))
 					returnArr[0].push(code)
@@ -355,10 +366,11 @@ class Monkey extends Piece {
 		}
 
 
-		let movesFromSaveSpot = this.getMultiMoves(board, jump.from) // dumb name i know
+		let movesFromSaveSpot = this.getMultiMoves(board, pos) // dumb name i know
+
 		if (toPos !== jump.from && (movesFromSaveSpot[0].includes(toPos) || movesFromSaveSpot[1].includes(toPos)))
 			return true
-
+			
 		return false
 	}
 
@@ -387,12 +399,8 @@ class Monkey extends Piece {
 
 		let multiMoves = this.getMultiMoves(board, pos)
 
-		// 2 edge cases:
-		//  1. going back to the origional position should still save
-		//  2. on saving can still move 1 step when saving
-
-		if ((pos === jump.from && (multiMoves[0].length > 0 || multiMoves[1].length > 0)) ||
-			multiMoves.includes(jump.from))
+		if (((pos === jump.from && (multiMoves[0].length > 0 || multiMoves[1].length > 0))) ||
+			(multiMoves[0].includes(jump.from) || multiMoves[1].includes(jump.from)))
 			return jump
 
 		return null

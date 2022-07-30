@@ -1,25 +1,26 @@
-const rowMarks = {
-	"1": 1,
-	"2": 2,
-	"3": 3,
-	"4": 4,
-	"5": 5,
-	"6": 6,
-	"7": 7,
-	"8": 8,
-}
-const columnMarks = {
-	"a": 1,
-	"b": 2,
-	"c": 3,
-	"d": 4,
-	"e": 5,
-	"f": 6,
-	"g": 7,
-	"h": 8,
-}
-
 class ChessBoard {
+	/* enums */
+	static rowMarks = {
+		"1": 1,
+		"2": 2,
+		"3": 3,
+		"4": 4,
+		"5": 5,
+		"6": 6,
+		"7": 7,
+		"8": 8,
+	}
+	static columnMarks = {
+		"a": 1,
+		"b": 2,
+		"c": 3,
+		"d": 4,
+		"e": 5,
+		"f": 6,
+		"g": 7,
+		"h": 8,
+	}
+
 	#board
 	constructor () {
 		this.#initialize()
@@ -42,9 +43,9 @@ class ChessBoard {
 
 		// board
 		this.#board = {}
-		for (const row of Object.keys(rowMarks)) {
+		for (const row of Object.keys(ChessBoard.rowMarks)) {
 			this.#board[row] = {}
-			for (const column of Object.keys(columnMarks)) {
+			for (const column of Object.keys(ChessBoard.columnMarks)) {
 				this.#board[row][column] = null
 			}
 		}
@@ -67,7 +68,7 @@ class ChessBoard {
 		this.#setPiece(new Fishy("w"), "2", "a")
 		this.#setPiece(new Fishy("w"), "2", "b")
 		this.#setPiece(new Elephant("w"), "2", "c")
-		this.#setPiece(new Fishy("w"), "2", "d")
+		// this.#setPiece(new Fishy("w"), "2", "d")
 		this.#setPiece(new Fishy("w"), "2", "e")
 		this.#setPiece(new Elephant("w"), "2", "f")
 		this.#setPiece(new Fishy("w"), "2", "g")
@@ -170,15 +171,17 @@ class ChessBoard {
 	setPiece(piece, code) {
 		if (code === "c")
 			return this.setCenterPiece(piece)
-		if (code.startsWith("j"))
+		if (code.startsWith("j")){
 			return this.setJailPiece(piece, code)
-
+		}
+		
 		let [row, column] = ChessBoard.splitCode(code)
 
 		this.#setPiece(piece, row, column)
 	}
 
 	move(from, to) {
+		if (from === to) return
 		if (this.getPiece(to) !== null)
 			throw new Error("Can't move from " + from + " to " + to)
 
@@ -187,8 +190,8 @@ class ChessBoard {
 		this.setPiece(null, from)
 	}
 
-	take(from, to) {
-		if (this.getPiece(to) === null)
+	take(from, to, force = false) {
+		if (this.getPiece(to) === null && !force)
 			throw new Error("Can't take " + to + ". Has no piece to take")
 
 		this.setPiece(null, to)
@@ -216,8 +219,8 @@ class ChessBoard {
 			return ChessBoard.#whiteSquares.includes(code)
 
 		let whiteSquares = []
-		Object.entries(rowMarks).forEach(([row, rowNr]) => {
-			Object.entries(columnMarks).forEach(([column, columnNr]) => {
+		Object.entries(ChessBoard.rowMarks).forEach(([row, rowNr]) => {
+			Object.entries(ChessBoard.columnMarks).forEach(([column, columnNr]) => {
 				if (rowNr % 2 === 0 && columnNr % 2 === 1)
 					return whiteSquares.push(ChessBoard.createCode(row, column))
 				if (rowNr % 2 === 1 && columnNr % 2 === 0)
@@ -237,18 +240,18 @@ class ChessBoard {
 	static codeToVec(code) {
 		let [row, column] = ChessBoard.splitCode(code)
 
-		if (!(Object.keys(rowMarks).includes(row) && Object.keys(columnMarks).includes(column)))
+		if (!(Object.keys(ChessBoard.rowMarks).includes(row) && Object.keys(ChessBoard.columnMarks).includes(column)))
 			return null
 
-		return new Vec2(columnMarks[column], rowMarks[row])
+		return new Vec2(ChessBoard.columnMarks[column], ChessBoard.rowMarks[row])
 	}
 
 	static vecToCode(vec) {
-		if (!(Object.values(rowMarks).includes(vec.y) && Object.values(columnMarks).includes(vec.x)))
+		if (!(Object.values(ChessBoard.rowMarks).includes(vec.y) && Object.values(ChessBoard.columnMarks).includes(vec.x)))
 			return null
 
-		let row = Object.entries(rowMarks).filter(([key, value]) => value === vec.y)[0][0]
-		let column = Object.entries(columnMarks).filter(([key, value]) => value === vec.x)[0][0]
+		let row = Object.entries(ChessBoard.rowMarks).filter(([key, value]) => value === vec.y)[0][0]
+		let column = Object.entries(ChessBoard.columnMarks).filter(([key, value]) => value === vec.x)[0][0]
 
 		return row + column
 	}
@@ -273,18 +276,19 @@ class ChessBoard {
 	toString() {
 		let getPieceStr = (code) => {
 			let piece = this.getPiece(code)
+			
 			return (piece !== null ? piece : "  ")
 		}
 
 		let retString = "[\n"
-		for (const row of Object.keys(rowMarks).reverse()) {
+		for (const row of Object.keys(ChessBoard.rowMarks).reverse()) {
 			if (row === "5")
 				retString += "[" + getPieceStr("jl1") + "]["
 			else if (row === "4")
 				retString += "[" + getPieceStr("jl2") + "]["
 			else
 				retString += "    ["
-			for (const column of Object.keys(columnMarks)) {
+			for (const column of Object.keys(ChessBoard.columnMarks)) {
 				let code = ChessBoard.createCode(row, column)
 				retString += getPieceStr(code) + ","
 			}

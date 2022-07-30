@@ -14,8 +14,8 @@ class ChessUI {
 
 	initialize(board) {
 		// visual board
-		for (const row of Object.keys(rowMarks)) {
-			for (const column of Object.keys(columnMarks)) {
+		for (const row of Object.keys(ChessBoard.rowMarks)) {
+			for (const column of Object.keys(ChessBoard.columnMarks)) {
 				let code = ChessBoard.createCode(row, column)
 				let piece = board.getPiece(code)
 				if (piece !== null)
@@ -38,10 +38,12 @@ class ChessUI {
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
 			square.addEventListener("mousedown", (e) => {
+				console.log("mousedown");
 				let code = square.dataset.id
 				this.#chess.onSquarePicked(code)
 			})
 			square.addEventListener("mouseenter", (e) => {
+				// TODO: doesnt work the very first hover on save
 				if (!this.#isDragging) return
 
 				square.classList.add("dropping")
@@ -59,6 +61,7 @@ class ChessUI {
 				square.classList.remove("dropping")
 			})
 			square.addEventListener("mouseup", (e) => {
+				console.log("mouseup");
 				if (!this.#isDragging) return
 
 				square.classList.remove("dropping")
@@ -66,6 +69,7 @@ class ChessUI {
 				let from = this.#draggingDOM.parentNode.dataset.id
 				let to = square.dataset.id
 
+				console.log("move", from, to);
 				this.#chess.onMove(from, to)
 			})
 		})
@@ -75,11 +79,11 @@ class ChessUI {
 
 				let origin = this.#draggingDOM.parentNode.dataset.id
 				let jail = square.dataset.id
-
 				this.#chess.onSave(origin, jail)
 			})
 		});
 		document.addEventListener("mouseup", (e) => {
+			console.log("mouseup cancel");
 			this.#chess.onDragCancel()
 		})
 		document.addEventListener("mousemove", (e) => {
@@ -104,7 +108,6 @@ class ChessUI {
 	}
 
 	hintSquares(source, squares, origin = null) {
-		console.log("do hints", squares);
 		let tempDOM = this.#boardDOM.querySelector("[data-id='" + source + "']")
 		tempDOM.classList.add("source")
 		this.#hinted.push(source)
