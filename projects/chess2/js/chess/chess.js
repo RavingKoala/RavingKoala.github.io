@@ -79,7 +79,7 @@ class Chess {
 			// let piece = event.detail.pieceTaken
 			// if (!(/[wb][qk]\^?/.test(piece.code))) return //regex for [white or black] [queen or king] (banana optionally)
 
-			// this.#state = Chess.states.pickingJail
+			// this.state = Chess.states.pickingJail
 			// this.#pickingPiece = piece
 		})
 		document.addEventListener(Chess.events.onMultiMove, (event) => {
@@ -103,10 +103,13 @@ class Chess {
 			// console.clear()
 			console.log(this.#board.toString());
 		})
+		document.addEventListener(Chess.events.onStateChange, (e) => {
+			console.log(e.detail.from, e.detail.to);
+		});
 		// console.clear()
 		console.log(this.#board.toString());
 
-		this.#state = Chess.states.turn
+		this.state = Chess.states.turn
 	}
 	
 	get state () {
@@ -134,7 +137,7 @@ class Chess {
 		}
 		this.#chessUI.hintSquares(code, hints)
 
-		this.#state = Chess.states.moving
+		this.state = Chess.states.moving
 	}
 
 	onSquarePicked(code) {
@@ -150,7 +153,7 @@ class Chess {
 		this.#board.setJailPiece(this.#pickingPiece, code)
 		this.#chessUI.setPiece(this.#pickingPiece, code)
 		this.#pickingPiece = null
-		this.#state = Chess.states.turn
+		this.state = Chess.states.turn
 
 		document.dispatchEvent(new CustomEvent(Chess.events.onJailPicked, { detail: { "piece": tempPiece, "to": code } }))
 	}
@@ -199,7 +202,7 @@ class Chess {
 		this.#board.move(from, to)
 		this.#chessUI.move(from, to)
 
-		this.#state = Chess.states.waiting
+		this.state = Chess.states.waiting
 
 		document.dispatchEvent(new CustomEvent(Chess.events.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
 	}
@@ -211,11 +214,11 @@ class Chess {
 		this.#board.take(from, to)
 		this.#chessUI.take(from, to)
 
-		this.#state = Chess.states.waiting
+		this.state = Chess.states.waiting
 
 		// capture king/queen to jail
 		if (/[wb][qk]\^?/.test(pieceTaken.code)) { //regex for [white or black] [queen or king] (banana optionally)
-			this.#state = Chess.states.pickingJail
+			this.state = Chess.states.pickingJail
 			this.#pickingPiece = pieceTaken
 		}
 		
@@ -236,7 +239,7 @@ class Chess {
 
 		if (this.#state !== Chess.states.waiting // on successful turn
 			&& this.#state !== Chess.states.pickingJail) {
-			this.#state = Chess.states.turn
+			this.state = Chess.states.turn
 		}
 		
 		this.#saving = null
@@ -248,7 +251,7 @@ class Chess {
 		if (!piece.canMultiMove) return
 		if (!piece.getMultiMoves(this.#board, origin)[0].includes(to)) return
 
-		this.#state = Chess.states.multiMove
+		this.state = Chess.states.multiMove
 
 		// update hints for current hovered square
 		this.#chessUI.unHint()
