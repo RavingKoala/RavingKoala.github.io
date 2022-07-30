@@ -38,7 +38,6 @@ class ChessUI {
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
 			square.addEventListener("mouseenter", (e) => {
-				// TODO: doesnt work the very first hover on save
 				if (!this.#isDragging) return
 
 				square.classList.add("dropping")

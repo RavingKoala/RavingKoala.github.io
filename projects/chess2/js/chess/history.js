@@ -5,6 +5,15 @@ class History {
 
 
 	}
+	
+	add(code, side) {
+		
+	}
+	
+	clear() {
+		
+	}
+	
 	toString() {
 
 	}

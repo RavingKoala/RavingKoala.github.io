@@ -14,11 +14,6 @@ class Chess {
 		onStateChange: "onStateChange" // from, to
 	}
 
-	static sides = {
-		white: "w",
-		black: "b"
-	}
-
 	static states = {
 		idle: "idle", // before and after game
 		turn: "turn", // when it is the start of a turn and nothing happened yet
@@ -27,6 +22,11 @@ class Chess {
 		multiMove: "multiMove", // Multimoving a piece
 		pickingJail: "pickingJail", // picking a jail for the Queen/King to go
 		finished: "finished" // game is over
+	}
+
+	static sides = {
+		white : "w",
+		black : "b"
 	}
 
 	/* board layout
@@ -103,11 +103,6 @@ class Chess {
 			// console.clear()
 			console.log(this.#board.toString());
 		})
-		document.addEventListener(Chess.events.onStateChange, (e) => {
-			console.log(e.detail.from, e.detail.to);
-		});
-		// console.clear()
-		console.log(this.#board.toString());
 
 		this.state = Chess.states.turn
 	}

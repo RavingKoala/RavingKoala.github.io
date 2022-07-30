@@ -20,7 +20,7 @@ class ChessTurn {
 	#composeObj
 
 	constructor () {
-		this.turn = Chess.sides.white
+		this.turn = Chess.sides.w
 		this.isComposing = false
 		this.#composeObj = null
 	}
