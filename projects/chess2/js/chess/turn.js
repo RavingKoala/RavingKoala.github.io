@@ -39,7 +39,6 @@ class ChessTurn {
 		for (let i = 1; i < 8; i++) { // 8 times for max board length or height (alternative is while true!)
 			let tempVec = vec.clone().multiply(i)
 			let code = ChessBoard.getRelativePos(pos, tempVec, this.color)
-			console.log(code);
 
 			if (code == null) return
 			if (board.isOccupied(code))

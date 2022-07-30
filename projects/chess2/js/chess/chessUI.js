@@ -38,7 +38,6 @@ class ChessUI {
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
 			square.addEventListener("mousedown", (e) => {
-				console.log("mousedown");
 				let code = square.dataset.id
 				this.#chess.onSquarePicked(code)
 			})
@@ -61,7 +60,6 @@ class ChessUI {
 				square.classList.remove("dropping")
 			})
 			square.addEventListener("mouseup", (e) => {
-				console.log("mouseup");
 				if (!this.#isDragging) return
 
 				square.classList.remove("dropping")
@@ -69,7 +67,6 @@ class ChessUI {
 				let from = this.#draggingDOM.parentNode.dataset.id
 				let to = square.dataset.id
 
-				console.log("move", from, to);
 				this.#chess.onMove(from, to)
 			})
 		})
@@ -83,7 +80,6 @@ class ChessUI {
 			})
 		});
 		document.addEventListener("mouseup", (e) => {
-			console.log("mouseup cancel");
 			this.#chess.onDragCancel()
 		})
 		document.addEventListener("mousemove", (e) => {

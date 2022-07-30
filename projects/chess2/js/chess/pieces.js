@@ -370,7 +370,7 @@ class Monkey extends Piece {
 
 		if (toPos !== jump.from && (movesFromSaveSpot[0].includes(toPos) || movesFromSaveSpot[1].includes(toPos)))
 			return true
-			
+
 		return false
 	}
 

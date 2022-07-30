@@ -171,10 +171,10 @@ class ChessBoard {
 	setPiece(piece, code) {
 		if (code === "c")
 			return this.setCenterPiece(piece)
-		if (code.startsWith("j")){
+		if (code.startsWith("j")) {
 			return this.setJailPiece(piece, code)
 		}
-		
+
 		let [row, column] = ChessBoard.splitCode(code)
 
 		this.#setPiece(piece, row, column)
@@ -231,6 +231,8 @@ class ChessBoard {
 		whiteSquares.push("jl1", "jr2")
 
 		ChessBoard.#whiteSquares = whiteSquares
+
+		return ChessBoard.#whiteSquares.includes(code)
 	}
 
 	isBlackSquare(code) {
@@ -276,7 +278,7 @@ class ChessBoard {
 	toString() {
 		let getPieceStr = (code) => {
 			let piece = this.getPiece(code)
-			
+
 			return (piece !== null ? piece : "  ")
 		}
 
@@ -293,12 +295,13 @@ class ChessBoard {
 				retString += getPieceStr(code) + ","
 			}
 			retString = retString.slice(0, -1)
+			retString += "]"
 			if (row === "5")
-				retString += "[" + getPieceStr("jr1") + "]\n"
+				retString += "[" + getPieceStr("jr1") + "]"
 			else if (row === "4")
-				retString += "[" + getPieceStr("jr2") + "]\n"
-			else
-				retString += "]\n"
+				retString += "[" + getPieceStr("jr2") + "]"
+				
+			retString += "\n"
 		}
 		retString += "]\n"
 		return retString

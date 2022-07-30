@@ -243,11 +243,12 @@ class Chess {
 
 
 		let save = piece.canSavePiece(this.#board, origin)
-		if (save !== null) {
-			this.#chessUI.unHint()
-			let hints = piece.getMultiMoveHints(this.#board, save.from)
-			this.#chessUI.hintSquares(save.from, hints)
-			this.#saving = save
-		}
+
+		if (save === null) return
+
+		this.#chessUI.unHint()
+		let hints = piece.getMultiMoveHints(this.#board, save.from)
+		this.#chessUI.hintSquares(save.from, hints)
+		this.#saving = save
 	}
 }
