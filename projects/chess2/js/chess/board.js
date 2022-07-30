@@ -68,7 +68,7 @@ class ChessBoard {
 		this.#setPiece(new Fishy("w"), "2", "a")
 		this.#setPiece(new Fishy("w"), "2", "b")
 		this.#setPiece(new Elephant("w"), "2", "c")
-		// this.#setPiece(new Fishy("w"), "2", "d")
+		this.#setPiece(new Fishy("w"), "2", "d")
 		this.#setPiece(new Fishy("w"), "2", "e")
 		this.#setPiece(new Elephant("w"), "2", "f")
 		this.#setPiece(new Fishy("w"), "2", "g")
@@ -166,6 +166,8 @@ class ChessBoard {
 			return this.#setPiece(piece, "0", "3")
 		if (code === "jr2")
 			return this.#setPiece(piece, "0", "4")
+			
+		throw new Error(code+" is not a jail code")
 	}
 
 	setPiece(piece, code) {
@@ -273,6 +275,14 @@ class ChessBoard {
 		if (color === "b")
 			tempVec.multiply(-1)
 		return this.getPos(code, tempVec)
+	}
+	
+	static isCheck() {
+		
+	}
+	
+	static isCheckmate() {
+		
 	}
 
 	toString() {

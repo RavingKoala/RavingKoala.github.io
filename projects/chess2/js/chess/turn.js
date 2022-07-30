@@ -1,32 +1,74 @@
 class ChessTurn {
+	static composeKeys = {
 
+	}
 	#turn
+	isComposing
+	#composeObj
 
 	constructor () {
 		this.turn = Chess.sides.white
+		this.isComposing = false
 	}
 
 	get turn() {
 		return this.#turn
 	}
 
-	set Turn(turn) {
+	set turn(turn) {
 		this.#turn = Chess.sides[turn]
+	}
+
+	addToCompose(key, value) {
+		isComposing = true
+		if (!Object.values(ChessTurn.composeKeys).includes(key))
+			throw new Error(key + " is not a valid key")
+		this.#composeObj[key] = value
+	}
+	
+	addToCompose(obj) {
+		if (obj instanceof Object)
+			throw new Error("parameter is not an object with key value pairs")
+
+		for (const [key, value] of Object.entries(obj)) {
+			this.addToCompose(key, value)
+		}
+	}
+
+	compose() {
+		isComposing = false
+		// mandatory keys
+		if (!)
+		//optional keys
+		return null
+	}
+
+	minifyFrom(board, from) {
+		if (this.#isUniqueOnBothAxis(board, from)) return ""
+
+		if (this.#isUniqueOnRow(board, from))
+			return ChessBoard.splitCode(from)[0]
+		else if (this.#isUniqueOnColumn(board, from))
+			return ChessBoard.splitCode(from)[1]
+
+		return from
 	}
 
 	static createCode(board, from, to, isCheckOrCheckmate = false) {
 		let piece = board.getPiece(from)
 
+		let fromMinCode
+
+
 		if (board.isOccupied(to)) {
 			let takenPiece = board.getPiece(to)
 			if (/[qk]/.test(piece.type)) { //regex for [white or black] [queen or king] (banana optionally)
-				ChessTurn.#createCaptureCode(piece, to, "j", from) // TODO: add jail where it was send to
+				ChessTurn.#createCaptureCode(piece, to, "j", fromMinCode) // TODO: add jail where it was send to
 			}
-			return ChessTurn.#createTakeCode(piece, to, from)
+			return ChessTurn.#createTakeCode(piece, to, fromMinCode)
 		}
 
-		// return ChessTurn.#createMoveCode(piece, to, from)
-		return ""
+		return ChessTurn.#createMoveCode(piece, to, fromMinCode)
 	}
 
 	static #isUniqueOnBothAxis(board, pos) {
@@ -131,17 +173,24 @@ class ChessTurn {
 		return code
 	}
 
-	static #createCheckOrCheckmateBaseCode(piece, to, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false) {
-		throw new Error('Method not implemented.');
-	}
+	// static #createCheckOrCheckmateBaseCode(piece, to, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false) {
+	// 	throw new Error('Method not implemented.');
+	// }
 
-	static #createCheckCode(piece, to, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false) {
-		let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false)
-		return base + "+"
-	}
+	// static #createCheckCode(piece, to, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false) {
+	// 	let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false)
+	// 	return base + "+"
+	// }
 
-	static #createCheckmateCode(piece, to, from = null, toPiece, isTakeMove = false, isPromotionMove = false) {
-		let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false)
-		return base + "#"
+	// static #createCheckmateCode(piece, to, from = null, toPiece, isTakeMove = false, isPromotionMove = false) {
+	// 	let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false)
+	// 	return base + "#"
+	// }
+
+	static createMatchEndCode(whiteWon = true) {
+		if (whiteWon)
+			return "1-0"
+		else
+			return "0-1"
 	}
 }
