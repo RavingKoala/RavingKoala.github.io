@@ -52,10 +52,10 @@ class ChessBoard {
 		// board pieces
 		this.#board["0"] = {}
 		this.setCenterPiece(new Bear())
-		this.setJailPiece(null, "jl1") // left/white jail top (row 5)
-		this.setJailPiece(null, "jl2") // left/white jail bottom (row 4)
-		this.setJailPiece(null, "jr1") // right/black jail top (row 5)
-		this.setJailPiece(null, "jr2") // right/black jail bottom (row 4)
+		this.setJailPiece(null, "jl5") // left/white jail top (row 5)
+		this.setJailPiece(null, "jl4") // left/white jail bottom (row 4)
+		this.setJailPiece(null, "jr5") // right/black jail top (row 5)
+		this.setJailPiece(null, "jr4") // right/black jail bottom (row 4)
 		// white
 		this.#setPiece(new Rook("w"), "1", "a")
 		this.#setPiece(new Monkey("w"), "1", "b")
@@ -94,10 +94,10 @@ class ChessBoard {
 
 	static splitCode(code) {
 		if (code === "c") return ["0", "0"]
-		if (code === "jl1") return ["0", "1"]
-		if (code === "jl2") return ["0", "2"]
-		if (code === "jr1") return ["0", "3"]
-		if (code === "jr2") return ["0", "4"]
+		if (code === "jl5") return ["0", "1"]
+		if (code === "jl4") return ["0", "2"]
+		if (code === "jr5") return ["0", "3"]
+		if (code === "jr4") return ["0", "4"]
 		let row = code.substring(0, 1)
 		let column = code.substring(1, 2)
 		return [row, column]
@@ -106,10 +106,10 @@ class ChessBoard {
 	static createCode(row, column) {
 		if (row === "0" || row === 0) {
 			if (column === "0" || column === 0) return "c"
-			if (column === "1" || column === 1) return "jl1"
-			if (column === "2" || column === 2) return "jl2"
-			if (column === "3" || column === 3) return "jr1"
-			if (column === "4" || column === 4) return "jr2"
+			if (column === "1" || column === 1) return "jl5"
+			if (column === "2" || column === 2) return "jl4"
+			if (column === "3" || column === 3) return "jr5"
+			if (column === "4" || column === 4) return "jr4"
 		}
 
 		return row + "" + column
@@ -124,13 +124,13 @@ class ChessBoard {
 	}
 
 	getJailPiece(code) {
-		if (code === "jl1")
+		if (code === "jl5")
 			return this.#getPiece("0", "1")
-		if (code === "jl2")
+		if (code === "jl4")
 			return this.#getPiece("0", "2")
-		if (code === "jr1")
+		if (code === "jr5")
 			return this.#getPiece("0", "3")
-		if (code === "jr2")
+		if (code === "jr4")
 			return this.#getPiece("0", "4")
 
 		return null
@@ -158,16 +158,16 @@ class ChessBoard {
 	}
 
 	setJailPiece(piece, code) {
-		if (code === "jl1")
+		if (code === "jl5")
 			return this.#setPiece(piece, "0", "1")
-		if (code === "jl2")
+		if (code === "jl4")
 			return this.#setPiece(piece, "0", "2")
-		if (code === "jr1")
+		if (code === "jr5")
 			return this.#setPiece(piece, "0", "3")
-		if (code === "jr2")
+		if (code === "jr4")
 			return this.#setPiece(piece, "0", "4")
-			
-		throw new Error(code+" is not a jail code")
+
+		throw new Error(code + " is not a jail code")
 	}
 
 	setPiece(piece, code) {
@@ -230,7 +230,7 @@ class ChessBoard {
 			});
 		});
 
-		whiteSquares.push("jl1", "jr2")
+		whiteSquares.push("jl5", "jr4")
 
 		ChessBoard.#whiteSquares = whiteSquares
 
@@ -276,13 +276,13 @@ class ChessBoard {
 			tempVec.multiply(-1)
 		return this.getPos(code, tempVec)
 	}
-	
+
 	static isCheck() {
-		
+
 	}
-	
+
 	static isCheckmate() {
-		
+
 	}
 
 	toString() {
@@ -295,9 +295,9 @@ class ChessBoard {
 		let retString = "[\n"
 		for (const row of Object.keys(ChessBoard.rowMarks).reverse()) {
 			if (row === "5")
-				retString += "[" + getPieceStr("jl1") + "]["
+				retString += "[" + getPieceStr("jl5") + "]["
 			else if (row === "4")
-				retString += "[" + getPieceStr("jl2") + "]["
+				retString += "[" + getPieceStr("jl4") + "]["
 			else
 				retString += "    ["
 			for (const column of Object.keys(ChessBoard.columnMarks)) {
@@ -307,10 +307,10 @@ class ChessBoard {
 			retString = retString.slice(0, -1)
 			retString += "]"
 			if (row === "5")
-				retString += "[" + getPieceStr("jr1") + "]"
+				retString += "[" + getPieceStr("jr5") + "]"
 			else if (row === "4")
-				retString += "[" + getPieceStr("jr2") + "]"
-				
+				retString += "[" + getPieceStr("jr4") + "]"
+
 			retString += "\n"
 		}
 		retString += "]\n"

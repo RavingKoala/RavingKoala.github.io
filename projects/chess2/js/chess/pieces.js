@@ -355,14 +355,14 @@ class Monkey extends Piece {
 
 		if (isWhitePiece) {
 			if (!onWhiteSquare)
-				jump = { from: "5a", to: "jl1" }
+				jump = { from: "5a", to: "jl5" }
 			else // onWhiteSquare
-				jump = { from: "4a", to: "jl2" }
+				jump = { from: "4a", to: "jl4" }
 		} else {
 			if (onWhiteSquare)
-				jump = { from: "5h", to: "jr1" }
+				jump = { from: "5h", to: "jr5" }
 			else // onWhiteSquare
-				jump = { from: "4h", to: "jr2" }
+				jump = { from: "4h", to: "jr4" }
 		}
 
 
@@ -382,14 +382,14 @@ class Monkey extends Piece {
 
 		if (isWhitePiece) {
 			if (!onWhiteSquare)
-				jump = { from: "5a", to: "jl1" }
+				jump = { from: "5a", to: "jl5" }
 			else // onWhiteSquare
-				jump = { from: "4a", to: "jl2" }
+				jump = { from: "4a", to: "jl4" }
 		} else {
 			if (onWhiteSquare)
-				jump = { from: "5h", to: "jr1" }
+				jump = { from: "5h", to: "jr5" }
 			else // onWhiteSquare
-				jump = { from: "4h", to: "jr2" }
+				jump = { from: "4h", to: "jr4" }
 		}
 
 		// quick check if possible

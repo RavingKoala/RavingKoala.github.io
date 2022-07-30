@@ -1,6 +1,19 @@
 class ChessTurn {
+	static signs = {
+		move: "",
+		take: "x",
+		capture: ">",
+		promotion: "=",
+		check: "+",
+		checkmate: "#",
+	}
 	static composeKeys = {
-
+		piece: "piece", // mandatory
+		from: "from", // mandatory
+		to: "to", // mandatory
+		isTakeMove: "isTakeMove",
+		promoteTo: "promoteTo",
+		captureTo: "captureTo",
 	}
 	#turn
 	isComposing
@@ -9,6 +22,7 @@ class ChessTurn {
 	constructor () {
 		this.turn = Chess.sides.white
 		this.isComposing = false
+		this.#composeObj = null
 	}
 
 	get turn() {
@@ -19,31 +33,74 @@ class ChessTurn {
 		this.#turn = Chess.sides[turn]
 	}
 
-	addToCompose(key, value) {
-		isComposing = true
+	// #region construct and create codes
+
+	addToCompose(board, key, value) {
+		this.isComposing = true
 		if (!Object.values(ChessTurn.composeKeys).includes(key))
-			throw new Error(key + " is not a valid key")
+			throw new Error(key + " is not a valid key!")
+
+		if (key === "from")
+			return this.#composeObj[key] = ChessTurn.minifyFrom(board, value)
+
 		this.#composeObj[key] = value
 	}
-	
-	addToCompose(obj) {
+
+	addToCompose(board, obj) {
 		if (obj instanceof Object)
-			throw new Error("parameter is not an object with key value pairs")
+			throw new Error("parameter is not an object with key value pairs!")
 
 		for (const [key, value] of Object.entries(obj)) {
-			this.addToCompose(key, value)
+			this.addToCompose(board, key, value)
 		}
 	}
 
-	compose() {
-		isComposing = false
+	composeTempCreate() { // may be inaccurate if params are missing
+		if (this.#composeObj === null) throw new Error("no parameters given!")
 		// mandatory keys
-		if (!)
+		if (!this.#composeObj.piece) throw Error("provide parameter: 'piece' is mandatory!")
+		if (!this.#composeObj.piece instanceof Piece) throw Error("parameter: 'piece' is not of type Piece!")
+		if (!this.#composeObj.to) throw Error("provide parameter: 'to' is mandatory!")
+		if (!this.#composeObj.from) throw Error("provide parameter: 'from' is mandatory!")
+
 		//optional keys
-		return null
+		// isTakeMove promoteTo captureTo
+		let isTakeMove = (this.#composeObj.isTakeMove === undefined) ? true : false
+		let isPromotionMove = (this.#composeObj.promoteTo !== undefined) ? true : false
+		let isCaptureMove = (this.#composeObj.captureTo !== undefined) ? true : false
+
+
+		// construct moveCode
+		// keys: toPiece, isTakeMove, isPromotionMove
+		let moveCode = ""
+		if (!isTakeMove)
+			moveCode += ChessTurn.#moveCodePiece(to)
+		else
+			moveCode += ChessTurn.#takeCodePiece(to)
+
+		if (isPromotionMove) {
+			promoCode = ""
+			if (this.#composeObj.promoteTo instanceof Piece)
+				moveCode += ChessTurn.#getPieceCode(this.#composeObj.promoteTo)
+			else
+				moveCode += this.#composeObj.promoteTo
+		}
+
+		if (isCaptureMove)
+			moveCode += this.#composeObj.captureTo
+
+		// default normal move
+		return moveCode
 	}
 
-	minifyFrom(board, from) {
+	composeAndCreate() {
+		let ret = composeTempCreate()
+		this.isComposing = false
+		this.#composeObj = null
+		return ret
+	}
+
+	static minifyFrom(board, from) {
 		if (this.#isUniqueOnBothAxis(board, from)) return ""
 
 		if (this.#isUniqueOnRow(board, from))
@@ -54,17 +111,14 @@ class ChessTurn {
 		return from
 	}
 
-	static createCode(board, from, to, isCheckOrCheckmate = false) {
+	static createCode(board, from, to, promoteTo = null, isCheckOrCheckmate = false) {
 		let piece = board.getPiece(from)
 
-		let fromMinCode
-
+		let fromMinCode = ChessBoard.minifyFrom(board, from)
 
 		if (board.isOccupied(to)) {
 			let takenPiece = board.getPiece(to)
-			if (/[qk]/.test(piece.type)) { //regex for [white or black] [queen or king] (banana optionally)
-				ChessTurn.#createCaptureCode(piece, to, "j", fromMinCode) // TODO: add jail where it was send to
-			}
+
 			return ChessTurn.#createTakeCode(piece, to, fromMinCode)
 		}
 
@@ -135,7 +189,7 @@ class ChessTurn {
 
 	static #createMoveCode(piece, to, from = null) {
 		let code = ""
-		code += ChessTurn.#getPieceCode(piece).toString()
+		code += ChessTurn.#getPieceCode(piece)
 		if (from !== null) code += from
 		code += to
 
@@ -144,48 +198,85 @@ class ChessTurn {
 
 	static #createTakeCode(piece, to, from = null) {
 		let code = ""
-		code += ChessTurn.#getPieceCode(piece).toString()
+		code += ChessTurn.#getPieceCode(piece)
 		if (from !== null) code += from
-		code += "x"
-		code += to
+		code += ChessTurn.#takeCodePiece(to)
 
 		return code
 	}
 
-	static #createCaptureCode(piece, to, captureTo, from = null) {
-		let code = ChessTurn.#createTakeCode(piece, to, from)
-		return code + ">" + captureTo
-	}
-
-	static #createPromotionCode(piece, to, toPiece, from = null, isTakeMove = false) {
+	static #createPromotionCode(piece, to, promoteTo, from = null, isTakeMove = false) {
 		let code = ""
 		if (isTakeMove)
 			code += ChessTurn.#createTakeCode(piece, to, from)
 		else
 			code += ChessTurn.#createMoveCode(piece, to, from)
 
-		code += "=" // is: 'e8=QF' but can also be 'e8QF' or 'e8(QF)' or 'e8/QF'
-		if (toPiece instanceof Piece)
-			code += toPiece.type
-		else
-			code += toPiece // is code (string)
+		// is: 'e8=QF' but can also be 'e8QF' or 'e8(QF)' or 'e8/QF'
+		if (promoteTo instanceof Piece)
+			promoteTo = ChessTurn.#getPieceCode(promoteTo)
+
+		code += ChessTurn.#promotionCodePiece(promoteTo)
 
 		return code
 	}
 
-	// static #createCheckOrCheckmateBaseCode(piece, to, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false) {
-	// 	throw new Error('Method not implemented.');
-	// }
+	static #createCaptureCode(piece, to, captureTo, from = null) {
+		let code = ChessTurn.#createTakeCode(piece, to, from)
+		return code + ChessTurn.#captureCodePiece(captureTo)
+	}
 
-	// static #createCheckCode(piece, to, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false) {
-	// 	let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false)
-	// 	return base + "+"
-	// }
+	static #createPromotionAndCaptureCode(piece, to, toPiece, captureTo, from = null) {
+		let code = ChessTurn.#createPromotionCode(piece, to, toPiece, from, true)
+		return code + ChessTurn.#captureCodePiece(captureTo)
+	}
 
-	// static #createCheckmateCode(piece, to, from = null, toPiece, isTakeMove = false, isPromotionMove = false) {
-	// 	let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false)
-	// 	return base + "#"
-	// }
+
+	static #createCheckOrCheckmateBaseCode(piece, to, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false) {
+		throw new Error('Method not implemented.');
+	}
+
+	static #createCheckCode(piece, to, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false) {
+		let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false)
+		return base + "+"
+	}
+
+	static #createCheckmateCode(piece, to, from = null, toPiece, isTakeMove = false, isPromotionMove = false) {
+		let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false)
+		return base + "#"
+	}
+
+	static #moveCodePiece(to, from = null) {
+		let ret = ""
+		if (from !== null) ret += from
+		ret += signs.move
+		ret += to
+		return ret
+	}
+	static #takeCodePiece(to, from = null) {
+		let ret = ""
+		if (from !== null) ret += from
+		ret += signs.take
+		ret += to
+		return ret
+	}
+	static #promotionCodePiece(to) {
+		let toCode = ""
+		if (to instanceof Piece) {
+			toCode = to.type.toUpperCase()
+		}
+
+		return signs.promotion + "" + to
+	}
+	static #captureCodePiece(to) {
+		return signs.capture + "" + to
+	}
+	static #checkCodePiece(to) {
+		return signs.check + "" + to
+	}
+	static #checkmateCodePiece(to) {
+		return signs.checkmate + "" + to
+	}
 
 	static createMatchEndCode(whiteWon = true) {
 		if (whiteWon)
@@ -193,4 +284,9 @@ class ChessTurn {
 		else
 			return "0-1"
 	}
+	// #endregion
+
+	// #region deconstruct codes
+
+	// #endregion
 }

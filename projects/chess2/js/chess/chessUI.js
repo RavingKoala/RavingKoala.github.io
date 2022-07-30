@@ -24,10 +24,10 @@ class ChessUI {
 		}
 		let otherSquares = [
 			"c",
-			"jl1",
-			"jl2",
-			"jr1",
-			"jr2"
+			"jl5",
+			"jl4",
+			"jr5",
+			"jr4"
 		]
 		otherSquares.forEach((code) => {
 			let piece = board.getPiece(code)
@@ -37,10 +37,6 @@ class ChessUI {
 
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
-			square.addEventListener("mousedown", (e) => {
-				let code = square.dataset.id
-				this.#chess.onSquarePicked(code)
-			})
 			square.addEventListener("mouseenter", (e) => {
 				// TODO: doesnt work the very first hover on save
 				if (!this.#isDragging) return
@@ -71,6 +67,10 @@ class ChessUI {
 			})
 		})
 		this.#boardDOM.querySelectorAll(".square[data-id^='j']").forEach((square) => {
+			square.addEventListener("mousedown", (e) => {
+				let code = square.dataset.id
+				this.#chess.onSquarePicked(code)
+			})
 			square.addEventListener("mouseenter", (e) => {
 				if (!this.#isDragging) return
 
