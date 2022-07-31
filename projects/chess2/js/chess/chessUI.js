@@ -3,12 +3,14 @@ class ChessUI {
 	#chess
 	#isDragging
 	#draggingDOM
+	#isCenterHidden
 	#hinted
 	constructor (chess, boardDOM) {
 		this.#chess = chess
 		this.#boardDOM = boardDOM
 		this.#isDragging = false
 		this.#draggingDOM = null
+		this.#isCenterHidden = false
 		this.#hinted = []
 	}
 
@@ -24,10 +26,10 @@ class ChessUI {
 		}
 		let otherSquares = [
 			"c",
-			"jl5",
-			"jl4",
-			"jr5",
-			"jr4"
+			"wj5",
+			"wj4",
+			"bj5",
+			"bj4"
 		]
 		otherSquares.forEach((code) => {
 			let piece = board.getPiece(code)
@@ -37,8 +39,10 @@ class ChessUI {
 
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
-			square.addEventListener("mouseenter", (e) => {
+			square.addEventListener("mouseover", (e) => {
 				if (!this.#isDragging) return
+
+				//move to under centerpiece (but keeping centerpiece cancelabble)
 
 				square.classList.add("dropping")
 
@@ -65,7 +69,7 @@ class ChessUI {
 				this.#chess.onMove(from, to)
 			})
 		})
-		this.#boardDOM.querySelectorAll(".square[data-id^='j']").forEach((square) => {
+		this.#boardDOM.querySelectorAll(".square[data-id~='j']").forEach((square) => {
 			square.addEventListener("mousedown", (e) => {
 				let code = square.dataset.id
 				this.#chess.onSquarePicked(code)
@@ -79,6 +83,9 @@ class ChessUI {
 			})
 		});
 		document.addEventListener("mouseup", (e) => {
+			if (!this.#isCenterHidden)
+				this.#boardDOM.querySelector(".centerSquare").classList.remove("noDrop")
+
 			this.#chess.onDragCancel()
 		})
 		document.addEventListener("mousemove", (e) => {
@@ -90,7 +97,8 @@ class ChessUI {
 
 	hideCenterSquare() {
 		/* bear exception */
-		this.#boardDOM.querySelector(".squares").querySelector("[data-id='c']").classList.add("hidden")
+		this.#boardDOM.querySelector(".centerSquare").classList.add("hidden")
+		this.#isCenterHidden = true
 	}
 
 	dragStart(piece) {
@@ -192,6 +200,10 @@ class ChessUI {
 		pieceDOM.addEventListener("mousedown", (e) => {
 			if (this.#chess.state === Chess.states.pickingJail) return
 
+			// hide center
+			if (pieceDOM.parentNode.dataset.id !== "c")
+				this.#boardDOM.querySelector(".centerSquare").classList.add("noDrop")
+				
 			e.preventDefault();
 			this.#chess.onDrag(pieceDOM)
 			this.#dragMove(new Vec2(e.clientX, e.clientY))

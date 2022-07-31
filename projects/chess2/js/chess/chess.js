@@ -57,6 +57,8 @@ class Chess {
 		this.#saving = null
 
 		this.initialize()
+
+		console.log(this.#board.hash);
 	}
 
 	initialize() {
@@ -102,8 +104,8 @@ class Chess {
 	onSquarePicked(code) {
 		if (this.#state !== Chess.states.pickingJail) return
 
-		if (!((/w[qk]\^?/.test(this.#pickingPiece.code) && /jl[45]/.test(code)) ||
-			(/b[qk]\^?/.test(this.#pickingPiece.code) && /jr[45]/.test(code))))
+		if (!((/w[QK]\^?/.test(this.#pickingPiece.code) && /wj[45]/.test(code)) ||
+			(/b[QK]\^?/.test(this.#pickingPiece.code) && /bj[45]/.test(code))))
 			return
 
 		let tempPiece = this.#pickingPiece // for event
@@ -158,7 +160,7 @@ class Chess {
 	#move(from, to) {
 		let piece = this.#board.getPiece(from)
 
-		console.log(ChessTurn.createCode(this.#board, from, to));
+		// console.log(ChessTurn.createCode(this.#board, from, to));
 
 		if (piece.canPromote) {
 			if (piece.promotionCondition(this.#board, to))
@@ -189,7 +191,7 @@ class Chess {
 		this.state = Chess.states.waiting
 
 		// capture king/queen to jail
-		if (/[wb][qk]\^?/.test(pieceTaken.code)) { //regex for [white or black] [queen or king] (banana optionally)
+		if (/[wb][QK]\^?/.test(pieceTaken.code)) { //regex for [white or black] [queen or king] (banana optionally)
 			this.state = Chess.states.pickingJail
 			this.#pickingPiece = pieceTaken
 		}

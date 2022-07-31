@@ -15,15 +15,15 @@ class Piece {
 		"b": "black"
 	}
 	static TYPES = {
-		"k": "king",
-		"q": "queen",
-		"f": "fishy",
-		"fq": "fishy queen",
-		"e": "elephant",
-		"r": "rook",
-		"m": "monkey",
+		"K": "king",
+		"Q": "queen",
+		"F": "fishy",
+		"FQ": "fishy queen",
+		"E": "elephant",
+		"R": "rook",
+		"M": "monkey",
 
-		"b": "bear"
+		"B": "bear"
 	}
 	constructor (type, color, hasBanana = false) {
 		this.canMultiMove = false // default unless overwritten
@@ -32,8 +32,8 @@ class Piece {
 		this.type = type
 		this.color = color
 		this.hasBanana = hasBanana;
-		
-		if (type === "b") // bear exeption overeride
+
+		if (type === "B") // bear exeption overeride
 			this.color = ""
 	}
 
@@ -73,7 +73,7 @@ class Piece {
 	promotionChange(piece, pos) {
 		throw new Error('Method not implemented.');
 	}
-	
+
 	promotionCondition(board, pos) {
 		throw new Error('Method not implemented.');
 	}
@@ -112,7 +112,7 @@ class Piece {
 
 class King extends Piece {
 	constructor (color = null, hasBanana = false) {
-		super("k", color, hasBanana)
+		super("K", color, hasBanana)
 	}
 
 	possibleMoves(board, pos) {
@@ -146,7 +146,7 @@ class King extends Piece {
 
 class Queen extends Piece {
 	constructor (color = null) {
-		super("q", color)
+		super("Q", color)
 	}
 
 	possibleMoves(board, pos) {
@@ -188,10 +188,10 @@ class Queen extends Piece {
 
 class Fishy extends Piece {
 	constructor (color = null) {
-		super("f", color)
+		super("F", color)
 		this.canPromote = true
 	}
-	
+
 	promotionChange(piece, pos) {
 		return new FishyQueen(piece.color)
 	}
@@ -238,7 +238,7 @@ class Fishy extends Piece {
 
 class FishyQueen extends Piece {
 	constructor (color = null) {
-		super("fq", color)
+		super("FQ", color)
 	}
 
 	possibleMoves(board, pos) {
@@ -281,7 +281,7 @@ class FishyQueen extends Piece {
 
 class Elephant extends Piece {
 	constructor (color = null) {
-		super("e", color)
+		super("E", color)
 	}
 
 	possibleMoves(board, pos) {
@@ -311,7 +311,7 @@ class Elephant extends Piece {
 
 class Rook extends Piece {
 	constructor (color = null) {
-		super("r", color)
+		super("R", color)
 	}
 
 	possibleMoves(board, pos) {
@@ -346,7 +346,7 @@ class Rook extends Piece {
 
 class Monkey extends Piece {
 	constructor (color = null, hasBanana = false) {
-		super("m", color, hasBanana)
+		super("M", color, hasBanana)
 		this.canMultiMove = true
 		this.canSave = true
 	}
@@ -359,14 +359,14 @@ class Monkey extends Piece {
 
 		if (isWhitePiece) {
 			if (!onWhiteSquare)
-				jump = { from: "5a", to: "jl5" }
+				jump = { from: "5a", to: "wj5" }
 			else // onWhiteSquare
-				jump = { from: "4a", to: "jl4" }
+				jump = { from: "4a", to: "wj4" }
 		} else {
 			if (onWhiteSquare)
-				jump = { from: "5h", to: "jr5" }
+				jump = { from: "5h", to: "bj5" }
 			else // onWhiteSquare
-				jump = { from: "4h", to: "jr4" }
+				jump = { from: "4h", to: "bj4" }
 		}
 
 
@@ -386,14 +386,14 @@ class Monkey extends Piece {
 
 		if (isWhitePiece) {
 			if (!onWhiteSquare)
-				jump = { from: "5a", to: "jl5" }
+				jump = { from: "5a", to: "wj5" }
 			else // onWhiteSquare
-				jump = { from: "4a", to: "jl4" }
+				jump = { from: "4a", to: "wj4" }
 		} else {
 			if (onWhiteSquare)
-				jump = { from: "5h", to: "jr5" }
+				jump = { from: "5h", to: "bj5" }
 			else // onWhiteSquare
-				jump = { from: "4h", to: "jr4" }
+				jump = { from: "4h", to: "bj4" }
 		}
 
 		// quick check if possible
@@ -549,7 +549,7 @@ class Monkey extends Piece {
 
 class Bear extends Piece {
 	constructor () {
-		super("b")
+		super("B")
 	}
 
 	possibleMoves(board, pos) {

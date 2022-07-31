@@ -34,7 +34,6 @@ class ChessTurn {
 	}
 
 	// #region construct and create codes
-
 	addToCompose(board, key, value) {
 		this.isComposing = true
 		if (!Object.values(ChessTurn.composeKeys).includes(key))
@@ -122,7 +121,7 @@ class ChessTurn {
 
 		if (board.isOccupied(to)) {
 			let takenPiece = board.getPiece(to)
-
+			// TODO: if king/queen make capture?!
 			return ChessTurn.#createTakeCode(piece, to, fromMinCode)
 		}
 
@@ -131,7 +130,6 @@ class ChessTurn {
 
 	static #isUniqueInDirection(board, pos, vec) {
 		let piece = board.getPiece(pos)
-		console.log(piece, pos);
 
 		for (let i = 1; i < 8; i++) { // 8 times for max board length or height (alternative is while true!)
 			let tempVec = vec.clone().multiply(i)
@@ -182,7 +180,7 @@ class ChessTurn {
 		if (!piece instanceof Piece)
 			throw new Error(piece + "Is not instance of Piece!")
 
-		let code = (piece.type !== "f" ? piece.type.toUpperCase() : "")
+		let code = (piece.type !== "F" ? piece.type : "")
 		if (piece.hasBanana) code += "^"
 		return code
 
@@ -264,7 +262,7 @@ class ChessTurn {
 	static #promotionCodePiece(to) {
 		let toCode = ""
 		if (to instanceof Piece) {
-			toCode = to.type.toUpperCase()
+			toCode = to.type
 		}
 
 		return signs.promotion + "" + to

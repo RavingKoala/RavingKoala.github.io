@@ -22,14 +22,75 @@ class ChessBoard {
 	}
 
 	#board
-	#piecesLookup // {"f": [a2,b2, ...], ...}
+	#piecesLookup // {"F": [a2,b2, ...], ...}
+	static #boardPositionsTable // {"1awF": 0, 1bwF, 1, ...}
 	constructor () {
 		this.#board = {}
 		this.#piecesLookup = null
-		this.#initialize()
+
+		this.#initializeBoard()
 	}
 
-	#initialize() {
+	get hash() {
+		if (positionsMap === undefined)
+			throw new Error("positionsMap not found!")
+		ChessBoard.#validateBoardPositionsTable()
+
+		this.#validateLookup()
+
+		return this.#createHash()
+	}
+
+	static #validateBoardPositionsTable() {
+		if (ChessBoard.boardPositionsTable !== undefined) return
+
+		ChessBoard.#boardPositionsTable = {}; // a boardPositionsTable for all possible positions of pieces on the board
+		Object.entries(positionsMap).forEach(([i, code]) => {
+			ChessBoard.#boardPositionsTable[code] = parseInt(i)
+		});
+	}
+
+	static #LookUpPositionMapHard(pos, type, color) { // may be good for deprication later
+		if (pos === "c") return 1124 // can only be cB
+		if (pos.includes("j")) {
+			return ChessBoard.#boardPositionsTable[864]
+		}
+		
+	}
+
+	static #LookUpPositionMap(pos, type, color) {
+		if (pos === "c") return 864 // can only be cB
+		if (pos.includes("j")) {
+			return ChessBoard.#boardPositionsTable[864]
+		}
+		
+	}
+
+	#createHash() {
+		let hash = 0
+		// console.log(this.#piecesLookup);
+		for (const [type, piecesArr] of Object.entries(this.#piecesLookup)) {
+			for (const pos of piecesArr) {
+				// console.log(pos);
+				let piece = this.getPiece(pos)
+				// console.log(piece);
+				let type = piece.type
+				if (piece.hasBanana) type += "^"
+				hash += parseInt(ChessBoard.#LookUpPositionMap(piece.position, type, piece.color))
+			}
+		}
+		return hash
+	}
+
+	baseDecToHex(num) {
+		return num.toString(16); // TODO: test base 36 ;p
+	}
+
+	baseHexToDec(numStr) {
+		return parseInt(numStr, 16);
+	}
+
+	#initializeBoard() {
 
 		/*
 		[
@@ -54,10 +115,10 @@ class ChessBoard {
 		// board pieces
 		this.#board["0"] = {}
 		this.setCenterPiece(new Bear())
-		this.setJailPiece(null, "jl5") // left/white jail top (row 5)
-		this.setJailPiece(null, "jl4") // left/white jail bottom (row 4)
-		this.setJailPiece(null, "jr5") // right/black jail top (row 5)
-		this.setJailPiece(null, "jr4") // right/black jail bottom (row 4)
+		this.setJailPiece(null, "wj5") // left/white jail top (row 5)
+		this.setJailPiece(null, "wj4") // left/white jail bottom (row 4)
+		this.setJailPiece(null, "bj5") // right/black jail top (row 5)
+		this.setJailPiece(null, "bj4") // right/black jail bottom (row 4)
 		// white
 		this.#setPiece(new Rook("w"), "1", "a")
 		this.#setPiece(new Monkey("w"), "1", "b")
@@ -96,10 +157,10 @@ class ChessBoard {
 
 	static splitCode(code) {
 		if (code === "c") return ["0", "0"]
-		if (code === "jl5") return ["0", "1"]
-		if (code === "jl4") return ["0", "2"]
-		if (code === "jr5") return ["0", "3"]
-		if (code === "jr4") return ["0", "4"]
+		if (code === "wj5") return ["0", "1"]
+		if (code === "wj4") return ["0", "2"]
+		if (code === "bj5") return ["0", "3"]
+		if (code === "bj4") return ["0", "4"]
 		let row = code.substring(0, 1)
 		let column = code.substring(1, 2)
 		return [row, column]
@@ -108,10 +169,10 @@ class ChessBoard {
 	static createCode(row, column) {
 		if (row === "0" || row === 0) {
 			if (column === "0" || column === 0) return "c"
-			if (column === "1" || column === 1) return "jl5"
-			if (column === "2" || column === 2) return "jl4"
-			if (column === "3" || column === 3) return "jr5"
-			if (column === "4" || column === 4) return "jr4"
+			if (column === "1" || column === 1) return "wj5"
+			if (column === "2" || column === 2) return "wj4"
+			if (column === "3" || column === 3) return "bj5"
+			if (column === "4" || column === 4) return "bj4"
 		}
 
 		return row + "" + column
@@ -126,13 +187,13 @@ class ChessBoard {
 	}
 
 	getJailPiece(code) {
-		if (code === "jl5")
+		if (code === "wj5")
 			return this.#getPiece("0", "1")
-		if (code === "jl4")
+		if (code === "wj4")
 			return this.#getPiece("0", "2")
-		if (code === "jr5")
+		if (code === "bj5")
 			return this.#getPiece("0", "3")
-		if (code === "jr4")
+		if (code === "bj4")
 			return this.#getPiece("0", "4")
 
 		return null
@@ -141,7 +202,7 @@ class ChessBoard {
 	getPiece(code) {
 		if (code === "c")
 			return this.getCenterPiece()
-		if (code.startsWith("j"))
+		if (code.includes("j"))
 			return this.getJailPiece(code)
 
 		let [row, column] = ChessBoard.splitCode(code)
@@ -161,13 +222,13 @@ class ChessBoard {
 	}
 
 	setJailPiece(piece, code) {
-		if (code === "jl5")
+		if (code === "wj5")
 			return this.#setPiece(piece, "0", "1")
-		if (code === "jl4")
+		if (code === "wj4")
 			return this.#setPiece(piece, "0", "2")
-		if (code === "jr5")
+		if (code === "bj5")
 			return this.#setPiece(piece, "0", "3")
-		if (code === "jr4")
+		if (code === "bj4")
 			return this.#setPiece(piece, "0", "4")
 
 		throw new Error(code + " is not a jail code")
@@ -176,7 +237,7 @@ class ChessBoard {
 	setPiece(piece, code) {
 		if (code === "c")
 			return this.setCenterPiece(piece)
-		if (code.startsWith("j")) {
+		if (code.includes("j")) {
 			return this.setJailPiece(piece, code)
 		}
 
@@ -233,7 +294,7 @@ class ChessBoard {
 			});
 		});
 
-		whiteSquares.push("jl5", "jr4")
+		whiteSquares.push("wj5", "bj4")
 
 		ChessBoard.#whiteSquares = whiteSquares
 
@@ -263,10 +324,10 @@ class ChessBoard {
 			}
 		}
 		addToLookup(this.getCenterPiece())
-		addToLookup(this.getJailPiece("jl5"))
-		addToLookup(this.getJailPiece("jl4"))
-		addToLookup(this.getJailPiece("jr5"))
-		addToLookup(this.getJailPiece("jr4"))
+		addToLookup(this.getJailPiece("wj5"))
+		addToLookup(this.getJailPiece("wj4"))
+		addToLookup(this.getJailPiece("bj5"))
+		addToLookup(this.getJailPiece("bj4"))
 	}
 
 	#validateLookup() {
@@ -352,9 +413,9 @@ class ChessBoard {
 		let retString = "[\n"
 		for (const row of Object.keys(ChessBoard.rowMarks).reverse()) {
 			if (row === "5")
-				retString += "[" + getPieceStr("jl5") + "]["
+				retString += "[" + getPieceStr("wj5") + "]["
 			else if (row === "4")
-				retString += "[" + getPieceStr("jl4") + "]["
+				retString += "[" + getPieceStr("wj4") + "]["
 			else
 				retString += "    ["
 			for (const column of Object.keys(ChessBoard.columnMarks)) {
@@ -364,9 +425,9 @@ class ChessBoard {
 			retString = retString.slice(0, -1)
 			retString += "]"
 			if (row === "5")
-				retString += "[" + getPieceStr("jr5") + "]"
+				retString += "[" + getPieceStr("bj5") + "]"
 			else if (row === "4")
-				retString += "[" + getPieceStr("jr4") + "]"
+				retString += "[" + getPieceStr("bj4") + "]"
 
 			retString += "\n"
 		}
