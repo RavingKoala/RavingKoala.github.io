@@ -156,8 +156,6 @@ class Chess {
 	#move(from, to) {
 		let piece = this.#board.getPiece(from)
 
-		// console.log(ChessTurn.createCode(this.#board, from, to));
-
 		if (piece.canPromote) {
 			if (piece.promotionCondition(this.#board, to))
 				console.log(ChessTurn.createCode(this.#board, from, to, this.#board.getPiece(to)));

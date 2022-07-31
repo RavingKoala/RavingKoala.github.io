@@ -69,7 +69,7 @@ class ChessUI {
 				this.#chess.onMove(from, to)
 			})
 		})
-		this.#boardDOM.querySelectorAll(".square[data-id~='j']").forEach((square) => {
+		this.#boardDOM.querySelectorAll(".square[data-id*='j']").forEach((square) => {
 			square.addEventListener("mousedown", (e) => {
 				let code = square.dataset.id
 				this.#chess.onSquarePicked(code)
