@@ -154,11 +154,13 @@ let positionsMap = [
 	"8aB", "8bB", "8cB", "8dB", "8eB", "8fB", "8gB", "8hB",
 	// 16 Elephant
 	"2bwE", "2cwE", "2fwE", "2gwE",
-	"5bwE", "5cwE", "5fwE", "5gwE",
-	"8bwE", "8cwE", "8fwE", "8gwE",
+	"4awE", "4dwE", "4ewE", "4hwE",
+	"6bwE", "6cwE", "6fwE", "6gwE",
+	"8awE", "8dwE", "8ewE", "8hwE",
 	// 17 Elephant
-	"1bbE", "1cbE", "1fbE", "1gbE",
-	"4bbE", "4cbE", "4fbE", "4gbE",
+	"1abE", "1dbE", "1ebE", "1hbE",
+	"3bbE", "3cbE", "3fbE", "3gbE",
+	"5abE", "5dbE", "5ebE", "5hbE",
 	"7bbE", "7cbE", "7fbE", "7gbE",
 	
 	// exceptions

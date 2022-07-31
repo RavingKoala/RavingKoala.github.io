@@ -23,10 +23,12 @@ class ChessBoard {
 
 	#board
 	#piecesLookup // {"F": [a2,b2, ...], ...}
+	#hash
 	static #boardPositionsTable // {"1awF": 0, 1bwF, 1, ...} // TODO: optimize this so it looks like {F: {w: {a: {1: {}, ...}, ...}, ...}, ...}
 	constructor () {
 		this.#board = {}
 		this.#piecesLookup = null
+		this.#hash = null
 
 		this.#initializeBoard()
 	}
@@ -34,11 +36,17 @@ class ChessBoard {
 	get hash() {
 		if (positionsMap === undefined)
 			throw new Error("positionsMap not found!")
+			
 		ChessBoard.#validateBoardPositionsTable()
-
 		this.#validateLookup()
+		this.#validateHash()
 
-		return this.#createHash()
+		return this.#hash
+	}
+	
+	#validateHash() {
+		if (this.#hash === null)
+			this.#createHash()
 	}
 
 	static #validateBoardPositionsTable() {
@@ -61,13 +69,22 @@ class ChessBoard {
 		for (const [type, piecesArr] of Object.entries(this.#piecesLookup)) {
 			for (const pos of piecesArr) {
 				let piece = this.getPiece(pos)
+				
 				let type = piece.type
 				if (piece.hasBanana) type += "^"
+				
 				let num = ChessBoard.#LookUpPositionMap(piece.position, type, piece.color)
+				
+				if (num == undefined){
+					console.log(piece.position, type, piece.color);
+					let [row, column] = ChessBoard.splitCode(piece.position)
+					console.log(this.#board[row][column]);
+				}
+				
 				hash += num
 			}
 		}
-		return hash
+		this.#hash = hash
 	}
 
 	static baseDecToHex(num) {
@@ -202,7 +219,8 @@ class ChessBoard {
 		if (piece instanceof Piece)
 			piece.position = ChessBoard.createCode(row, column)
 		this.#board[row][column] = piece
-		this.#piecesLookup = null // invalid lookuptable
+		this.#piecesLookup = null // invalidate lookuptable // TODO: invalidate only if piece === null (should create method removePiece to call if is null)
+		this.#hash = null // invalidate hash
 	}
 
 	setCenterPiece(piece) {
