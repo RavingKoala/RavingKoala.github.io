@@ -40,10 +40,14 @@ class ChessTurn {
 		if (!Object.values(ChessTurn.composeKeys).includes(key))
 			throw new Error(key + " is not a valid key!")
 
-		if (key === "from")
-			return this.#composeObj[key] = ChessTurn.minifyFrom(board, value)
-
 		this.#composeObj[key] = value
+		
+		if (key === "from")
+			if (this.#composeObj.to !== undefined)
+				return this.#composeObj[key] = ChessTurn.minifyFrom(board, value)
+		if (key === "to")
+			if (this.#composeObj.to !== undefined)
+				return this.#composeObj.from = ChessTurn.minifyFrom(board, this.#composeObj.from)
 	}
 
 	addToCompose(board, obj) {
@@ -100,8 +104,8 @@ class ChessTurn {
 		return ret
 	}
 
-	static minifyFrom(board, from) {
-		if (this.#isUniqueOnBothAxis(board, from)) return ""
+	static minifyFrom(board, from, to) {
+		if (board.canOnlyMakeMove(from, to)) return ""
 
 		if (this.#isUniqueOnRow(board, from))
 			return ChessBoard.splitCode(from)[0]
@@ -114,7 +118,7 @@ class ChessTurn {
 	static createCode(board, from, to, promoteTo = null, isCheckOrCheckmate = false) {
 		let piece = board.getPiece(from)
 
-		let fromMinCode = ChessBoard.minifyFrom(board, from)
+		let fromMinCode = ChessTurn.minifyFrom(board, from, to)
 
 		if (board.isOccupied(to)) {
 			let takenPiece = board.getPiece(to)
@@ -125,18 +129,15 @@ class ChessTurn {
 		return ChessTurn.#createMoveCode(piece, to, fromMinCode)
 	}
 
-	static #isUniqueOnBothAxis(board, pos) {
-		return (this.#isUniqueOnColumn(board, pos) && this.#isUniqueOnRow(board, pos))
-	}
-
 	static #isUniqueInDirection(board, pos, vec) {
 		let piece = board.getPiece(pos)
+		console.log(piece, pos);
 
 		for (let i = 1; i < 8; i++) { // 8 times for max board length or height (alternative is while true!)
 			let tempVec = vec.clone().multiply(i)
 			let code = ChessBoard.getRelativePos(pos, tempVec, this.color)
 
-			if (code == null) return
+			if (code === null) return
 			if (board.isOccupied(code))
 				if (board.getPiece(code).type === piece.type)
 					return false

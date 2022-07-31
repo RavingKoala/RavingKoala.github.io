@@ -22,7 +22,10 @@ class ChessBoard {
 	}
 
 	#board
+	#piecesLookup // {"f": [a2,b2, ...], ...}
 	constructor () {
+		this.#board = {}
+		this.#piecesLookup = null
 		this.#initialize()
 	}
 
@@ -42,7 +45,6 @@ class ChessBoard {
 		*/
 
 		// board
-		this.#board = {}
 		for (const row of Object.keys(ChessBoard.rowMarks)) {
 			this.#board[row] = {}
 			for (const column of Object.keys(ChessBoard.columnMarks)) {
@@ -151,6 +153,7 @@ class ChessBoard {
 		if (piece instanceof Piece)
 			piece.position = ChessBoard.createCode(row, column)
 		this.#board[row][column] = piece
+		this.#piecesLookup = null // invalid lookuptable
 	}
 
 	setCenterPiece(piece) {
@@ -239,6 +242,60 @@ class ChessBoard {
 
 	isBlackSquare(code) {
 		return !this.isWhiteSquare(code)
+	}
+
+	#generateLookup() {
+		this.#piecesLookup = {}
+
+		for (const type of Object.values(Piece.TYPES))
+			this.#piecesLookup[type] = []
+
+		let addToLookup = (piece, pos) => {
+			if (piece !== null && piece instanceof Piece)
+				this.#piecesLookup[Piece.TYPES[piece.type]].push(pos)
+		}
+
+		for (const row of Object.keys(ChessBoard.rowMarks)) {
+			for (const column of Object.keys(ChessBoard.columnMarks)) {
+				let pos = ChessBoard.createCode(row, column)
+				let piece = this.getPiece(pos)
+				addToLookup(piece, pos)
+			}
+		}
+		addToLookup(this.getCenterPiece())
+		addToLookup(this.getJailPiece("jl5"))
+		addToLookup(this.getJailPiece("jl4"))
+		addToLookup(this.getJailPiece("jr5"))
+		addToLookup(this.getJailPiece("jr4"))
+	}
+
+	#validateLookup() {
+		if (this.#piecesLookup !== null)
+			return
+
+		this.#generateLookup(board)
+	}
+
+	canOnlyMakeMove(from, to) {
+		this.#validateLookup()
+
+		let piece = this.getPiece(from)
+
+		if (!this.isOccupied(to)) { // is move
+			for (const pos of this.#piecesLookup[Piece.TYPES[piece.type]]) {
+				if (pos === from) continue
+				if (piece.canMoveTo(this, pos, to)) // .constructor allows for static method call
+					return false
+			}
+		} else { // is take
+			for (const pos of this.#piecesLookup[Piece.TYPES[piece.type]]) {
+				if (pos === from) continue
+				if (piece.canTakeTo(this, pos, to)) // .constructor allows for static method call
+					return false
+			}
+		}
+
+		return true
 	}
 
 	static codeToVec(code) {

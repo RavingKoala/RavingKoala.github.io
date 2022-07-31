@@ -8,13 +8,13 @@ class Piece {
 	canPromote
 
 	get code() { return `${this.color}${this.type}${this.hasBanana ? "^" : ""}` }
-	get name() { return `${Piece.#COLORS[this.color]} ${Piece.#TYPES[this.type]}${this.hasBanana ? " with banana" : ""}` }
+	get name() { return `${Piece.#COLORS[this.color]} ${Piece.TYPES[this.type]}${this.hasBanana ? " with banana" : ""}` }
 
 	static #COLORS = {
 		"w": "white",
 		"b": "black"
 	}
-	static #TYPES = {
+	static TYPES = {
 		"k": "king",
 		"q": "queen",
 		"f": "fishy",
@@ -25,20 +25,16 @@ class Piece {
 
 		"b": "bear"
 	}
-	constructor (type, color, banana = false) {
+	constructor (type, color, hasBanana = false) {
 		this.canMultiMove = false // default unless overwritten
 		this.canSave = false // default unless overwritten
 		this.canPromote = false // default unless overwritten
 		this.type = type
-		if (type === "b") { // bear exeption
-			this.color = ""
-			Piece.#TYPES[this.type = "b"]
-			return
-		}
-
-		this.type = type
 		this.color = color
-		this.hasBanana = banana;
+		this.hasBanana = hasBanana;
+		
+		if (type === "b") // bear exeption overeride
+			this.color = ""
 	}
 
 	#PIECEHTML = (type) => `<div class="piece ${type}"></div>`
@@ -74,6 +70,10 @@ class Piece {
 		return possibleMoves[1].includes(to)
 	}
 
+	promotionChange(piece, pos) {
+		throw new Error('Method not implemented.');
+	}
+	
 	promotionCondition(board, pos) {
 		throw new Error('Method not implemented.');
 	}
@@ -190,6 +190,10 @@ class Fishy extends Piece {
 	constructor (color = null) {
 		super("f", color)
 		this.canPromote = true
+	}
+	
+	promotionChange(piece, pos) {
+		return new FishyQueen(piece.color)
 	}
 
 	promotionCondition(board, pos) {
