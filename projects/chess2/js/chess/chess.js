@@ -1,8 +1,6 @@
-/** TODO's:
- * Hint on jail interactions (save of place)
- * make hints object instead of array with keys
- * Rook can only take on previous turn take
- */
+// TODO:
+//   make hints object instead of array with keys
+//   Rook can only take on previous turn take
 
 class Chess {
 	/* enums */
