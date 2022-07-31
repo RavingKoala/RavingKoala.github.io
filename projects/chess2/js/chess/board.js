@@ -23,7 +23,7 @@ class ChessBoard {
 
 	#board
 	#piecesLookup // {"F": [a2,b2, ...], ...}
-	static #boardPositionsTable // {"1awF": 0, 1bwF, 1, ...}
+	static #boardPositionsTable // {"1awF": 0, 1bwF, 1, ...} // TODO: optimize this so it looks like {F: {w: {a: {1: {}, ...}, ...}, ...}, ...}
 	constructor () {
 		this.#board = {}
 		this.#piecesLookup = null
@@ -50,43 +50,31 @@ class ChessBoard {
 		});
 	}
 
-	static #LookUpPositionMapHard(pos, type, color) { // may be good for deprication later
-		if (pos === "c") return 1124 // can only be cB
-		if (pos.includes("j")) {
-			return ChessBoard.#boardPositionsTable[864]
-		}
-		
-	}
-
 	static #LookUpPositionMap(pos, type, color) {
-		if (pos === "c") return 864 // can only be cB
-		if (pos.includes("j")) {
-			return ChessBoard.#boardPositionsTable[864]
-		}
-		
+		if (pos === "c") return 1124 // can only be 'cB'
+		let key = pos + color + type
+		return ChessBoard.#boardPositionsTable[pos + color + type]
 	}
 
 	#createHash() {
 		let hash = 0
-		// console.log(this.#piecesLookup);
 		for (const [type, piecesArr] of Object.entries(this.#piecesLookup)) {
 			for (const pos of piecesArr) {
-				// console.log(pos);
 				let piece = this.getPiece(pos)
-				// console.log(piece);
 				let type = piece.type
 				if (piece.hasBanana) type += "^"
-				hash += parseInt(ChessBoard.#LookUpPositionMap(piece.position, type, piece.color))
+				let num = ChessBoard.#LookUpPositionMap(piece.position, type, piece.color)
+				hash += num
 			}
 		}
 		return hash
 	}
 
-	baseDecToHex(num) {
+	static baseDecToHex(num) {
 		return num.toString(16); // TODO: test base 36 ;p
 	}
 
-	baseHexToDec(numStr) {
+	static baseHexToDec(numStr) {
 		return parseInt(numStr, 16);
 	}
 
@@ -323,11 +311,11 @@ class ChessBoard {
 				addToLookup(piece, pos)
 			}
 		}
-		addToLookup(this.getCenterPiece())
-		addToLookup(this.getJailPiece("wj5"))
-		addToLookup(this.getJailPiece("wj4"))
-		addToLookup(this.getJailPiece("bj5"))
-		addToLookup(this.getJailPiece("bj4"))
+		addToLookup(this.getCenterPiece(), "c")
+		addToLookup(this.getJailPiece("wj5"), "wj5")
+		addToLookup(this.getJailPiece("wj4"), "wj4")
+		addToLookup(this.getJailPiece("bj5"), "bj5")
+		addToLookup(this.getJailPiece("bj4"), "bj4")
 	}
 
 	#validateLookup() {

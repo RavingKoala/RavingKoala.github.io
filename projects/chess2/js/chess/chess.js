@@ -57,8 +57,6 @@ class Chess {
 		this.#saving = null
 
 		this.initialize()
-
-		console.log(this.#board.hash);
 	}
 
 	initialize() {
