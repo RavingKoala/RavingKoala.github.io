@@ -1,32 +1,101 @@
 class ChessBoard {
 	/* enums */
 	static rowMarks = {
-		"1": 1,
-		"2": 2,
-		"3": 3,
-		"4": 4,
-		"5": 5,
-		"6": 6,
-		"7": 7,
-		"8": 8,
+		1: 1,
+		2: 2,
+		3: 3,
+		4: 4,
+		5: 5,
+		6: 6,
+		7: 7,
+		8: 8,
 	}
 	static columnMarks = {
-		"a": 1,
-		"b": 2,
-		"c": 3,
-		"d": 4,
-		"e": 5,
-		"f": 6,
-		"g": 7,
-		"h": 8,
+		a: 1,
+		b: 2,
+		c: 3,
+		d: 4,
+		e: 5,
+		f: 6,
+		g: 7,
+		h: 8,
 	}
 
 	#board
+	#piecesLookup // {"F": [a2,b2, ...], ...}
+	#hash
+	static #boardPositionsTable // {"1awF": 0, 1bwF, 1, ...} // TODO: optimize this so it looks like {F: {w: {a: {1: {}, ...}, ...}, ...}, ...}
 	constructor () {
-		this.#initialize()
+		this.#board = {}
+		this.#piecesLookup = null
+		this.#hash = null
+
+		this.#initializeBoard()
 	}
 
-	#initialize() {
+	get hash() {
+		if (positionsMap === undefined)
+			throw new Error("positionsMap not found!")
+			
+		ChessBoard.#validateBoardPositionsTable()
+		this.#validateLookup()
+		this.#validateHash()
+
+		return this.#hash
+	}
+	
+	#validateHash() {
+		if (this.#hash === null)
+			this.#createHash()
+	}
+
+	static #validateBoardPositionsTable() {
+		if (ChessBoard.boardPositionsTable !== undefined) return
+
+		ChessBoard.#boardPositionsTable = {}; // a boardPositionsTable for all possible positions of pieces on the board
+		Object.entries(positionsMap).forEach(([i, code]) => {
+			ChessBoard.#boardPositionsTable[code] = parseInt(i)
+		});
+	}
+
+	static #LookUpPositionMap(pos, type, color) {
+		if (pos === "c") return 1124 // can only be 'cB'
+		let key = pos + color + type
+		return ChessBoard.#boardPositionsTable[pos + color + type]
+	}
+
+	#createHash() {
+		let hash = 0
+		for (const [type, piecesArr] of Object.entries(this.#piecesLookup)) {
+			for (const pos of piecesArr) {
+				let piece = this.getPiece(pos)
+				
+				let type = piece.type
+				if (piece.hasBanana) type += "^"
+				
+				let num = ChessBoard.#LookUpPositionMap(piece.position, type, piece.color)
+				
+				if (num == undefined){
+					console.log(piece.position, type, piece.color);
+					let [row, column] = ChessBoard.splitCode(piece.position)
+					console.log(this.#board[row][column]);
+				}
+				
+				hash += num
+			}
+		}
+		this.#hash = hash
+	}
+
+	static baseDecToHex(num) {
+		return num.toString(16); // TODO: test base 36 ;p
+	}
+
+	static baseHexToDec(numStr) {
+		return parseInt(numStr, 16);
+	}
+
+	#initializeBoard() {
 
 		/*
 		[
@@ -42,7 +111,6 @@ class ChessBoard {
 		*/
 
 		// board
-		this.#board = {}
 		for (const row of Object.keys(ChessBoard.rowMarks)) {
 			this.#board[row] = {}
 			for (const column of Object.keys(ChessBoard.columnMarks)) {
@@ -52,10 +120,10 @@ class ChessBoard {
 		// board pieces
 		this.#board["0"] = {}
 		this.setCenterPiece(new Bear())
-		this.setJailPiece(null, "jl1") // left/white jail top (row 5)
-		this.setJailPiece(null, "jl2") // left/white jail bottom (row 4)
-		this.setJailPiece(null, "jr1") // right/black jail top (row 5)
-		this.setJailPiece(null, "jr2") // right/black jail bottom (row 4)
+		this.setJailPiece(null, "wj5") // left/white jail top (row 5)
+		this.setJailPiece(null, "wj4") // left/white jail bottom (row 4)
+		this.setJailPiece(null, "bj5") // right/black jail top (row 5)
+		this.setJailPiece(null, "bj4") // right/black jail bottom (row 4)
 		// white
 		this.#setPiece(new Rook("w"), "1", "a")
 		this.#setPiece(new Monkey("w"), "1", "b")
@@ -94,10 +162,10 @@ class ChessBoard {
 
 	static splitCode(code) {
 		if (code === "c") return ["0", "0"]
-		if (code === "jl1") return ["0", "1"]
-		if (code === "jl2") return ["0", "2"]
-		if (code === "jr1") return ["0", "3"]
-		if (code === "jr2") return ["0", "4"]
+		if (code === "wj5") return ["0", "1"]
+		if (code === "wj4") return ["0", "2"]
+		if (code === "bj5") return ["0", "3"]
+		if (code === "bj4") return ["0", "4"]
 		let row = code.substring(0, 1)
 		let column = code.substring(1, 2)
 		return [row, column]
@@ -106,10 +174,10 @@ class ChessBoard {
 	static createCode(row, column) {
 		if (row === "0" || row === 0) {
 			if (column === "0" || column === 0) return "c"
-			if (column === "1" || column === 1) return "jl1"
-			if (column === "2" || column === 2) return "jl2"
-			if (column === "3" || column === 3) return "jr1"
-			if (column === "4" || column === 4) return "jr2"
+			if (column === "1" || column === 1) return "wj5"
+			if (column === "2" || column === 2) return "wj4"
+			if (column === "3" || column === 3) return "bj5"
+			if (column === "4" || column === 4) return "bj4"
 		}
 
 		return row + "" + column
@@ -124,13 +192,13 @@ class ChessBoard {
 	}
 
 	getJailPiece(code) {
-		if (code === "jl1")
+		if (code === "wj5")
 			return this.#getPiece("0", "1")
-		if (code === "jl2")
+		if (code === "wj4")
 			return this.#getPiece("0", "2")
-		if (code === "jr1")
+		if (code === "bj5")
 			return this.#getPiece("0", "3")
-		if (code === "jr2")
+		if (code === "bj4")
 			return this.#getPiece("0", "4")
 
 		return null
@@ -139,7 +207,7 @@ class ChessBoard {
 	getPiece(code) {
 		if (code === "c")
 			return this.getCenterPiece()
-		if (code.startsWith("j"))
+		if (code.includes("j"))
 			return this.getJailPiece(code)
 
 		let [row, column] = ChessBoard.splitCode(code)
@@ -151,6 +219,8 @@ class ChessBoard {
 		if (piece instanceof Piece)
 			piece.position = ChessBoard.createCode(row, column)
 		this.#board[row][column] = piece
+		this.#piecesLookup = null // invalidate lookuptable // TODO: invalidate only if piece === null (should create method removePiece to call if is null)
+		this.#hash = null // invalidate hash
 	}
 
 	setCenterPiece(piece) {
@@ -158,22 +228,22 @@ class ChessBoard {
 	}
 
 	setJailPiece(piece, code) {
-		if (code === "jl1")
+		if (code === "wj5")
 			return this.#setPiece(piece, "0", "1")
-		if (code === "jl2")
+		if (code === "wj4")
 			return this.#setPiece(piece, "0", "2")
-		if (code === "jr1")
+		if (code === "bj5")
 			return this.#setPiece(piece, "0", "3")
-		if (code === "jr2")
+		if (code === "bj4")
 			return this.#setPiece(piece, "0", "4")
-			
-		throw new Error(code+" is not a jail code")
+
+		throw new Error(code + " is not a jail code")
 	}
 
 	setPiece(piece, code) {
 		if (code === "c")
 			return this.setCenterPiece(piece)
-		if (code.startsWith("j")) {
+		if (code.includes("j")) {
 			return this.setJailPiece(piece, code)
 		}
 
@@ -230,7 +300,7 @@ class ChessBoard {
 			});
 		});
 
-		whiteSquares.push("jl1", "jr2")
+		whiteSquares.push("wj5", "bj4")
 
 		ChessBoard.#whiteSquares = whiteSquares
 
@@ -239,6 +309,60 @@ class ChessBoard {
 
 	isBlackSquare(code) {
 		return !this.isWhiteSquare(code)
+	}
+
+	#generateLookup() {
+		this.#piecesLookup = {}
+
+		for (const type of Object.values(Piece.TYPES))
+			this.#piecesLookup[type] = []
+
+		let addToLookup = (piece, pos) => {
+			if (piece !== null && piece instanceof Piece)
+				this.#piecesLookup[Piece.TYPES[piece.type]].push(pos)
+		}
+
+		for (const row of Object.keys(ChessBoard.rowMarks)) {
+			for (const column of Object.keys(ChessBoard.columnMarks)) {
+				let pos = ChessBoard.createCode(row, column)
+				let piece = this.getPiece(pos)
+				addToLookup(piece, pos)
+			}
+		}
+		addToLookup(this.getCenterPiece(), "c")
+		addToLookup(this.getJailPiece("wj5"), "wj5")
+		addToLookup(this.getJailPiece("wj4"), "wj4")
+		addToLookup(this.getJailPiece("bj5"), "bj5")
+		addToLookup(this.getJailPiece("bj4"), "bj4")
+	}
+
+	#validateLookup() {
+		if (this.#piecesLookup !== null)
+			return
+
+		this.#generateLookup(board)
+	}
+
+	canOnlyMakeMove(from, to) {
+		this.#validateLookup()
+
+		let piece = this.getPiece(from)
+
+		if (!this.isOccupied(to)) { // is move
+			for (const pos of this.#piecesLookup[Piece.TYPES[piece.type]]) {
+				if (pos === from) continue
+				if (piece.canMoveTo(this, pos, to)) // .constructor allows for static method call
+					return false
+			}
+		} else { // is take
+			for (const pos of this.#piecesLookup[Piece.TYPES[piece.type]]) {
+				if (pos === from) continue
+				if (piece.canTakeTo(this, pos, to)) // .constructor allows for static method call
+					return false
+			}
+		}
+
+		return true
 	}
 
 	static codeToVec(code) {
@@ -276,13 +400,13 @@ class ChessBoard {
 			tempVec.multiply(-1)
 		return this.getPos(code, tempVec)
 	}
-	
+
 	static isCheck() {
-		
+
 	}
-	
+
 	static isCheckmate() {
-		
+
 	}
 
 	toString() {
@@ -295,9 +419,9 @@ class ChessBoard {
 		let retString = "[\n"
 		for (const row of Object.keys(ChessBoard.rowMarks).reverse()) {
 			if (row === "5")
-				retString += "[" + getPieceStr("jl1") + "]["
+				retString += "[" + getPieceStr("wj5") + "]["
 			else if (row === "4")
-				retString += "[" + getPieceStr("jl2") + "]["
+				retString += "[" + getPieceStr("wj4") + "]["
 			else
 				retString += "    ["
 			for (const column of Object.keys(ChessBoard.columnMarks)) {
@@ -307,10 +431,10 @@ class ChessBoard {
 			retString = retString.slice(0, -1)
 			retString += "]"
 			if (row === "5")
-				retString += "[" + getPieceStr("jr1") + "]"
+				retString += "[" + getPieceStr("bj5") + "]"
 			else if (row === "4")
-				retString += "[" + getPieceStr("jr2") + "]"
-				
+				retString += "[" + getPieceStr("bj4") + "]"
+
 			retString += "\n"
 		}
 		retString += "]\n"

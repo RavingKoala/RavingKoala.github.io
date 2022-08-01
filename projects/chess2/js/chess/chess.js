@@ -1,8 +1,6 @@
-/** TODO's:
- * Hint on jail interactions (save of place)
- * make hints object instead of array with keys
- * Rook can only take on previous turn take
- */
+// TODO:
+//   make hints object instead of array with keys
+//   Rook can only take on previous turn take
 
 class Chess {
 	/* enums */
@@ -10,12 +8,8 @@ class Chess {
 		onMove: "onMove", // piece, from, to
 		onTake: "onTake", // piece, pieceTaken, from, to
 		onJailPicked: "onJailPicked", // pieceJailed, to
-		onMultiMove: "onMultiMove" // piece, origin, to
-	}
-
-	static sides = {
-		white: "w",
-		black: "b"
+		onMultiMove: "onMultiMove", // piece, origin, to
+		onStateChange: "onStateChange" // from, to
 	}
 
 	static states = {
@@ -28,28 +22,35 @@ class Chess {
 		finished: "finished" // game is over
 	}
 
+	static sides = {
+		white: "w",
+		black: "b"
+	}
+
 	/* board layout
 	 * [
-	 *     [8a, 8b, 8c, 8d, 8e, 8f, 8g, 8h] // black
-	 *     [7a, 7b, 7c, 7d, 7e, 7f, 7g, 7h]
-	 *     [6a, 6b, 6c, 6d, 6e, 6f, 6g, 6h]
-	 *     [5a, 5b, 5c, 5d, 5e, 5f, 5g, 5h]
-	 *     [4a, 4b, 4c, 4d, 4e, 4f, 4g, 4h]
-	 *     [3a, 3b, 3c, 3d, 3e, 3f, 3g, 3h]
-	 *     [2a, 2b, 2c, 2d, 2e, 2f, 2g, 2h]
-	 *     [1a, 1b, 1c, 1d, 1e, 1f, 1g, 1h] // white
+	 *      [8a, 8b, 8c, 8d, 8e, 8f, 8g, 8h] // black
+	 *      [7a, 7b, 7c, 7d, 7e, 7f, 7g, 7h]
+	 *      [6a, 6b, 6c, 6d, 6e, 6f, 6g, 6h]
+	 * [jw5][5a, 5b, 5c, 5d, 5e, 5f, 5g, 5h][jb5]
+	 * [jw4][4a, 4b, 4c, 4d, 4e, 4f, 4g, 4h][jb4]
+	 *      [3a, 3b, 3c, 3d, 3e, 3f, 3g, 3h]
+	 *      [2a, 2b, 2c, 2d, 2e, 2f, 2g, 2h]
+	 *      [1a, 1b, 1c, 1d, 1e, 1f, 1g, 1h] // white
 	 * ]
 	 */
+
 	#board // 8x8 array ([row][column])
 	#chessUI
-	state
+	#state
 	#pickingPiece
 	#saving
 	#turn
 	constructor (boardDOM) {
 		this.#board = new ChessBoard()
 		this.#chessUI = new ChessUI(this, boardDOM)
-		this.state = Chess.states.idle
+		this.#state = Chess.states.idle
+		this.#turn = new ChessTurn()
 		this.#pickingPiece = null
 		this.#saving = null
 
@@ -58,73 +59,26 @@ class Chess {
 
 	initialize() {
 		this.#chessUI.initialize(this.#board)
-		// set board rule
-		// change fishy into fishy queen
-		let promoteFishy = (event) => {
-			let piece = event.detail.piece
-			if (piece instanceof Fishy && piece.canPromote) {
-				let pos = event.detail.currentPos
-				if (piece.promotionCondition(this.#board, pos)) {
-					this.#change(pos, (piece) => new FishyQueen(piece.color))
-				}
-			}
+
+		this.state = Chess.states.turn
+	}
+
+	get state() {
+		return this.#state
+	}
+
+	set state(state) {
+		let lastState = this.#state
+		this.#state = state
+		document.dispatchEvent(new CustomEvent(Chess.events.onStateChange, { detail: { from: lastState, to: state } }))
+	}
+
+	#promote(piece, pos) {
+		if (piece.canPromote) {
+			if (piece.promotionCondition(this.#board, pos))
+				this.#change(pos, piece.promotionChange)
 		}
-		document.addEventListener(Chess.events.onMove, promoteFishy)
-		document.addEventListener(Chess.events.onTake, promoteFishy)
-		// capture king/queen to jail
-		document.addEventListener(Chess.events.onTake, (event) => {
-			let piece = event.detail.pieceTaken
-			if (!(/[wb][qk]\^?/.test(piece.code))) return //regex for [white or black] [queen or king] (banana optionally)
-
-			this.state = Chess.states.pickingJail
-			this.#pickingPiece = piece
-		})
-		document.addEventListener(Chess.events.onMultiMove, (event) => {
-			let piece = event.detail.piece
-			let origin = event.detail.origin
-			let to = event.detail.to
-			this.#chessUI.unHint()
-			let hints = piece.getMultiMoveHints(this.#board, to)
-			this.#chessUI.hintSquares(to, hints, origin)
-		})
-		// console version
-		document.addEventListener(Chess.events.onMove, (e) => {
-			console.clear()
-			console.log(this.#board.toString());
-
-			this.#board.getJailPiece("jr1")
-		})
-		document.addEventListener(Chess.events.onTake, (e) => {
-			console.clear()
-			console.log(this.#board.toString());
-		})
-		document.addEventListener(Chess.events.onJailPicked, (e) => {
-			console.clear()
-			console.log(this.#board.toString());
-		})
-		console.clear()
-		console.log(this.#board.toString());
-
-		this.state = Chess.states.turn
 	}
-
-	onSquarePicked(code) {
-		if (this.state !== Chess.states.pickingJail) return
-
-		if (!((/w[qk]\^?/.test(this.#pickingPiece.code) && /jl[12]/.test(code)) ||
-			(/b[qk]\^?/.test(this.#pickingPiece.code) && /jr[12]/.test(code))))
-			return
-
-		let tempPiece = this.#pickingPiece // for event
-
-		this.#board.setJailPiece(this.#pickingPiece, code)
-		this.#chessUI.setPiece(this.#pickingPiece, code)
-		this.#pickingPiece = null
-		this.state = Chess.states.turn
-
-		document.dispatchEvent(new CustomEvent(Chess.events.onJailPicked, { detail: { "piece": tempPiece, "to": code } }))
-	}
-
 	onDrag(pieceDOM) {
 		//suggest pieces to move/take
 		this.#chessUI.dragStart(pieceDOM)
@@ -143,8 +97,27 @@ class Chess {
 		this.state = Chess.states.moving
 	}
 
+	onSquarePicked(code) {
+		if (this.#state !== Chess.states.pickingJail) return
+
+		if (!((/w[QK]\^?/.test(this.#pickingPiece.code) && /wj[45]/.test(code)) ||
+			(/b[QK]\^?/.test(this.#pickingPiece.code) && /bj[45]/.test(code))))
+			return
+
+		let tempPiece = this.#pickingPiece // for event
+
+
+		this.#board.setJailPiece(this.#pickingPiece, code)
+		this.#chessUI.setPiece(this.#pickingPiece, code)
+		this.#pickingPiece = null
+		this.state = Chess.states.turn
+
+		document.dispatchEvent(new CustomEvent(Chess.events.onJailPicked, { detail: { "piece": tempPiece, "to": code } }))
+	}
+
 	onMove(from, to) {
 		if (this.#saving !== null) {
+
 			this.#save(from, to)
 			return
 		}
@@ -178,14 +151,24 @@ class Chess {
 		}
 		this.#move(this.#saving.to, this.#saving.from)
 		this.#saving = null
-
 	}
 
 	#move(from, to) {
-		let piece = this.#board.getPiece(from) // for event
+		let piece = this.#board.getPiece(from)
+
+		if (piece.canPromote) {
+			if (piece.promotionCondition(this.#board, to))
+				console.log(ChessTurn.createCode(this.#board, from, to, this.#board.getPiece(to)));
+		}
 
 		this.#board.move(from, to)
 		this.#chessUI.move(from, to)
+
+
+		if (piece.canPromote)
+			if (piece.promotionCondition(this.#board, to))
+				this.#change(to, piece.promotionChange)
+
 
 		this.state = Chess.states.waiting
 
@@ -201,14 +184,20 @@ class Chess {
 
 		this.state = Chess.states.waiting
 
+		// capture king/queen to jail
+		if (/[wb][QK]\^?/.test(pieceTaken.code)) { //regex for [white or black] [queen or king] (banana optionally)
+			this.state = Chess.states.pickingJail
+			this.#pickingPiece = pieceTaken
+		}
+
 		document.dispatchEvent(new CustomEvent(Chess.events.onTake, { detail: { "piece": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } }))
 	}
 
 	#change(code, func) {
 		let piece = this.#board.getPiece(code)
 		piece = func(piece)
-		this.#board.setPiece(piece, code)
 
+		this.#board.setPiece(piece, code)
 		this.#chessUI.setPiece(piece, code)
 	}
 
@@ -216,12 +205,12 @@ class Chess {
 		this.#chessUI.dragCancel()
 		this.#chessUI.unHint()
 
-		if (this.state !== Chess.states.waiting // on successful turn
-			&& this.state !== Chess.states.pickingJail) {
+		if (this.#state !== Chess.states.waiting // on successful turn
+			&& this.#state !== Chess.states.pickingJail) {
 			this.state = Chess.states.turn
 		}
-		if (this.#saving !== null)
-			this.#saving = null
+
+		this.#saving = null
 	}
 
 	onMultiMove(origin, to) {
@@ -232,6 +221,11 @@ class Chess {
 
 		this.state = Chess.states.multiMove
 
+		// update hints for current hovered square
+		this.#chessUI.unHint()
+		let hints = piece.getMultiMoveHints(this.#board, to)
+		this.#chessUI.hintSquares(to, hints, origin)
+
 		document.dispatchEvent(new CustomEvent(Chess.events.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
 	}
 
@@ -241,7 +235,6 @@ class Chess {
 
 		if (!piece.canSave) return
 
-
 		let save = piece.canSavePiece(this.#board, origin)
 
 		if (save === null) return
@@ -249,6 +242,7 @@ class Chess {
 		this.#chessUI.unHint()
 		let hints = piece.getMultiMoveHints(this.#board, save.from)
 		this.#chessUI.hintSquares(save.from, hints)
+
 		this.#saving = save
 	}
 }

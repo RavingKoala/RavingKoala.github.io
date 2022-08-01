@@ -28,19 +28,19 @@
 	border: solid 4px var(--chess-border-color);
 }
 
-:not(.black-view) .jail.left {
+:not(.black-view) .jail.white {
 	margin-left: auto;
 }
 
-:not(.black-view) .jail.right {
+:not(.black-view) .jail.black {
 	margin-right: auto;
 }
 
-.black-view .jail.left {
+.black-view .jail.white {
 	margin-left: auto;
 }
 
-.black-view .jail.right {
+.black-view .jail.black {
 	margin-left: auto;
 }
 
@@ -175,6 +175,10 @@
 	background-color: transparent;
 }
 
+.noDrop {
+	pointer-events: none;
+}
+
 .square.moveable::after {
 	content: "";
 	position: absolute;
@@ -231,8 +235,8 @@
 	box-shadow: inset 0 0 0 5px rgba(0, 255, 0, 0.3);
 }
 
-.jail.left .square:nth-of-type(2n),
-.jail.right .square:nth-of-type(2n+1),
+.jail.white .square:nth-of-type(2n),
+.jail.black .square:nth-of-type(2n+1),
 .play-board .squares .row:nth-of-type(2n+1) .square:nth-of-type(2n),
 .play-board .squares .row:nth-of-type(2n) .square:nth-of-type(2n+1) {
 	background-color: var(--chess-square-black-color);
@@ -263,78 +267,78 @@
 }
 
 /* pieces */
-.piece.wf {
+.piece.wF {
 	background-image: url("../resources/Fishy.png");
 }
 
-.piece.wfq {
+.piece.wFQ {
 	background-image: url("../resources/FishyQueen.png");
 }
 
-.piece.we {
+.piece.wE {
 	background-image: url("../resources/Elephant.png");
 }
 
-.piece.wk {
+.piece.wK {
 	background-image: url("../resources/King.png");
 }
 
-.piece[class~="wk^"] {
+.piece[class~="wK^"] {
 	background-image: url("../resources/King_Banana.png");
 }
 
-.piece.wq {
+.piece.wQ {
 	background-image: url("../resources/Queen.png");
 }
 
-.piece.wm {
+.piece.wM {
 	background-image: url("../resources/Monkey.png");
 }
 
-.piece[class~="wm^"] {
+.piece[class~="wM^"] {
  	background-image: url("../resources/Monkey_Banana.png");
  }
 
-.piece.wr {
+.piece.wR {
 	background-image: url("../resources/Rook.png");
 }
 
-.piece.bf {
+.piece.bF {
 	background-image: url("../resources/black_Fishy.png");
 }
 
-.piece.bfq {
+.piece.bFQ {
 	background-image: url("../resources/black_FishyQueen.png");
 }
 
-.piece.be {
+.piece.bE {
 	background-image: url("../resources/black_Elephant.png");
 }
 
-.piece.bk {
+.piece.bK {
 	background-image: url("../resources/black_King.png");
 }
 
-.piece[class~="bk^"] {
+.piece[class~="bK^"] {
 	background-image: url("../resources/black_King_Banana.png");
 }
 
-.piece.bq {
+.piece.bQ {
 	background-image: url("../resources/black_Queen.png");
 }
 
-.piece.bm {
+.piece.bM {
 	background-image: url("../resources/black_Monkey.png");
 }
 
-.piece[class~="bm^"] {
+.piece[class~="bM^"] {
 	background-image: url("../resources/black_Monkey_Banana.png");
 }
 
-.piece.br {
+.piece.bR {
 	background-image: url("../resources/black_Rook.png");
 }
 
-.piece.b {
+.piece.B {
 	background-image: url("../resources/Bear.png");
 }
