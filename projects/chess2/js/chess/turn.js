@@ -104,12 +104,8 @@ class ChessTurn {
 	}
 
 	static minifyFrom(board, from, to) {
-		if (board.canOnlyMakeMove(from, to)) return ""
-
-		if (this.#isUniqueOnRow(board, from))
-			return ChessBoard.splitCode(from)[0]
-		else if (this.#isUniqueOnColumn(board, from))
-			return ChessBoard.splitCode(from)[1]
+		let piece = board.getPiece(from)
+		if (board.typeCanMakeMove(from, to, piece.type)) return ""
 
 		return from
 	}
@@ -120,60 +116,10 @@ class ChessTurn {
 		let fromMinCode = ChessTurn.minifyFrom(board, from, to)
 
 		if (board.isOccupied(to)) {
-			let takenPiece = board.getPiece(to)
-			// TODO: if king/queen make capture?!
 			return ChessTurn.#createTakeCode(piece, to, fromMinCode)
 		}
 
 		return ChessTurn.#createMoveCode(piece, to, fromMinCode)
-	}
-
-	static #isUniqueInDirection(board, pos, vec) {
-		let piece = board.getPiece(pos)
-
-		for (let i = 1; i < 8; i++) { // 8 times for max board length or height (alternative is while true!)
-			let tempVec = vec.clone().multiply(i)
-			let code = ChessBoard.getRelativePos(pos, tempVec, this.color)
-
-			if (code === null) return
-			if (board.isOccupied(code))
-				if (board.getPiece(code).type === piece.type)
-					return false
-		}
-
-		return true
-	}
-
-	static #isUniqueOnRow(board, pos) {
-		let isUnique = true
-
-		let relVec = [
-			new Vec2(1, 0),
-			new Vec2(-1, 0),
-		]
-
-		relVec.forEach((vec) => {
-			if (!isUnique) return
-			isUnique = this.#isUniqueInDirection(board, pos, vec)
-		})
-
-		return isUnique
-	}
-
-	static #isUniqueOnColumn(board, pos) {
-		let isUnique = true
-
-		let relVec = [
-			new Vec2(0, 1),
-			new Vec2(0, -1),
-		]
-
-		relVec.forEach((vec) => {
-			if (!isUnique) return
-			isUnique = this.#isUniqueInDirection(board, pos, vec)
-		})
-
-		return isUnique
 	}
 
 	static #getPieceCode(piece) {

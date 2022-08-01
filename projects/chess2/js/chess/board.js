@@ -36,14 +36,14 @@ class ChessBoard {
 	get hash() {
 		if (positionsMap === undefined)
 			throw new Error("positionsMap not found!")
-			
+
 		ChessBoard.#validateBoardPositionsTable()
 		this.#validateLookup()
 		this.#validateHash()
 
 		return this.#hash
 	}
-	
+
 	#validateHash() {
 		if (this.#hash === null)
 			this.#createHash()
@@ -69,18 +69,18 @@ class ChessBoard {
 		for (const [type, piecesArr] of Object.entries(this.#piecesLookup)) {
 			for (const pos of piecesArr) {
 				let piece = this.getPiece(pos)
-				
+
 				let type = piece.type
 				if (piece.hasBanana) type += "^"
-				
+
 				let num = ChessBoard.#LookUpPositionMap(piece.position, type, piece.color)
-				
-				if (num == undefined){
+
+				if (num == undefined) {
 					console.log(piece.position, type, piece.color);
 					let [row, column] = ChessBoard.splitCode(piece.position)
 					console.log(this.#board[row][column]);
 				}
-				
+
 				hash += num
 			}
 		}
@@ -343,10 +343,8 @@ class ChessBoard {
 		this.#generateLookup(board)
 	}
 
-	canOnlyMakeMove(from, to) {
+	#canMakeMove(piece, to) {
 		this.#validateLookup()
-
-		let piece = this.getPiece(from)
 
 		if (!this.isOccupied(to)) { // is move
 			for (const pos of this.#piecesLookup[Piece.TYPES[piece.type]]) {
@@ -363,6 +361,25 @@ class ChessBoard {
 		}
 
 		return true
+	}
+
+	typeCanMakeMove(type, to, color = null) {
+		let retArr = []
+		for (const pos of this.#piecesLookup[type]) {
+			let piece = this.getPiece(pos)
+			if (color !== null && piece.color === color)
+				if (this.#canMakeMove(piece, to))
+					retArr.push(pos)
+		}
+		return retArr
+	}
+
+	allCanMakeMove(to, color = null) {
+		let retArr = []
+		for (const type of Object.keys(this.#piecesLookup)) {
+			retArr.concat(typeCanMakeMove(type, to, color))
+		}
+		return retArr
 	}
 
 	static codeToVec(code) {
