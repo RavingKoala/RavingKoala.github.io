@@ -308,12 +308,12 @@ class ChessBoard {
 	#generateLookup() {
 		this.#piecesLookup = {}
 
-		for (const type of Object.values(Piece.TYPES))
+		for (const type of Object.keys(Piece.TYPES))
 			this.#piecesLookup[type] = []
 
 		let addToLookup = (piece, pos) => {
 			if (piece !== null && piece instanceof Piece)
-				this.#piecesLookup[Piece.TYPES[piece.type]].push(pos)
+				this.#piecesLookup[piece.type].push(pos)
 		}
 
 		for (const column of Object.keys(ChessBoard.columnMarks)) {
@@ -337,29 +337,23 @@ class ChessBoard {
 		this.#generateLookup(board)
 	}
 
-	#canMakeMove(piece, to) {
-		this.#validateLookup()
-
+	#canMakeMove(piece, from, to) {
 		if (!this.isOccupied(to)) { // is move
-			for (const pos of this.#piecesLookup[Piece.TYPES[piece.type]]) {
-				if (pos === from) continue
-				if (piece.canMoveTo(this, pos, to)) // .constructor allows for static method call
-					return false
-			}
+			if (piece.canMoveTo(this, from, to))
+				return false
 		} else { // is take
-			for (const pos of this.#piecesLookup[Piece.TYPES[piece.type]]) {
-				if (pos === from) continue
-				if (piece.canTakeTo(this, pos, to)) // .constructor allows for static method call
-					return false
-			}
+			if (piece.canTakeTo(this, from, to))
+				return false
 		}
-
+		
 		return true
 	}
 
 	typeCanMakeMove(type, to, color = null) {
+		this.#validateLookup()
+		
 		let retArr = []
-		for (const pos of this.#piecesLookup[type]) {
+		for (const pos of this.#piecesLookup[type]){
 			let piece = this.getPiece(pos)
 			if (color !== null && piece.color === color)
 				if (this.#canMakeMove(piece, to))

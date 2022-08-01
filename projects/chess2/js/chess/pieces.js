@@ -197,7 +197,7 @@ class Fishy extends Piece {
 	}
 
 	promotionCondition(board, pos) {
-		return (this.color === "w" && pos.startsWith("8")) || (this.color === "b" && pos.startsWith("1"))
+		return (this.color === "w" && pos[1] === "8") || (this.color === "b" && pos[1] === "1")
 	}
 
 	possibleMoves(board, pos) {
@@ -488,8 +488,6 @@ class Monkey extends Piece {
 		}
 
 		// searching all positions
-		// fill returnArr[2] with possible eventual moves
-		// fill returnArr[3] with possible eventual takes
 		let searched = []
 		let searching = [pos]
 
