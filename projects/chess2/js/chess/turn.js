@@ -105,9 +105,25 @@ class ChessTurn {
 
 	static minifyFrom(board, from, to) {
 		let piece = board.getPiece(from)
-		if (board.typeCanMakeMove(from, to, piece.type)) return ""
-
-		return from
+		let posArr = board.typeCanMakeMove(piece.type, to, piece.color)
+		let ret = ""
+		let hasMatchingCol = false, hasMatchingRow = false
+		for (const code of posArr) {
+			if (from[0] === code[0])
+				hasMatchingCol = true
+			if (from[1] === code[1])
+				hasMatchingRow = true
+				
+			if (hasMatchingCol && hasMatchingRow)
+				return from
+		}
+		
+		if (hasMatchingRow)
+			ret += from[0]
+		if (hasMatchingCol)
+			ret += from[1]
+		
+		return ret
 	}
 
 	static createCode(board, from, to, promoteTo = null, isCheckOrCheckmate = false) {

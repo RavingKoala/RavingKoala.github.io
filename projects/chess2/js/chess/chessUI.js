@@ -16,9 +16,9 @@ class ChessUI {
 
 	initialize(board) {
 		// visual board
-		for (const row of Object.keys(ChessBoard.rowMarks)) {
-			for (const column of Object.keys(ChessBoard.columnMarks)) {
-				let code = ChessBoard.createCode(row, column)
+		for (const column of Object.keys(ChessBoard.columnMarks)) {
+			for (const row of Object.keys(ChessBoard.rowMarks)) {
+				let code = ChessBoard.createCode(column, row)
 				let piece = board.getPiece(code)
 				if (piece !== null)
 					this.setPiece(piece, code)
@@ -78,8 +78,7 @@ class ChessUI {
 				if (!this.#isDragging) return
 
 				let origin = this.#draggingDOM.parentNode.dataset.id
-				let jail = square.dataset.id
-				this.#chess.onSave(origin, jail)
+				this.#chess.onSave(origin)
 			})
 		});
 		document.addEventListener("mouseup", (e) => {

@@ -40,7 +40,7 @@ class Chess {
 	 * ]
 	 */
 
-	#board // 8x8 array ([row][column])
+	#board // 8x8 array ([column][row])
 	#chessUI
 	#state
 	#pickingPiece
@@ -229,7 +229,7 @@ class Chess {
 		document.dispatchEvent(new CustomEvent(Chess.events.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
 	}
 
-	onSave(origin, jail) {
+	onSave(origin) {
 		if (this.#saving !== null) return
 		let piece = this.#board.getPiece(origin)
 
