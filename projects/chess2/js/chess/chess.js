@@ -189,7 +189,9 @@ class Chess {
 		if (!piece.canSave) return
 
 		let save = piece.canSavePiece(this.#board, origin)
-
+		
+		console.log(save);
+		
 		if (save === null) return
 
 		this.#chessUI.unHint()

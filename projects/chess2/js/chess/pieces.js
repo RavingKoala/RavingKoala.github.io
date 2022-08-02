@@ -362,16 +362,15 @@ class Monkey extends Piece {
 
 		if (isWhitePiece) {
 			if (!onWhiteSquare)
-				jump = { from: "5a", to: "wj5" }
+				jump = { from: "a5", to: "wj5" }
 			else // onWhiteSquare
-				jump = { from: "4a", to: "wj4" }
+				jump = { from: "a4", to: "wj4" }
 		} else {
 			if (onWhiteSquare)
-				jump = { from: "5h", to: "bj5" }
+				jump = { from: "h5", to: "bj5" }
 			else // onWhiteSquare
-				jump = { from: "4h", to: "bj4" }
+				jump = { from: "h4", to: "bj4" }
 		}
-
 
 		let movesFromSaveSpot = this.getMultiMoves(board, pos) // dumb name i know
 
@@ -389,14 +388,14 @@ class Monkey extends Piece {
 
 		if (isWhitePiece) {
 			if (!onWhiteSquare)
-				jump = { from: "5a", to: "wj5" }
+				jump = { from: "a5", to: "wj5" }
 			else // onWhiteSquare
-				jump = { from: "4a", to: "wj4" }
+				jump = { from: "a4", to: "wj4" }
 		} else {
 			if (onWhiteSquare)
-				jump = { from: "5h", to: "bj5" }
+				jump = { from: "h5", to: "bj5" }
 			else // onWhiteSquare
-				jump = { from: "4h", to: "bj4" }
+				jump = { from: "h4", to: "bj4" }
 		}
 
 		// quick check if possible
@@ -407,9 +406,9 @@ class Monkey extends Piece {
 		let multiMoves = this.getMultiMoves(board, pos)
 
 		if (((pos === jump.from && (multiMoves[0].length > 0 || multiMoves[1].length > 0))) ||
-			(multiMoves[0].includes(jump.from) || multiMoves[1].includes(jump.from)))
+		(multiMoves[0].includes(jump.from) || multiMoves[1].includes(jump.from)))
 			return jump
-
+		
 		return null
 	}
 

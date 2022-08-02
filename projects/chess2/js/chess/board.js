@@ -370,7 +370,6 @@ class ChessBoard {
 		this.#validateLookup()
 		
 		if (obj.hasOwnProperty("lastMove")) {
-			console.log(this.#piecesLookup);
 			this.#piecesLookup["R"].forEach((pos) => {
 				this.getPiece(pos).lastMove = obj.lastMove
 			})
