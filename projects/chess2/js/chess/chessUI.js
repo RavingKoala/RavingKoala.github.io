@@ -39,7 +39,7 @@ class ChessUI {
 
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
-			square.addEventListener("mouseover", (e) => {
+			square.addEventListener("mouseenter", (e) => { // mouseenter or hints get overritten by multimove hints
 				if (!this.#isDragging) return
 
 				//move to under centerpiece (but keeping centerpiece cancelabble)
