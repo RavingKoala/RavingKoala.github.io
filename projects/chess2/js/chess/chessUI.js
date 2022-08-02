@@ -65,7 +65,7 @@ class ChessUI {
 
 				let from = this.#draggingDOM.parentNode.dataset.id
 				let to = square.dataset.id
-
+				
 				this.#chess.onMove(from, to)
 			})
 		})

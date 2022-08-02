@@ -1,6 +1,8 @@
 // TODO:
-//   make hints object instead of array with keys
+//   make jailing visible and saving visible with the css classes
+//   add 
 //   Rook can only take on previous turn take
+//   make hints object instead of array with keys
 
 class Chess {
 	/* enums */
@@ -43,22 +45,30 @@ class Chess {
 	#board // 8x8 array ([column][row])
 	#chessUI
 	#state
+	#turn
+	#history
 	#pickingPiece
 	#saving
-	#turn
 	constructor (boardDOM) {
 		this.#board = new ChessBoard()
 		this.#chessUI = new ChessUI(this, boardDOM)
 		this.#state = Chess.states.idle
 		this.#turn = new ChessTurn()
+		this.#history = new ChessHistory()
+
 		this.#pickingPiece = null
 		this.#saving = null
 
 		this.initialize()
 
-		// document.addEventListener(Chess.events.onStateChange, (e) => {
-		// 	console.log(e.detail.to);
-		// })
+
+		let loggies = (e) => {
+			// console.clear()
+			console.log(this.#history.toString())
+		}
+		document.addEventListener(Chess.events.onMove, loggies)
+		document.addEventListener(Chess.events.onJailPicked, loggies)
+		document.addEventListener(Chess.events.onTake, loggies)
 	}
 
 	initialize() {
@@ -77,16 +87,7 @@ class Chess {
 		document.dispatchEvent(new CustomEvent(Chess.events.onStateChange, { detail: { from: lastState, to: state } }))
 	}
 
-	#tryPromote(piece, pos) {
-		if (piece.canPromote) {
-			if (piece.promotionCondition(this.#board, pos)) {
-				this.#change(pos, piece.promotionChange)
 
-				let newPiece = this.#board.getPiece(pos)
-				this.#turn.addToCompose(this.#board, "promoteTo", newPiece) // turn code
-			}
-		}
-	}
 	onDrag(pieceDOM) {
 		//suggest pieces to move/take
 		this.#chessUI.dragStart(pieceDOM)
@@ -104,27 +105,6 @@ class Chess {
 		this.#chessUI.hintSquares(code, hints)
 
 		this.state = Chess.states.moving
-	}
-
-	onSquarePicked(code) {
-		if (this.#state !== Chess.states.pickingJail) return
-
-		if (!((/w[QK]\^?/.test(this.#pickingPiece.code) && /wj[45]/.test(code)) ||
-			(/b[QK]\^?/.test(this.#pickingPiece.code) && /bj[45]/.test(code))))
-			return
-
-		let tempPiece = this.#pickingPiece // for event
-		this.#turn.addToCompose(this.#board, "captureTo", code) // turn code
-
-
-		this.#board.setJailPiece(this.#pickingPiece, code)
-		this.#chessUI.setPiece(this.#pickingPiece, code)
-		this.#pickingPiece = null
-		this.state = Chess.states.waiting
-
-		this.endMove()
-
-		document.dispatchEvent(new CustomEvent(Chess.events.onJailPicked, { detail: { "piece": tempPiece, "to": code } }))
 	}
 
 	onMove(from, to) {
@@ -151,6 +131,81 @@ class Chess {
 		}
 	}
 
+	onSquarePicked(code) {
+		if (this.#state !== Chess.states.pickingJail) return
+
+		if (!((/w[QK]\^?/.test(this.#pickingPiece.code) && /wj[45]/.test(code)) ||
+			(/b[QK]\^?/.test(this.#pickingPiece.code) && /bj[45]/.test(code))))
+			return
+
+		let tempPiece = this.#pickingPiece // for event
+		this.#turn.addToCompose(this.#board, "captureTo", code) // turn code
+
+
+		this.#board.setJailPiece(this.#pickingPiece, code)
+		this.#chessUI.setPiece(this.#pickingPiece, code)
+		this.#pickingPiece = null
+		this.state = Chess.states.turn
+
+		this.endMove()
+
+		document.dispatchEvent(new CustomEvent(Chess.events.onJailPicked, { detail: { "piece": tempPiece, "to": code } }))
+	}
+
+	onMultiMove(origin, to) {
+		let piece = this.#board.getPiece(origin)
+
+		if (!piece.canMultiMove) return
+		if (!piece.getMultiMoves(this.#board, origin)[0].includes(to)) return
+
+		this.state = Chess.states.multiMove
+
+		// update hints for current hovered square
+		this.#chessUI.unHint()
+		let hints = piece.getMultiMoveHints(this.#board, to)
+		this.#chessUI.hintSquares(to, hints, origin)
+
+		document.dispatchEvent(new CustomEvent(Chess.events.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
+	}
+
+	onDragCancel() {
+		this.#chessUI.dragCancel()
+		this.#chessUI.unHint()
+
+		if (this.#state !== Chess.states.turn // on successful turn
+			&& this.#state !== Chess.states.pickingJail) {
+			this.state = Chess.states.turn
+		}
+
+		this.#saving = null
+	}
+
+	onSave(origin) {
+		if (this.#saving !== null) return
+		let piece = this.#board.getPiece(origin)
+
+		if (!piece.canSave) return
+
+		let save = piece.canSavePiece(this.#board, origin)
+
+		if (save === null) return
+
+		this.#chessUI.unHint()
+		let hints = piece.getMultiMoveHints(this.#board, save.from)
+		this.#chessUI.hintSquares(save.from, hints)
+
+		this.#saving = save
+	}
+
+	endMove() {
+		// create code
+		let code = this.#turn.composeAndCreate()
+		this.#history.add(code, this.#turn.turn)
+		if (this.#turn.turn === Chess.sides.white)
+			this.#turn.turn = Chess.sides.black
+		else if (this.#turn.turn === Chess.sides.black)
+			this.#turn.turn = Chess.sides.white
+	}
 	#save(from, to) {
 		let piece = this.#board.getPiece(from)
 
@@ -175,7 +230,7 @@ class Chess {
 
 		this.#tryPromote(piece, to)
 
-		this.state = Chess.states.waiting
+		this.state = Chess.states.turn
 
 		this.endMove()
 
@@ -193,7 +248,7 @@ class Chess {
 
 		this.#tryPromote(piece, to)
 
-		this.state = Chess.states.waiting
+		this.state = Chess.states.turn
 
 		// capture king/queen to jail
 		if (/[wb][QK]\^?/.test(pieceTaken.code)) { //regex for [white or black] [queen or king] (banana optionally)
@@ -215,53 +270,14 @@ class Chess {
 		this.#chessUI.setPiece(piece, code)
 	}
 
-	endMove() {
-		// create code
-		// console.log(this.#turn.composeAndCreate());
-	}
+	#tryPromote(piece, pos) {
+		if (piece.canPromote) {
+			if (piece.promotionCondition(this.#board, pos)) {
+				this.#change(pos, piece.promotionChange)
 
-	onDragCancel() {
-		this.#chessUI.dragCancel()
-		this.#chessUI.unHint()
-
-		if (this.#state !== Chess.states.waiting // on successful turn
-			&& this.#state !== Chess.states.pickingJail) {
-			this.state = Chess.states.turn
+				let newPiece = this.#board.getPiece(pos)
+				this.#turn.addToCompose(this.#board, "promoteTo", newPiece) // turn code
+			}
 		}
-
-		this.#saving = null
-	}
-
-	onMultiMove(origin, to) {
-		let piece = this.#board.getPiece(origin)
-
-		if (!piece.canMultiMove) return
-		if (!piece.getMultiMoves(this.#board, origin)[0].includes(to)) return
-
-		this.state = Chess.states.multiMove
-
-		// update hints for current hovered square
-		this.#chessUI.unHint()
-		let hints = piece.getMultiMoveHints(this.#board, to)
-		this.#chessUI.hintSquares(to, hints, origin)
-
-		document.dispatchEvent(new CustomEvent(Chess.events.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
-	}
-
-	onSave(origin) {
-		if (this.#saving !== null) return
-		let piece = this.#board.getPiece(origin)
-
-		if (!piece.canSave) return
-
-		let save = piece.canSavePiece(this.#board, origin)
-
-		if (save === null) return
-
-		this.#chessUI.unHint()
-		let hints = piece.getMultiMoveHints(this.#board, save.from)
-		this.#chessUI.hintSquares(save.from, hints)
-
-		this.#saving = save
 	}
 }

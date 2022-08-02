@@ -15,22 +15,14 @@ class ChessTurn {
 		promoteTo: "promoteTo",
 		captureTo: "captureTo",
 	}
-	#turn
+	turn
 	isComposing
 	#composeObj
 
 	constructor () {
-		this.turn = Chess.sides.w
+		this.turn = Chess.sides.white
 		this.isComposing = false
 		this.#composeObj = null
-	}
-
-	get turn() {
-		return this.#turn
-	}
-
-	set turn(turn) {
-		this.#turn = Chess.sides[turn]
 	}
 
 	// #region construct and create codes
