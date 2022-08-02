@@ -231,6 +231,7 @@
 .square.jailPick {
 	box-shadow: inset 0 0 0 5px rgba(255, 0, 0, 0.3);
 }
+
 .square.jailSave {
 	box-shadow: inset 0 0 0 5px rgba(0, 255, 0, 0.3);
 }
@@ -268,77 +269,77 @@
 
 /* pieces */
 .piece.wF {
-	background-image: url("../resources/Pieces/Fishy.png");
+	background-image: url("../resources/pieces/Fishy.png");
 }
 
 .piece.wFQ {
-	background-image: url("../resources/Pieces/FishyQueen.png");
+	background-image: url("../resources/pieces/FishyQueen.png");
 }
 
 .piece.wE {
-	background-image: url("../resources/Pieces/Elephant.png");
+	background-image: url("../resources/pieces/Elephant.png");
 }
 
 .piece.wK {
-	background-image: url("../resources/Pieces/King.png");
+	background-image: url("../resources/pieces/King.png");
 }
 
 .piece[class~="wK^"] {
-	background-image: url("../resources/Pieces/King_Banana.png");
+	background-image: url("../resources/pieces/King_Banana.png");
 }
 
 .piece.wQ {
-	background-image: url("../resources/Pieces/Queen.png");
+	background-image: url("../resources/pieces/Queen.png");
 }
 
 .piece.wM {
-	background-image: url("../resources/Pieces/Monkey.png");
+	background-image: url("../resources/pieces/Monkey.png");
 }
 
 .piece[class~="wM^"] {
- 	background-image: url("../resources/Pieces/Monkey_Banana.png");
- }
+	background-image: url("../resources/pieces/Monkey_Banana.png");
+}
 
 .piece.wR {
-	background-image: url("../resources/Pieces/Rook.png");
+	background-image: url("../resources/pieces/Rook.png");
 }
 
 .piece.bF {
-	background-image: url("../resources/Pieces/black_Fishy.png");
+	background-image: url("../resources/pieces/black_Fishy.png");
 }
 
 .piece.bFQ {
-	background-image: url("../resources/Pieces/black_FishyQueen.png");
+	background-image: url("../resources/pieces/black_FishyQueen.png");
 }
 
 .piece.bE {
-	background-image: url("../resources/Pieces/black_Elephant.png");
+	background-image: url("../resources/pieces/black_Elephant.png");
 }
 
 .piece.bK {
-	background-image: url("../resources/Pieces/black_King.png");
+	background-image: url("../resources/pieces/black_King.png");
 }
 
 .piece[class~="bK^"] {
-	background-image: url("../resources/Pieces/black_King_Banana.png");
+	background-image: url("../resources/pieces/black_King_Banana.png");
 }
 
 .piece.bQ {
-	background-image: url("../resources/Pieces/black_Queen.png");
+	background-image: url("../resources/pieces/black_Queen.png");
 }
 
 .piece.bM {
-	background-image: url("../resources/Pieces/black_Monkey.png");
+	background-image: url("../resources/pieces/black_Monkey.png");
 }
 
 .piece[class~="bM^"] {
-	background-image: url("../resources/Pieces/black_Monkey_Banana.png");
+	background-image: url("../resources/pieces/black_Monkey_Banana.png");
 }
 
 .piece.bR {
-	background-image: url("../resources/Pieces/black_Rook.png");
+	background-image: url("../resources/pieces/black_Rook.png");
 }
 
 .piece.B {
-	background-image: url("../resources/Pieces/Bear.png");
+	background-image: url("../resources/pieces/Bear.png");
 }
