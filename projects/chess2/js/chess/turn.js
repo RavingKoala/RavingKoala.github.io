@@ -24,6 +24,13 @@ class ChessTurn {
 		this.isComposing = false
 		this.#composeObj = null
 	}
+	
+	swapTurn() {
+		if (this.turn === Chess.sides.white)
+			this.turn = Chess.sides.black
+		else if (this.turn === Chess.sides.black)
+			this.turn = Chess.sides.white
+	}
 
 	// #region construct and create codes
 	addToCompose(board, key, value) {

@@ -365,6 +365,17 @@ class ChessBoard {
 		}
 		return retArr
 	}
+	
+	updatePiecesSpecialConditions(obj) {
+		this.#validateLookup()
+		
+		if (obj.hasOwnProperty("lastMove")) {
+			console.log(this.#piecesLookup);
+			this.#piecesLookup["R"].forEach((pos) => {
+				this.getPiece(pos).lastMove = obj.lastMove
+			})
+		}
+	}
 
 	static codeToVec(code) {
 		let [column, row] = ChessBoard.splitCode(code)

@@ -7,6 +7,13 @@ class ChessHistory {
 	add(code, side) {
 		this.#history[side].push(code)
 	}
+	
+	getLastMove() {
+		if (this.#history["w"].length === this.#history["b"].length)
+			return this.#history["b"][this.#history["b"].length - 1]
+		else
+			return this.#history["w"][this.#history["w"].length - 1]
+	}
 
 	clear() {
 		this.#history = { "w": [], "b": [] }

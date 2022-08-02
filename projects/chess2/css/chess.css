@@ -267,6 +267,14 @@
 	z-index: 1;
 }
 
+.board[turn="w"] .piece[class^="piece b"] {
+	pointer-events: none;
+}
+
+.board[turn="b"] .piece[class^="piece w"] {
+	pointer-events: none;
+}
+
 /* pieces */
 .piece.wF {
 	background-image: url("../resources/pieces/Fishy.png");

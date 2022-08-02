@@ -310,8 +310,10 @@ class Elephant extends Piece {
 }
 
 class Rook extends Piece {
+	lastMove
 	constructor (color = null) {
 		super("R", color)
+		this.lastMove = ""
 	}
 
 	possibleMoves(board, pos) {
@@ -324,13 +326,14 @@ class Rook extends Piece {
 			ChessBoard.getRelativePos(pos, new Vec2(-1, 0), this.color)
 		].filter((code) => code != null)
 
-		// TODO: rook can only take if other color took something of you in the previous turn
-		relPos.forEach((code) => {
-			if (board.isTakable(code, this.color)) {
-				returnArr[1].push(code)
-				return
-			}
-		})
+		if (this.lastMove.includes("x")) {
+			relPos.forEach((code) => {
+				if (board.isTakable(code, this.color)) {
+					returnArr[1].push(code)
+					return
+				}
+			})
+		}
 
 		Object.keys(ChessBoard.columnMarks).forEach((column) => {
 			Object.keys(ChessBoard.rowMarks).forEach((row) => {

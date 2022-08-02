@@ -1,17 +1,19 @@
 class ChessUI {
 	#boardDOM
 	#chess
+	#turn
 	#isDragging
 	#draggingDOM
 	#isCenterHidden
 	#hinted
-	constructor (chess, boardDOM) {
+	constructor (chess, boardDOM, turn) {
 		this.#chess = chess
+		this.#turn = turn // TODO: can only move pieces of color === turn.color (REMOVE IF DONE WITH CSS)
 		this.#boardDOM = boardDOM
 		this.#isDragging = false
 		this.#draggingDOM = null
 		this.#isCenterHidden = false
-		this.#hinted = []
+		this.#hinted = [null, [], [], null]
 	}
 
 	initialize(board) {
@@ -42,8 +44,6 @@ class ChessUI {
 			square.addEventListener("mouseenter", (e) => { // mouseenter or hints get overritten by multimove hints
 				if (!this.#isDragging) return
 
-				//move to under centerpiece (but keeping centerpiece cancelabble)
-
 				square.classList.add("dropping")
 
 				let origin = this.#draggingDOM.parentNode.dataset.id
@@ -65,7 +65,7 @@ class ChessUI {
 
 				let from = this.#draggingDOM.parentNode.dataset.id
 				let to = square.dataset.id
-				
+
 				this.#chess.onMove(from, to)
 			})
 		})
@@ -112,47 +112,90 @@ class ChessUI {
 	hintSquares(source, squares, origin = null) {
 		let tempDOM = this.#boardDOM.querySelector("[data-id='" + source + "']")
 		tempDOM.classList.add("source")
-		this.#hinted.push(source)
+		this.#hinted[0] = source
 
 		for (const code of squares[0]) {
 			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.add("moveable")
 		}
+		this.#hinted[1] = squares[0]
+		
 		for (const code of squares[1]) {
 			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.add("takeable")
 		}
-
-		this.#hinted = this.#hinted.concat(squares)
+		this.#hinted[2] = squares[1]
 
 		if (origin !== null) {
 			let tempDOM = this.#boardDOM.querySelector("[data-id='" + origin + "']")
 			tempDOM.classList.add("origin")
-			this.#hinted.push(origin)
 		}
+		this.#hinted[3] = origin
 	}
 
 	unHint() {
-		if (this.#hinted.length === 0)
-			return
-
-		let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[0] + "']")
-		tempDOM.classList.remove("source")
-
-		for (const code of this.#hinted[1]) {
-			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
-			tempDOM.classList.remove("moveable")
+		if (this.#hinted[0] !== null) {
+			let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[0] + "']")
+			tempDOM.classList.remove("source")
 		}
-		for (const code of this.#hinted[2]) {
-			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
-			tempDOM.classList.remove("takeable")
-		}
+		this.#hinted[0] = null
 
-		if (this.#hinted[3] !== undefined) {
+		if (this.#hinted[1].length > 0) {
+			for (const code of this.#hinted[1]) { // moves
+				let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
+				tempDOM.classList.remove("moveable")
+			}
+		}
+		this.#hinted[1] = []
+		
+		if (this.#hinted[2].length > 0) {
+			for (const code of this.#hinted[2]) { // takes
+				let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
+				tempDOM.classList.remove("takeable")
+			}
+		}
+		this.#hinted[2] = []
+
+		if (this.#hinted[3] !== null) { // origin
 			let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[3] + "']")
 			tempDOM.classList.remove("origin")
 		}
-		this.#hinted = []
+		this.#hinted[3] = null
+	}
+
+	hintJail(color) {
+		this.#hinted[4] = []
+		document.querySelectorAll(".square[data-id*='" + color + "j']").forEach((jailSquare) => {
+			jailSquare.classList.add("jailPick")
+			this.#hinted[4].push(jailSquare.dataset.id)
+		})
+	}
+	
+	hintSaveJail(code) {
+		document.querySelectorAll(".square[data-id*='" + color + "j']").forEach((jailSquare) => {
+			jailSquare.classList.add("jailSave")
+		})
+		this.#hinted[5] = jailSquare.dataset.id
+	}
+
+	unHintJail() {
+		if (this.#hinted[4] === undefined && this.#hinted[5]) return
+
+		if (this.#hinted[4] !== undefined) {
+			for (const code of this.#hinted[4]) {
+				let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
+				tempDOM.classList.remove("jailPick")
+			}
+			delete this.#hinted[4]
+		}
+		
+		if (this.#hinted[5] !== undefined) {
+			if (this.#hinted[5] !== null) { // origin
+				let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[5] + "']")
+				tempDOM.classList.remove("jailSave")
+			}
+			delete this.#hinted[5]
+		}
 	}
 
 	dragCancel() {
@@ -202,11 +245,14 @@ class ChessUI {
 			// hide center
 			if (pieceDOM.parentNode.dataset.id !== "c")
 				this.#boardDOM.querySelector(".centerSquare").classList.add("noDrop")
-				
+
 			e.preventDefault();
 			this.#chess.onDrag(pieceDOM)
 			this.#dragMove(new Vec2(e.clientX, e.clientY))
 		})
-
+	}
+	
+	changeTurn(turn) {
+		document.querySelector(".board").setAttribute("turn", turn)
 	}
 }

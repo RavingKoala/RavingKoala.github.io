@@ -51,9 +51,9 @@ class Chess {
 	#saving
 	constructor (boardDOM) {
 		this.#board = new ChessBoard()
-		this.#chessUI = new ChessUI(this, boardDOM)
-		this.#state = Chess.states.idle
 		this.#turn = new ChessTurn()
+		this.#chessUI = new ChessUI(this, boardDOM, this.#turn)
+		this.#state = Chess.states.idle
 		this.#history = new ChessHistory()
 
 		this.#pickingPiece = null
@@ -144,6 +144,8 @@ class Chess {
 
 		this.#board.setJailPiece(this.#pickingPiece, code)
 		this.#chessUI.setPiece(this.#pickingPiece, code)
+		this.#chessUI.unHintJail()
+
 		this.#pickingPiece = null
 		this.state = Chess.states.turn
 
@@ -200,11 +202,14 @@ class Chess {
 	endMove() {
 		// create code
 		let code = this.#turn.composeAndCreate()
+
 		this.#history.add(code, this.#turn.turn)
-		if (this.#turn.turn === Chess.sides.white)
-			this.#turn.turn = Chess.sides.black
-		else if (this.#turn.turn === Chess.sides.black)
-			this.#turn.turn = Chess.sides.white
+
+		this.#updateSpecialConditions()
+
+		this.#turn.swapTurn()
+
+		this.#chessUI.changeTurn(this.#turn.turn)
 	}
 	#save(from, to) {
 		let piece = this.#board.getPiece(from)
@@ -252,6 +257,7 @@ class Chess {
 
 		// capture king/queen to jail
 		if (/[wb][QK]\^?/.test(pieceTaken.code)) { //regex for [white or black] [queen or king] (banana optionally)
+			this.#chessUI.hintJail(pieceTaken.color)
 			this.state = Chess.states.pickingJail
 			this.#pickingPiece = pieceTaken
 		}
@@ -279,5 +285,12 @@ class Chess {
 				this.#turn.addToCompose(this.#board, "promoteTo", newPiece) // turn code
 			}
 		}
+	}
+
+	#updateSpecialConditions() {
+		let boardConditions = {}
+		boardConditions.lastMove = this.#history.getLastMove()
+		console.log(boardConditions);
+		this.#board.updatePiecesSpecialConditions(boardConditions)
 	}
 }
