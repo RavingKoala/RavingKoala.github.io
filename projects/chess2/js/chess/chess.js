@@ -94,12 +94,10 @@ class Chess {
 
 		let piece = this.#board.getPiece(code)
 		let hints = piece.possibleMoves(this.#board, code)
-		console.log(hints);
+
 		// if multimove -> give both multimove hints and normal hints
 		if (piece.canMultiMove) {
 			let multiMovesHints = piece.getMultiMoves(this.#board, code)
-			console.log(multiMovesHints);
-
 			hints[0] = hints[0].concat(multiMovesHints[0])
 			hints[1] = hints[1].concat(multiMovesHints[1])
 		}
