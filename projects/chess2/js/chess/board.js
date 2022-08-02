@@ -338,15 +338,11 @@ class ChessBoard {
 	}
 
 	#canMakeMove(piece, from, to) {
-		if (!this.isOccupied(to)) { // is move
-			if (piece.canMoveTo(this, from, to))
-				return false
-		} else { // is take
-			if (piece.canTakeTo(this, from, to))
-				return false
-		}
+		if (!this.isOccupied(to))
+			return piece.canMoveTo(this, from, to) // is move
+		else
+			return piece.canTakeTo(this, from, to) // is take
 		
-		return true
 	}
 
 	typeCanMakeMove(type, to, color = null) {
@@ -355,8 +351,8 @@ class ChessBoard {
 		let retArr = []
 		for (const pos of this.#piecesLookup[type]){
 			let piece = this.getPiece(pos)
-			if (color !== null && piece.color === color)
-				if (this.#canMakeMove(piece, to))
+			if ((color !== null && piece.color === color))
+				if (this.#canMakeMove(piece, piece.position, to))
 					retArr.push(pos)
 		}
 		return retArr
