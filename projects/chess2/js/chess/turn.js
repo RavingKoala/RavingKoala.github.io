@@ -35,25 +35,34 @@ class ChessTurn {
 
 	// #region construct and create codes
 	addToCompose(board, key, value) {
-		this.isComposing = true
+		if (!this.isComposing) {
+			this.isComposing = true
+			this.#composeObj = {}
+		}
 		if (!Object.values(ChessTurn.composeKeys).includes(key))
 			throw new Error(key + " is not a valid key!")
 
+		if (key === "from") {
+			if (this.#composeObj.to !== undefined) {
+				this.#composeObj.from = ChessTurn.minifyFrom(board, value, this.#composeObj.to)
+			}
+		}
+		if (key === "to") {
+			if (this.#composeObj.from !== undefined) {
+				this.#composeObj.from = ChessTurn.minifyFrom(board, this.#composeObj.from, value)
+			}
+		}
+		if (key === "captureTo")
+			return this.#composeObj.captureTo = ChessTurn.minifyCaptureTo(value)
+
 		this.#composeObj[key] = value
-		
-		if (key === "from")
-			if (this.#composeObj.to !== undefined)
-				return this.#composeObj[key] = ChessTurn.minifyFrom(board, value)
-		if (key === "to")
-			if (this.#composeObj.to !== undefined)
-				return this.#composeObj.from = ChessTurn.minifyFrom(board, this.#composeObj.from)
 	}
 
-	addToCompose(board, obj) {
-		if (obj instanceof Object)
+	addToComposeObj(board, obj) {
+		if (!obj instanceof Object)
 			throw new Error("parameter is not an object with key value pairs!")
 
-		for (const [key, value] of Object.entries(obj)) {
+		for (let [key, value] of Object.entries(obj)) {
 			this.addToCompose(board, key, value)
 		}
 	}
@@ -61,57 +70,76 @@ class ChessTurn {
 	composeTempCreate() { // may be inaccurate if params are missing
 		if (this.#composeObj === null) throw new Error("no parameters given!")
 		// mandatory keys
-		if (!this.#composeObj.piece) throw Error("provide parameter: 'piece' is mandatory!")
+		if (this.#composeObj.piece === undefined) throw Error("provide parameter: 'piece' is mandatory!")
 		if (!this.#composeObj.piece instanceof Piece) throw Error("parameter: 'piece' is not of type Piece!")
-		if (!this.#composeObj.to) throw Error("provide parameter: 'to' is mandatory!")
-		if (!this.#composeObj.from) throw Error("provide parameter: 'from' is mandatory!")
+		if (this.#composeObj.to === undefined) throw Error("provide parameter: 'to' is mandatory!")
+		if (this.#composeObj.from === undefined) throw Error("provide parameter: 'from' is mandatory!")
 
 		//optional keys
 		// isTakeMove promoteTo captureTo
-		let isTakeMove = (this.#composeObj.isTakeMove === undefined) ? true : false
+		let isTakeMove = (this.#composeObj.isTakeMove !== undefined) ? true : false
 		let isPromotionMove = (this.#composeObj.promoteTo !== undefined) ? true : false
 		let isCaptureMove = (this.#composeObj.captureTo !== undefined) ? true : false
-
 
 		// construct moveCode
 		// keys: toPiece, isTakeMove, isPromotionMove
 		let moveCode = ""
+		moveCode += this.#composeObj.piece.type
+		moveCode += this.#composeObj.from
 		if (!isTakeMove)
-			moveCode += ChessTurn.#moveCodePiece(to)
+			moveCode += ChessTurn.#moveCodePiece(this.#composeObj.to)
 		else
-			moveCode += ChessTurn.#takeCodePiece(to)
+			moveCode += ChessTurn.#takeCodePiece(this.#composeObj.to)
 
 		if (isPromotionMove) {
-			promoCode = ""
+			let promoCode = ""
 			if (this.#composeObj.promoteTo instanceof Piece)
-				moveCode += ChessTurn.#getPieceCode(this.#composeObj.promoteTo)
+				promoCode += ChessTurn.#getPieceCode(this.#composeObj.promoteTo)
 			else
-				moveCode += this.#composeObj.promoteTo
+				promoCode += this.#composeObj.promoteTo
+			moveCode += ChessTurn.#promotionCodePiece(promoCode)
 		}
 
 		if (isCaptureMove)
-			moveCode += this.#composeObj.captureTo
+			moveCode += ChessTurn.#captureCodePiece(this.#composeObj.captureTo)
 
 		// default normal move
 		return moveCode
 	}
 
 	composeAndCreate() {
-		let ret = composeTempCreate()
+		let ret = this.composeTempCreate()
 		this.isComposing = false
 		this.#composeObj = null
 		return ret
 	}
 
 	static minifyFrom(board, from, to) {
-		if (board.canOnlyMakeMove(from, to)) return ""
+		let piece = board.getPiece(from)
+		let posArr = board.typeCanMakeMove(piece.type, to, piece.color)
+		let ret = ""
+		let hasMatchingCol = false, hasMatchingRow = false
+		for (const code of posArr) {
+			if (from === code) continue
+			if (from[0] === code[0])
+				hasMatchingCol = true
+			if (from[1] === code[1])
+				hasMatchingRow = true
 
-		if (this.#isUniqueOnRow(board, from))
-			return ChessBoard.splitCode(from)[0]
-		else if (this.#isUniqueOnColumn(board, from))
-			return ChessBoard.splitCode(from)[1]
+			if (hasMatchingCol && hasMatchingRow)
+				return from
+		}
 
-		return from
+		if (hasMatchingRow)
+			ret += from[0]
+		if (hasMatchingCol)
+			ret += from[1]
+
+		return ret
+	}
+
+	static minifyCaptureTo(captureTo) {
+		return captureTo[2]
 	}
 
 	static createCode(board, from, to, promoteTo = null, isCheckOrCheckmate = false) {
@@ -120,60 +148,10 @@ class ChessTurn {
 		let fromMinCode = ChessTurn.minifyFrom(board, from, to)
 
 		if (board.isOccupied(to)) {
-			let takenPiece = board.getPiece(to)
-			// TODO: if king/queen make capture?!
 			return ChessTurn.#createTakeCode(piece, to, fromMinCode)
 		}
 
 		return ChessTurn.#createMoveCode(piece, to, fromMinCode)
-	}
-
-	static #isUniqueInDirection(board, pos, vec) {
-		let piece = board.getPiece(pos)
-
-		for (let i = 1; i < 8; i++) { // 8 times for max board length or height (alternative is while true!)
-			let tempVec = vec.clone().multiply(i)
-			let code = ChessBoard.getRelativePos(pos, tempVec, this.color)
-
-			if (code === null) return
-			if (board.isOccupied(code))
-				if (board.getPiece(code).type === piece.type)
-					return false
-		}
-
-		return true
-	}
-
-	static #isUniqueOnRow(board, pos) {
-		let isUnique = true
-
-		let relVec = [
-			new Vec2(1, 0),
-			new Vec2(-1, 0),
-		]
-
-		relVec.forEach((vec) => {
-			if (!isUnique) return
-			isUnique = this.#isUniqueInDirection(board, pos, vec)
-		})
-
-		return isUnique
-	}
-
-	static #isUniqueOnColumn(board, pos) {
-		let isUnique = true
-
-		let relVec = [
-			new Vec2(0, 1),
-			new Vec2(0, -1),
-		]
-
-		relVec.forEach((vec) => {
-			if (!isUnique) return
-			isUnique = this.#isUniqueInDirection(board, pos, vec)
-		})
-
-		return isUnique
 	}
 
 	static #getPieceCode(piece) {
@@ -248,14 +226,14 @@ class ChessTurn {
 	static #moveCodePiece(to, from = null) {
 		let ret = ""
 		if (from !== null) ret += from
-		ret += signs.move
+		ret += ChessTurn.signs.move
 		ret += to
 		return ret
 	}
 	static #takeCodePiece(to, from = null) {
 		let ret = ""
 		if (from !== null) ret += from
-		ret += signs.take
+		ret += ChessTurn.signs.take
 		ret += to
 		return ret
 	}
@@ -265,16 +243,16 @@ class ChessTurn {
 			toCode = to.type
 		}
 
-		return signs.promotion + "" + to
+		return ChessTurn.signs.promotion + "" + to
 	}
 	static #captureCodePiece(to) {
-		return signs.capture + "" + to
+		return ChessTurn.signs.capture + "" + to
 	}
 	static #checkCodePiece(to) {
-		return signs.check + "" + to
+		return ChessTurn.signs.check + "" + to
 	}
 	static #checkmateCodePiece(to) {
-		return signs.checkmate + "" + to
+		return ChessTurn.signs.checkmate + "" + to
 	}
 
 	static createMatchEndCode(whiteWon = true) {

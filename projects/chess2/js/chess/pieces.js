@@ -197,7 +197,7 @@ class Fishy extends Piece {
 	}
 
 	promotionCondition(board, pos) {
-		return (this.color === "w" && pos.startsWith("8")) || (this.color === "b" && pos.startsWith("1"))
+		return (this.color === "w" && pos[1] === "8") || (this.color === "b" && pos[1] === "1")
 	}
 
 	possibleMoves(board, pos) {
@@ -332,9 +332,9 @@ class Rook extends Piece {
 			}
 		})
 
-		Object.keys(ChessBoard.rowMarks).forEach((row) => {
-			Object.keys(ChessBoard.columnMarks).forEach((column) => {
-				let code = ChessBoard.createCode(row, column)
+		Object.keys(ChessBoard.columnMarks).forEach((column) => {
+			Object.keys(ChessBoard.rowMarks).forEach((row) => {
+				let code = ChessBoard.createCode(column, row)
 				if (!board.isOccupied(code))
 					returnArr[0].push(code)
 			})
@@ -488,8 +488,6 @@ class Monkey extends Piece {
 		}
 
 		// searching all positions
-		// fill returnArr[2] with possible eventual moves
-		// fill returnArr[3] with possible eventual takes
 		let searched = []
 		let searching = [pos]
 
@@ -556,7 +554,7 @@ class Bear extends Piece {
 		let returnArr = [[], []] // returnArr[0] = [...moves]; returnArr[1] = [...takes]
 
 		if (pos === "c") {
-			let codes = ["4d", "4e", "5d", "5e"]
+			let codes = ["d4", "e4", "d5", "e5"]
 			returnArr[0] = codes.filter((code) => !board.isOccupied(code))
 			return returnArr
 		}
