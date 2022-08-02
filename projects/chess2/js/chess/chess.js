@@ -144,7 +144,7 @@ class Chess {
 
 		this.#board.setJailPiece(this.#pickingPiece, code)
 		this.#chessUI.setPiece(this.#pickingPiece, code)
-		this.#chessUI.unHintJail()
+		this.#chessUI.unHintPick()
 
 		this.#pickingPiece = null
 		this.state = Chess.states.turn
@@ -182,7 +182,7 @@ class Chess {
 		this.#saving = null
 	}
 
-	onSave(origin) {
+	onSave(origin, jail) {
 		if (this.#saving !== null) return
 		let piece = this.#board.getPiece(origin)
 
@@ -190,13 +190,14 @@ class Chess {
 
 		let save = piece.canSavePiece(this.#board, origin)
 		
-		console.log(save);
-		
 		if (save === null) return
 
+		console.log("saving", jail);
+		
 		this.#chessUI.unHint()
 		let hints = piece.getMultiMoveHints(this.#board, save.from)
 		this.#chessUI.hintSquares(save.from, hints)
+		this.#chessUI.hintSaveJail(jail)
 
 		this.#saving = save
 	}
@@ -259,7 +260,7 @@ class Chess {
 
 		// capture king/queen to jail
 		if (/[wb][QK]\^?/.test(pieceTaken.code)) { //regex for [white or black] [queen or king] (banana optionally)
-			this.#chessUI.hintJail(pieceTaken.color)
+			this.#chessUI.hintPick(pieceTaken.color)
 			this.state = Chess.states.pickingJail
 			this.#pickingPiece = pieceTaken
 		}

@@ -41,7 +41,7 @@ class ChessUI {
 
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
-			square.addEventListener("mouseenter", (e) => { // mouseenter or hints get overritten by multimove hints
+			square.addEventListener("mouseenter", (e) => { // mouseenter or hints get overritten by multimove hints // now centerpiece doesnt have hover
 				if (!this.#isDragging) return
 
 				square.classList.add("dropping")
@@ -77,8 +77,9 @@ class ChessUI {
 			square.addEventListener("mouseenter", (e) => {
 				if (!this.#isDragging) return
 
+				let code = square.dataset.id
 				let origin = this.#draggingDOM.parentNode.dataset.id
-				this.#chess.onSave(origin)
+				this.#chess.onSave(origin, code)
 			})
 		});
 		document.addEventListener("mouseup", (e) => {
@@ -161,9 +162,17 @@ class ChessUI {
 			tempDOM.classList.remove("origin")
 		}
 		this.#hinted[3] = null
+
+		if (this.#hinted[5] !== undefined) {
+			if (this.#hinted[5] !== null) { // origin
+				let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[5] + "']")
+				tempDOM.classList.remove("jailSave")
+			}
+			delete this.#hinted[5]
+		}
 	}
 
-	hintJail(color) {
+	hintPick(color) {
 		this.#hinted[4] = []
 		document.querySelectorAll(".square[data-id*='" + color + "j']").forEach((jailSquare) => {
 			jailSquare.classList.add("jailPick")
@@ -172,13 +181,13 @@ class ChessUI {
 	}
 	
 	hintSaveJail(code) {
-		document.querySelectorAll(".square[data-id*='" + color + "j']").forEach((jailSquare) => {
+		document.querySelectorAll(".square[data-id='" + code + "']").forEach((jailSquare) => {
 			jailSquare.classList.add("jailSave")
+			this.#hinted[5] = jailSquare.dataset.id
 		})
-		this.#hinted[5] = jailSquare.dataset.id
 	}
 
-	unHintJail() {
+	unHintPick() {
 		if (this.#hinted[4] === undefined && this.#hinted[5]) return
 
 		if (this.#hinted[4] !== undefined) {
@@ -187,14 +196,6 @@ class ChessUI {
 				tempDOM.classList.remove("jailPick")
 			}
 			delete this.#hinted[4]
-		}
-		
-		if (this.#hinted[5] !== undefined) {
-			if (this.#hinted[5] !== null) { // origin
-				let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[5] + "']")
-				tempDOM.classList.remove("jailSave")
-			}
-			delete this.#hinted[5]
 		}
 	}
 
