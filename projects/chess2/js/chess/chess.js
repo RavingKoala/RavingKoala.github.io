@@ -173,6 +173,7 @@ class Chess {
 	onDragCancel() {
 		this.#chessUI.dragCancel()
 		this.#chessUI.unHint()
+		this.#chessUI.unHintSaveJail()
 
 		if (this.#state !== Chess.states.turn // on successful turn
 			&& this.#state !== Chess.states.pickingJail) {
@@ -192,8 +193,6 @@ class Chess {
 		
 		if (save === null) return
 
-		console.log("saving", jail);
-		
 		this.#chessUI.unHint()
 		let hints = piece.getMultiMoveHints(this.#board, save.from)
 		this.#chessUI.hintSquares(save.from, hints)

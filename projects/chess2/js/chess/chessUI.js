@@ -162,14 +162,6 @@ class ChessUI {
 			tempDOM.classList.remove("origin")
 		}
 		this.#hinted[3] = null
-
-		if (this.#hinted[5] !== undefined) {
-			if (this.#hinted[5] !== null) { // origin
-				let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[5] + "']")
-				tempDOM.classList.remove("jailSave")
-			}
-			delete this.#hinted[5]
-		}
 	}
 
 	hintPick(color) {
@@ -196,6 +188,15 @@ class ChessUI {
 				tempDOM.classList.remove("jailPick")
 			}
 			delete this.#hinted[4]
+		}
+	}
+	unHintSaveJail() {
+		if (this.#hinted[5] !== undefined) {
+			if (this.#hinted[5] !== null) {
+				let tempDOM = this.#boardDOM.querySelector("[data-id='" + this.#hinted[5] + "']")
+				tempDOM.classList.remove("jailSave")
+			}
+			delete this.#hinted[5]
 		}
 	}
 
