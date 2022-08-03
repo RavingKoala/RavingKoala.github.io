@@ -12,9 +12,9 @@ body {
 	padding: 0;
 }
 
-.container-thin {
+.container-full {
 	min-height: 100vh;
-	width: min(100%, 840px);
+	width: 100vw;
 	margin: 0 auto;
 	background: var(--md-surface);
 }
