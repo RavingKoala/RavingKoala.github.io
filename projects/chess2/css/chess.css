@@ -4,7 +4,7 @@
 	--chess-square-white-color: #EEEED2;
 	--chess-board-color: #ffffff;
 	--chess-hint-color: ;
-	--chess-square-size: min(10vw, 10vh);
+	--chess-square-size: min(8vw, 8vh);
 }
 
 /* board */
