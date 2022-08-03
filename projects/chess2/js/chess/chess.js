@@ -109,7 +109,6 @@ class Chess {
 
 	onMove(from, to) {
 		if (this.#saving !== null) {
-
 			this.#save(from, to)
 			return
 		}
@@ -190,7 +189,7 @@ class Chess {
 		if (!piece.canSave) return
 
 		let save = piece.canSavePiece(this.#board, origin)
-		
+
 		if (save === null) return
 
 		this.#chessUI.unHint()
@@ -218,12 +217,25 @@ class Chess {
 
 		if (!piece.saveCondition(this.#board, from, to)) return
 
-		if (this.#board.isOccupied(to) && from !== to) {
+		// banana transaction
+		/// monkey
+		this.#change(from, (piece) => {
+			piece.hasBanana = true
+			return piece
+		})
+		/// King
+		this.#change(this.#saving.to, (piece) => {
+			piece.hasBanana = false
+			return piece
+		})
+
+		if (this.#board.isOccupied(to) && from !== to)
 			this.#take(from, to);
-		} else {
+		else
 			this.#move(from, to)
-		}
+
 		this.#move(this.#saving.to, this.#saving.from)
+
 		this.#saving = null
 	}
 
@@ -272,7 +284,9 @@ class Chess {
 
 	#change(code, func) {
 		let piece = this.#board.getPiece(code)
+		console.log(code, piece);
 		piece = func(piece)
+		console.log(piece, func);
 
 		this.#board.setPiece(piece, code)
 		this.#chessUI.setPiece(piece, code)
@@ -292,7 +306,6 @@ class Chess {
 	#updateSpecialConditions() {
 		let boardConditions = {}
 		boardConditions.lastMove = this.#history.getLastMove()
-		console.log(boardConditions);
 		this.#board.updatePiecesSpecialConditions(boardConditions)
 	}
 }
