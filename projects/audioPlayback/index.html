@@ -118,7 +118,6 @@
 			var settingsBtn = document.getElementById("settings")
 			includePopup("settingsPopup")
 				.then((settingsPopup) => {
-					console.log(settingsPopup);
 					settingsBtn.addEventListener("click", () => { settingsPopup.classList.add("show") })
 					shortcutManager.addShortcut(new shortcut(KeyCodes.KeyI, new shortcutMod(undefined, true), KeyActions.keyDown), function() { settingsPopup.classList.add("show") })
 					shortcutManager.addShortcut(new shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)

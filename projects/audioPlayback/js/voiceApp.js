@@ -102,8 +102,6 @@ class VoiceAppUIStateManager {
 	#changeUI(actionBtnURI, labelText) {
 		getContent(actionBtnURI).then((result) => {
 			this.actionButtonDOM.innerHTML = result
-		}).catch((e) => {
-			console.log(e);
 		})
 		this.textfieldDOM.innerHTML = labelText
 	}
