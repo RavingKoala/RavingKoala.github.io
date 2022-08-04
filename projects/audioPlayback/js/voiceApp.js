@@ -115,7 +115,7 @@ class VoiceAppRecorderStateManager {
 		this.#voiceAppSettings = voiceAppSettings
 
 		var settings = RecorderSettings
-		settings.PlayASAP = voiceAppSettings.pauseBeforeReview
+		settings.PlayASAP = !voiceAppSettings.pauseBeforeReview
 
 		this.#Rec = recorder
 	}

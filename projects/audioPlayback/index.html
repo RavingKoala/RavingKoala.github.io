@@ -18,7 +18,6 @@
 		<script src="../../js/includePopups.js"></script>
 		<script src="../../js/storageManager.js"></script>
 		<script src="../../js/shortcutManager.js"></script>
-		
 		<script src="./js/statusManager.js"></script>
 		<script src="./js/recorder.js"></script>
 		<script src="./js/volumeManager.js"></script>
@@ -74,6 +73,8 @@
 			// content update
 			replaceIncludes()
 
+			console.log(LocalDataStorage.getAll());
+			
 			// settings
 			var VASettings = VoiceAppSettings
 			VASettings.pauseBeforeReview = LocalDataStorage.exists("pauseBeforeReview") ? LocalDataStorage.get("pauseBeforeReview") === "true" : false
@@ -98,17 +99,17 @@
 				recorder.setVolume(e.detail.volume)
 				statusManager.setSoundImage(e.detail.volume > 0 ? SoundStates.Sound : SoundStates.NoSound)
 			})
-			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, new shortcutMod(true), KeyActions.keyDown), function() { volume.addVolume(0.1) })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, new shortcutMod(true), KeyActions.keyDown), function() { volume.subVolume(0.1) })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), function() { volume.addVolume(0.05) })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.ArrowDown, undefined, KeyActions.keyDown), function() { volume.subVolume(0.05) })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, new ShortcutMod(true), KeyActions.keyDown), function() { volume.addVolume(0.1) })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, new ShortcutMod(true), KeyActions.keyDown), function() { volume.subVolume(0.1) })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), function() { volume.addVolume(0.05) })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, undefined, KeyActions.keyDown), function() { volume.subVolume(0.05) })
 
 			// VoiceApp
 			var actionButtonDOM = document.getElementById("actionButton")
 			var textfieldDOM = document.querySelector("span.textfield")
 			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, VASettings)
 			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
-			shortcutManager.addShortcut(new shortcut(KeyCodes.Space, undefined, KeyActions.press), function() { voiceApp.nextState() })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.Space, undefined, KeyActions.press), function() { voiceApp.nextState() })
 
 			// VolumeManager
 			var volumeSlider = document.querySelector("#sliderContainer")
@@ -119,9 +120,9 @@
 			includePopup("settingsPopup")
 				.then((settingsPopup) => {
 					settingsBtn.addEventListener("click", () => { settingsPopup.classList.add("show") })
-					shortcutManager.addShortcut(new shortcut(KeyCodes.KeyI, new shortcutMod(undefined, true), KeyActions.keyDown), function() { settingsPopup.classList.add("show") })
-					shortcutManager.addShortcut(new shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)
-					shortcutManager.addShortcut(new shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show"); document.location.reload(true)  }, true)
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.KeyI, new ShortcutMod(undefined, true), KeyActions.keyDown), function() { settingsPopup.classList.add("show") })
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)
 					settingsPopup.querySelector(".overlay").addEventListener("click", () => { settingsPopup.classList.remove("show"); document.location.reload(true) })
 
 					Object.keys(VASettings).forEach((key) => {
@@ -138,8 +139,8 @@
 			includePopup("infoPopup")
 				.then((infoPopup) => {
 					infoBtn.addEventListener("click", () => { infoPopup.classList.add("show") })
-					shortcutManager.addShortcut(new shortcut(KeyCodes.Slash, new shortcutMod(undefined, true), KeyActions.keyDown), function() { infoPopup.classList.add("show") })
-					shortcutManager.addShortcut(new shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { infoPopup.classList.remove("show") }, true)
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Slash, new ShortcutMod(undefined, true), KeyActions.keyDown), function() { infoPopup.classList.add("show") })
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { infoPopup.classList.remove("show") }, true)
 					infoPopup.querySelector(".overlay").addEventListener("click", () => { infoPopup.classList.remove("show") })
 				})
 

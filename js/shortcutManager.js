@@ -201,8 +201,12 @@ class ShortcutManager {
 	}
 }
 
-class shortcut {
-	constructor (keyCode = undefined, mods = new shortcutMod(), keyAction = undefined) {
+class Shortcut {
+	constructor (keyCode = null, mods = new ShortcutMod(), keyAction = null) {
+		if (keyCode === null) throw new Error("keyCode not defined!")
+		if (!keyAction instanceof ShortcutMod) throw new Error("keyCode not defined!")
+		if (keyAction === null) throw new Error("keyCode not defined!")
+		
 		this.keyCode = keyCode
 		this.mods = mods
 		this.keyAction = keyAction
@@ -217,8 +221,8 @@ class shortcut {
 	}
 }
 
-class shortcutMod {
-	constructor (ctrl = undefined, alt = undefined, shift = undefined, meta = undefined) {
+class ShortcutMod {
+	constructor (ctrl = null, alt = null, shift = null, meta = null) {
 		this.ctrl = ctrl
 		this.alt = alt
 		this.shift = shift
@@ -227,10 +231,10 @@ class shortcutMod {
 
 	toString() {
 		let string = ""
-		if (this.ctrl) string += "ctrl"
-		if (this.alt) string += "alt"
-		if (this.shift) string += "shift"
-		if (this.meta) string += "meta"
+		if (this.ctrl === null) string += "ctrl"
+		if (this.alt === null) string += "alt"
+		if (this.shift === null) string += "shift"
+		if (this.meta === null) string += "meta"
 		return string
 	}
 }
