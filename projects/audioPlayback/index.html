@@ -14,14 +14,15 @@
 		<link rel="stylesheet" href="./css/popup.css" />
 		<link rel="stylesheet" href="./css/formControls.css">
 		<script src="../../js/ClassHelpers.js"></script>
-		<script src="./js/statusManager.js"></script>
-		<script src="./js/includeContent.js"></script>
-		<script src="./js/includePopups.js"></script>
+		<script src="../../js/includeContent.js"></script>
+		<script src="../../js/includePopups.js"></script>
+		<script src="../../js/storageManager.js"></script>
+		<script src="../../js/shortcutManager.js"></script>
 		
+		<script src="./js/statusManager.js"></script>
 		<script src="./js/recorder.js"></script>
 		<script src="./js/volumeManager.js"></script>
 		<script src="./js/voiceApp.js"></script>
-		<script src="./js/shortcutManager.js"></script>
 	</head>
 
 	<body class="dark mt-6">
@@ -75,10 +76,10 @@
 
 			// settings
 			var VASettings = VoiceAppSettings
-			VASettings.immediateReview = true
-			VASettings.autoContinueAfterPlayed = true
+			VASettings.pauseBeforeReview = LocalDataStorage.exists("pauseBeforeReview") ? LocalDataStorage.get("pauseBeforeReview") === "true" : false
+			VASettings.autoContinueAfterPlayed = LocalDataStorage.exists("autoContinueAfterPlayed") ? LocalDataStorage.get("autoContinueAfterPlayed") === "true" : true
 			var RSettings = RecorderSettings
-			RSettings.PlayASAP = VASettings.immediateReview
+			RSettings.PlayASAP = VASettings.pauseBeforeReview
 
 			// ShortcutManager
 			var shortcutManager = new ShortcutManager()
@@ -117,11 +118,20 @@
 			var settingsBtn = document.getElementById("settings")
 			includePopup("settingsPopup")
 				.then((settingsPopup) => {
+					console.log(settingsPopup);
 					settingsBtn.addEventListener("click", () => { settingsPopup.classList.add("show") })
 					shortcutManager.addShortcut(new shortcut(KeyCodes.KeyI, new shortcutMod(undefined, true), KeyActions.keyDown), function() { settingsPopup.classList.add("show") })
-					shortcutManager.addShortcut(new shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show") }, true)
-					shortcutManager.addShortcut(new shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show") }, true)
-					settingsPopup.querySelector(".overlay").addEventListener("click", () => { settingsPopup.classList.remove("show") })
+					shortcutManager.addShortcut(new shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)
+					shortcutManager.addShortcut(new shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show"); document.location.reload(true)  }, true)
+					settingsPopup.querySelector(".overlay").addEventListener("click", () => { settingsPopup.classList.remove("show"); document.location.reload(true) })
+
+					Object.keys(VASettings).forEach((key) => {
+						let inputSetting = settingsPopup.querySelector(".option input#" + key)
+						inputSetting.checked = VASettings[key]
+						inputSetting.addEventListener("change", (e) => {
+							LocalDataStorage.set(key, inputSetting.checked)
+						})
+					})
 				})
 
 			// Info

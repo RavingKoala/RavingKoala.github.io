@@ -1,5 +1,5 @@
 async function getPopupTemplate() {
-	return await getContent("./popups/Popup.html", true).then((content) => content)
+	return await getContent("./popups/Popup.html").then((content) => content)
 }
 
 async function includePopup(id, attr = "src") {

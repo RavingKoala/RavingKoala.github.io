@@ -1,22 +1,34 @@
 var storageTypes = {
 	localStorage: "localStorage",
-	sessionStorage: "sessionStorage",
-	Cookie: "Cookie"
+	sessionStorage: "sessionStorage"
+	// cookie: "cookie" // not available yet
 }
 const StorageEvents = {
-
+	onChange: "onChange"// storageType, key, oldValue newValue
 }
 
 class DataStorage {
-	static exists() {}
-	static get() {}
-	static getAll() {}
-	static set() {}
-	static remove() {}
-	static clear() {}
+	static exists() {
+		throw new Error('Method not implemented.');
+	}
+	static get() {
+		throw new Error('Method not implemented.');
+	}
+	static getAll() {
+		throw new Error('Method not implemented.');
+	}
+	static set() {
+		throw new Error('Method not implemented.');
+	}
+	static remove() {
+		throw new Error('Method not implemented.');
+	}
+	static clear() {
+		throw new Error('Method not implemented.');
+	}
 }
 
-class LocalDataStorage extends Storage {
+class LocalDataStorage extends DataStorage {
 
 	static exists(key) {
 		return (localStorage.getItem(key) !== undefined)
@@ -51,7 +63,7 @@ class LocalDataStorage extends Storage {
 	}
 }
 
-class SessionDataStorage extends Storage {
+class SessionDataStorage extends DataStorage {
 	static exists(key) {
 		return (sessionStorage.getItem(key) !== undefined)
 	}

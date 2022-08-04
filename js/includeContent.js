@@ -22,7 +22,7 @@ function getContentAjax(URI, callback) {
 	xhttp.send()
 }
 
-async function getContent(URI, raw = false) {
+async function getContent(URI, wrap = false) {
 	if (contentDict[URI])
 		return contentDict[URI]
 
@@ -34,17 +34,17 @@ async function getContent(URI, raw = false) {
 		wrapper.innerHTML = content
 		return wrapper.outerHTML
 	}
-	
+
 	return new Promise((resolve, reject) => {
 		getContentAjax(URI, (content => {
 			if (content) {
-				// if (!raw)
-				// 	content = wrapResult(URI, content)
+				if (wrap)
+					content = wrapResult(URI, content)
 
 				contentDict[URI] = content
 				resolve(content)
 			} else {
-				reject("no content found")
+				reject("no content found!")
 			}
 		}))
 	})
@@ -55,14 +55,14 @@ async function replaceIncludes(tag = "include", attr = "src") {
 	for (let node of els) {
 		let file = node.getAttribute(attr)
 		await getContent(file)
-		.then(async (content) => {
-			node.outerHTML = content
-			await replaceIncludes(tag, attr)
-		}).catch((err) => {
-			if (node)
-				node.outerHTML = "error"
-			throw new Error("An error occured whilst including content: " + Error.toString())
-		})
+			.then(async (content) => {
+				node.outerHTML = content
+				await replaceIncludes(tag, attr)
+			}).catch((err) => {
+				if (node)
+					node.outerHTML = "error"
+				throw new Error("An error occured whilst including content: " + Error.toString())
+			})
 		return
 	}
 	document.dispatchEvent(new Event(IncludeContentEvents.onLoaded))
