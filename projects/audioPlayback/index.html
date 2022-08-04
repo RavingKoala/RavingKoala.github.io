@@ -13,11 +13,11 @@
 		<link rel="stylesheet" href="./css/main.css" />
 		<link rel="stylesheet" href="./css/popup.css" />
 		<link rel="stylesheet" href="./css/formControls.css">
-		<script src="../../modules/ClassHelpers.js"></script>
-		<script src="../../modules/includeContent.js"></script>
-		<script src="../../modules/includePopups.js"></script>
-		<script src="../../modules/storageManager.js"></script>
-		<script src="../../modules/shortcutManager.js"></script>
+		<script src="../../modules/js/ClassHelpers.js"></script>
+		<script src="../../modules/js/includeContent.js"></script>
+		<script src="../../modules/js/includePopups.js"></script>
+		<script src="../../modules/js/storageManager.js"></script>
+		<script src="../../modules/js/shortcutManager.js"></script>
 		<script src="./js/statusManager.js"></script>
 		<script src="./js/recorder.js"></script>
 		<script src="./js/volumeManager.js"></script>
@@ -74,7 +74,7 @@
 			replaceIncludes()
 
 			console.log(LocalDataStorage.getAll());
-			
+
 			// settings
 			var VASettings = VoiceAppSettings
 			VASettings.pauseBeforeReview = LocalDataStorage.exists("pauseBeforeReview") ? LocalDataStorage.get("pauseBeforeReview") === "true" : false

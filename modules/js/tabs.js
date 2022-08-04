@@ -1,4 +1,4 @@
-(function() {
+function initializeTabs() {
 	selectTab = (tabContainer, tab) => {
 		// attach DOMcontent
 		if (tab.DOMcontent === undefined || tab.DOMcontent === null)
@@ -33,4 +33,4 @@
 		else if (tabs.length > 0) // select first
 			selectTab(tabContainer, tabs[0])
 	})
-})()
+}
