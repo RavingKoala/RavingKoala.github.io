@@ -1,15 +1,24 @@
+:root ::before,
+:root ::after,
 :root {
-	--tab-bg-color: var(--md-bg);
-	--tab-selected-bg-color: var(--md-bg);
+	--tab-bg-color: #ffffff;
+	--tab-selected-bg-color: #ffffff;
+	--tab-border-color: #000000;
+	--tab-selected-border-color: #000000;
 	--tab-text-color: var(--md-bg-text);
-	--tab-border-color: #000;
+	--tab-distance: 1.2em;
+	--tab-diagonal-overlap-deg: 25deg;
 }
 
+.dark ::before,
+.dark ::after,
 .dark {
-	--tab-bg-color: var(--md-bg);
+	--tab-bg-color: #000000;
+	--tab-border-color: #000000;
 	--tab-selected-bg-color: #242424;
-	--tab-border-color: transparent;
-}
+	--tab-selected-border-color: #242424;
+	--tab-text-color: var(--md-bg-text);
+	}
 
 .tabContainer {
 	display: flex;
@@ -24,6 +33,7 @@
 	flex-direction: row;
 	overflow-y: hidden;
 	overflow-x: scroll;
+	margin-bottom: -2px;
 }
 
 .tabContainer .tabList::-webkit-scrollbar {
@@ -35,17 +45,18 @@
 }
 
 .tabContainer .tabList .tab {
-	z-index: 1;
 	position: relative;
+	box-sizing: border-box;
 	background-color: var(--tab-bg-color);
-	border-top: var(--tab-border-color) solid 2px;
-	/* 2px */
+	border-color: var(--tab-border-color);
+	border-bottom-color: var(--tab-selected-border-color);
+	border-style: solid;
+	border-width: 2px 0 2px 0;
 	min-width: 6em;
 	text-align: center;
-	line-height: .8em;
-	padding: calc(.55em + 2px) 1em .55em 1em;
-	margin: 0 .6em;
-	border-radius: 0 0 0 0;
+	line-height: 2.3em;
+	padding: 2px 1em 2px 1em;
+	margin: 0 var(--tab-distance);
 	cursor: pointer;
 }
 
@@ -53,43 +64,55 @@
 .tabContainer .tabList .tab:after {
 	content: '';
 	position: absolute;
-	bottom: 0;
-	width: 0;
-	height: 0;
+	box-sizing: border-box;
+	background-color: var(--tab-bg-color);
+	bottom: -2px;
+	width: 1.8em;
+	height: calc(100% + 4px);
 	border-style: solid;
-	border-color: transparent transparent var(--tab-bg-color) transparent;
+	border-color: var(--tab-border-color);
+	border-bottom-color: var(--tab-selected-border-color);
+	border-width: 2px 3px;
 	cursor: default;
-}
+	z-index: -2;
+	z-index: 1;
+	}
 
 .tabContainer .tabList .tab:before {
 	left: 0;
-	border-width: 0 0 2.3em 1em;
-	transform: translateX(-100%);
+	transform: translateX(-60%) skew(calc(var(--tab-diagonal-overlap-deg) * -1));
+	border-right-width: 0;
 }
 
 .tabContainer .tabList .tab:after {
 	right: 0;
-	border-width: 0 1em 2.3em 0;
-	transform: translateX(100%);
+	transform: translateX(60%) skew(var(--tab-diagonal-overlap-deg));
+	border-left-width: 0;
 }
 
 .tabContainer .tabList .tab.selected {
-	z-index: 2;
 	background-color: var(--tab-selected-bg-color);
-	border-top: var(--tab-border-color) solid 4px;
-	padding-top: .55em;
-}
+	border-top: var(--tab-selected-border-color) solid 4px;
+	border-color: var(--tab-selected-border-color);
+	padding-top: 0;
+	border-bottom-width: 0;
+	}
 
 .tabContainer .tabList .tab.selected:before,
 .tabContainer .tabList .tab.selected:after {
-	border-color: transparent transparent var(--tab-selected-bg-color) transparent;
+	z-index: 2;
+	border-top: var(--tab-selected-border-color) solid 4px;
+	height: calc(100% + 6px);
+	border-color: var(--tab-selected-border-color);
+	border-bottom-width: 0;
+	background-color: var(--tab-selected-bg-color);
 }
 
 /* tab content */
 .tabContainer .tabContent {
-	height: 100%;
+	height: calc(100% - 2.3em);
 	background-color: var(--tab-selected-bg-color);
-	border: var(--tab-border-color) solid 2px;
+	border: var(--tab-selected-border-color) solid 2px;
 }
 
 .tabContainer .tabContent .content {
