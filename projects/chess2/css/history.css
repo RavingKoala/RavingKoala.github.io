@@ -10,10 +10,6 @@
 	background-color: var(--md-surface);
 }
 
-.historyBoard * {
-	/* outline: red dashed 1px; */
-}
-
 .historyBoard .history {
 	font-family: 'Fira Sans';
 	width: 100%;
@@ -26,7 +22,6 @@
 }
 
 .historyBoard .history .colName {
-	line-height: 100%;
 	font-size: 1.4em;
 	font-weight: 600;
 	text-align: center;
@@ -47,7 +42,7 @@
 }
 
 .historyBoard .rowNum {
-	box-shadow: inset 0px -2px var(--md-surface);
+	box-shadow: inset 0 -2px var(--md-surface);
 }
 
 .historyBoard .moveVal {
