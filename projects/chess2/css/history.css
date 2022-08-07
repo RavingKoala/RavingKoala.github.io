@@ -1,0 +1,61 @@
+.historyBoard {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	border-radius: 14px;
+	min-height: 260px;
+	max-height: 500px;
+	width: 290px;
+	padding: 23px;
+	background-color: var(--md-surface);
+}
+
+.historyBoard * {
+	/* outline: red dashed 1px; */
+}
+
+.historyBoard .history {
+	font-family: 'Fira Sans';
+	width: 100%;
+	height: min(600px, auto);
+	display: grid;
+	grid-template-columns: 38px 1fr 1fr;
+	grid-template-rows: 40px;
+	grid-auto-rows: 34px;
+	overflow-y: auto;
+}
+
+.historyBoard .history .colName {
+	line-height: 100%;
+	font-size: 1.4em;
+	font-weight: 600;
+	text-align: center;
+	line-height: 40px;
+	border-bottom: var(--md-surface-text) solid 2px;
+}
+
+.historyBoard .history .colName:not(:first-child) {
+	box-shadow: inset 2px 0 var(--md-surface);
+}
+
+.historyBoard .rowNum,
+.historyBoard .moveVal {
+	text-align: center;
+	line-height: 34px;
+	font-weight: 500;
+	font-size: 1.2em;
+}
+
+.historyBoard .rowNum {
+	box-shadow: inset 0px -2px var(--md-surface);
+}
+
+.historyBoard .moveVal {
+	box-shadow: inset 2px -2px var(--md-surface);
+}
+
+.historyBoard .inputContainer {
+	margin-top: 0.6rem;
+	width: 100%;
+	height: 38px;
+}

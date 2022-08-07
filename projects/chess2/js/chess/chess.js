@@ -49,12 +49,12 @@ class Chess {
 	#history
 	#pickingPiece
 	#saving
-	constructor (boardDOM) {
+	constructor (boardDOM, boardHistoryDOM) {
 		this.#board = new ChessBoard()
 		this.#turn = new ChessTurn()
 		this.#chessUI = new ChessUI(this, boardDOM, this.#turn)
 		this.#state = Chess.states.idle
-		this.#history = new ChessHistory()
+		this.#history = new ChessHistory(boardHistoryDOM)
 
 		this.#pickingPiece = null
 		this.#saving = null
@@ -65,6 +65,7 @@ class Chess {
 		let loggies = (e) => {
 			// console.clear()
 			console.log(this.#history.toString())
+			
 		}
 		document.addEventListener(Chess.events.onMove, loggies)
 		document.addEventListener(Chess.events.onJailPicked, loggies)
@@ -284,9 +285,7 @@ class Chess {
 
 	#change(code, func) {
 		let piece = this.#board.getPiece(code)
-		console.log(code, piece);
 		piece = func(piece)
-		console.log(piece, func);
 
 		this.#board.setPiece(piece, code)
 		this.#chessUI.setPiece(piece, code)

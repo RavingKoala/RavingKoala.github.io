@@ -9,6 +9,8 @@
 		<link rel="stylesheet" href="../../css/materialDesign.css" />
 		<link rel="stylesheet" href="./css/main.css" />
 		<link rel="stylesheet" href="./css/chess.css">
+		<link rel="stylesheet" href="./css/history.css">
+		<link rel="stylesheet" href="../../modules/css/formControls.css">
 		<script src="./js/modules/vec.js"></script>
 		<script src="./js/modules/stringHelper.js"></script>
 		<script src="./js/chess/boardPositionsMap.js"></script>
@@ -163,10 +165,21 @@
 					<div class="square" data-id="bj4"></div>
 				</div>
 			</div>
+			<div class="historyBoard">
+				<div class="history">
+					<div class="colName">#</div>
+					<div class="colName">White</div>
+					<div class="colName">Black</div>
+				</div>
+				<div class="inputContainer">
+					<input type="text" id="idname" name="firstname" placeholder="Placeholder text">
+				</div>
+			</div>
 		</div>
 		<script>
 			let board = document.getElementById("board1")
-			new Chess(board)
+			let boardHistory = document.querySelector(".historyBoard")
+			new Chess(board, boardHistory)
 		</script>
 	</body>
 

@@ -4,7 +4,7 @@
 	--chess-square-white-color: #EEEED2;
 	--chess-board-color: #ffffff;
 	--chess-hint-color: ;
-	--chess-square-size: min(8vw, 8vh);
+	--chess-square-size: min(7vw, 9vh);
 }
 
 /* board */
@@ -13,9 +13,11 @@
 	flex-direction: row;
 	justify-items: center;
 	align-items: center;
-	width: min(100vw, 100vh);
-	height: min(100vw, 100vh);
-	margin: auto;
+	padding: min(3vw, 3vh, 3em);
+	background-color: var(--md-surface);
+	border-radius: 3em;
+	/* width: min(100vw, 100vh); */
+	/* height: min(100vw, 100vh); */
 }
 
 .board.black-view {
@@ -105,7 +107,7 @@
 .marks span {
 	display: inline-block;
 	color: var(--chess-border-color);
-	font-size: 1.25rem;
+	font-size: clamp(0.8em, 2vw, 1.25em);
 	font-weight: 600;
 	font-family: "Fira Sans";
 	text-align: center;
