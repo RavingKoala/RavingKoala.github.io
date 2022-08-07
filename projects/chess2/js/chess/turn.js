@@ -3,6 +3,7 @@ class ChessTurn {
 		move: "",
 		take: "x",
 		capture: ">",
+		save: "&",
 		promotion: "=",
 		check: "+",
 		checkmate: "#",
@@ -12,8 +13,9 @@ class ChessTurn {
 		from: "from", // mandatory
 		to: "to", // mandatory
 		isTakeMove: "isTakeMove",
-		promoteTo: "promoteTo",
 		captureTo: "captureTo",
+		savePiece: "savePiece", // Piece
+		promoteTo: "promoteTo", // Piece
 	}
 	turn
 	isComposing
@@ -24,7 +26,7 @@ class ChessTurn {
 		this.isComposing = false
 		this.#composeObj = null
 	}
-	
+
 	swapTurn() {
 		if (this.turn === Chess.sides.white)
 			this.turn = Chess.sides.black
@@ -35,8 +37,8 @@ class ChessTurn {
 	// #region construct and create codes
 	addToCompose(board, key, value) {
 		if (!this.isComposing) {
-			this.isComposing = true
 			this.#composeObj = {}
+			this.isComposing = true
 		}
 		if (!Object.values(ChessTurn.composeKeys).includes(key))
 			throw new Error(key + " is not a valid key!")
@@ -76,6 +78,7 @@ class ChessTurn {
 
 		//optional keys
 		// isTakeMove promoteTo captureTo
+		let isSaveMove = (this.#composeObj.savePiece !== undefined) ? true : false
 		let isTakeMove = (this.#composeObj.isTakeMove !== undefined) ? true : false
 		let isPromotionMove = (this.#composeObj.promoteTo !== undefined) ? true : false
 		let isCaptureMove = (this.#composeObj.captureTo !== undefined) ? true : false
@@ -83,8 +86,11 @@ class ChessTurn {
 		// construct moveCode
 		// keys: toPiece, isTakeMove, isPromotionMove
 		let moveCode = ""
-		moveCode += this.#composeObj.piece.type
+		moveCode += ChessTurn.#getPieceCode(this.#composeObj.piece)
 		moveCode += this.#composeObj.from
+		if (isSaveMove)
+			moveCode += ChessTurn.#saveCodePiece(this.#composeObj.savePiece)
+		
 		if (!isTakeMove)
 			moveCode += ChessTurn.#moveCodePiece(this.#composeObj.to)
 		else
@@ -158,7 +164,6 @@ class ChessTurn {
 			throw new Error(piece + "Is not instance of Piece!")
 
 		let code = (piece.type !== "F" ? piece.type : "")
-		if (piece.hasBanana) code += "^"
 		return code
 
 	}
@@ -201,6 +206,16 @@ class ChessTurn {
 		let code = ChessTurn.#createTakeCode(piece, to, from)
 		return code + ChessTurn.#captureCodePiece(captureTo)
 	}
+	
+	static #createSaveCode(piece, to, savingPiece, from = null, isTakeMove = false) {
+		let code = ""
+		code + ChessTurn.#saveCodePiece(savingPiece)
+		if (isTakeMove)
+			code += ChessTurn.#createTakeCode(piece, to, from)
+		else
+			code += ChessTurn.#createMoveCode(piece, to, from)
+		return code
+	}
 
 	static #createPromotionAndCaptureCode(piece, to, toPiece, captureTo, from = null) {
 		let code = ChessTurn.#createPromotionCode(piece, to, toPiece, from, true)
@@ -213,12 +228,12 @@ class ChessTurn {
 	}
 
 	static #createCheckCode(piece, to, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false) {
-		let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false)
+		let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from, toPiece, isTakeMove, isPromotionMove)
 		return base + "+"
 	}
 
 	static #createCheckmateCode(piece, to, from = null, toPiece, isTakeMove = false, isPromotionMove = false) {
-		let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from = null, toPiece = null, isTakeMove = false, isPromotionMove = false)
+		let base = ChessTurn.#createCheckOrCheckmateBaseCode(piece, to, isCheck, from, toPiece, isTakeMove, isPromotionMove)
 		return base + "#"
 	}
 
@@ -237,15 +252,19 @@ class ChessTurn {
 		return ret
 	}
 	static #promotionCodePiece(to) {
-		let toCode = ""
-		if (to instanceof Piece) {
-			toCode = to.type
-		}
+		if (to instanceof Piece)
+			to = to.type
 
 		return ChessTurn.signs.promotion + "" + to
 	}
 	static #captureCodePiece(to) {
 		return ChessTurn.signs.capture + "" + to
+	}
+	static #saveCodePiece(saving) {
+		if (saving instanceof Piece)
+			saving = saving.type
+
+		return ChessTurn.signs.save + "" + saving
 	}
 	static #checkCodePiece(to) {
 		return ChessTurn.signs.check + "" + to

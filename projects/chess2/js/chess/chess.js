@@ -49,6 +49,7 @@ class Chess {
 	#history
 	#pickingPiece
 	#saving
+	#isSaving
 	constructor (boardDOM, boardHistoryDOM) {
 		this.#board = new ChessBoard()
 		this.#turn = new ChessTurn()
@@ -58,18 +59,9 @@ class Chess {
 
 		this.#pickingPiece = null
 		this.#saving = null
+		this.#isSaving = false
 
 		this.initialize()
-
-
-		let loggies = (e) => {
-			// console.clear()
-			console.log(this.#history.toTable())
-			
-		}
-		document.addEventListener(Chess.events.onMove, loggies)
-		document.addEventListener(Chess.events.onJailPicked, loggies)
-		document.addEventListener(Chess.events.onTake, loggies)
 	}
 
 	initialize() {
@@ -213,10 +205,15 @@ class Chess {
 
 		this.#chessUI.changeTurn(this.#turn.turn)
 	}
+
 	#save(from, to) {
 		let piece = this.#board.getPiece(from)
+		let savePiece = this.#board.getPiece(this.#saving.to)
 
 		if (!piece.saveCondition(this.#board, from, to)) return
+
+		this.#isSaving = true
+		this.#turn.addToComposeObj(this.#board, { "from": from, "to": to, "piece": piece, "savePiece": savePiece }) // turn code
 
 		// banana transaction
 		/// monkey
@@ -230,38 +227,47 @@ class Chess {
 			return piece
 		})
 
-		if (this.#board.isOccupied(to) && from !== to)
+		if (this.#board.isOccupied(to) && from !== to) {
 			this.#take(from, to);
-		else
+		} else
 			this.#move(from, to)
 
 		this.#move(this.#saving.to, this.#saving.from)
 
 		this.#saving = null
+		this.#isSaving = false
+
+		if (this.#pickingPiece === null)
+			this.endMove()
 	}
 
 	#move(from, to) {
 		let piece = this.#board.getPiece(from)
 
-		this.#turn.addToComposeObj(this.#board, { "from": from, "to": to, "piece": piece }) // turn code
+		if (!this.#isSaving)
+			this.#turn.addToComposeObj(this.#board, { "from": from, "to": to, "piece": piece }) // turn code
 
 		this.#board.move(from, to)
 		this.#chessUI.move(from, to)
 
 		this.#tryPromote(piece, to)
 
-		this.state = Chess.states.turn
+		
+		if (this.#pickingPiece === null)
+			this.state = Chess.states.turn
 
-		this.endMove()
+		if (!this.#isSaving)
+			this.endMove()
 
 		document.dispatchEvent(new CustomEvent(Chess.events.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
 	}
 
 	#take(from, to) {
 		let piece = this.#board.getPiece(from) // for event
-		let pieceTaken = this.#board.getPiece(to) // for event
+		let pieceTaken = this.#board.getPiece(to)
 
-		this.#turn.addToComposeObj(this.#board, { "from": from, "to": to, "piece": piece, "isTakeMove": true }) // turn code
+		if (!this.#isSaving)
+			this.#turn.addToComposeObj(this.#board, { "from": from, "to": to, "piece": piece, "isTakeMove": true }) // turn code
 
 		this.#board.take(from, to)
 		this.#chessUI.take(from, to)
@@ -270,14 +276,9 @@ class Chess {
 
 		this.state = Chess.states.turn
 
-		// capture king/queen to jail
-		if (/[wb][QK]\^?/.test(pieceTaken.code)) { //regex for [white or black] [queen or king] (banana optionally)
-			this.#chessUI.hintPick(pieceTaken.color)
-			this.state = Chess.states.pickingJail
-			this.#pickingPiece = pieceTaken
-		}
+		this.#tryCapture(pieceTaken)
 
-		if (this.#pickingPiece === null)
+		if (this.#pickingPiece === null && !this.#isSaving)
 			this.endMove()
 
 		document.dispatchEvent(new CustomEvent(Chess.events.onTake, { detail: { "piece": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } }))
@@ -299,6 +300,15 @@ class Chess {
 				let newPiece = this.#board.getPiece(pos)
 				this.#turn.addToCompose(this.#board, "promoteTo", newPiece) // turn code
 			}
+		}
+	}
+
+	#tryCapture(piece) {
+		// capture king/queen to jail
+		if (/[wb][QK]\^?/.test(piece.code)) { //regex for [white or black] [queen or king] (banana optionally)
+			this.#chessUI.hintPick(piece.color)
+			this.state = Chess.states.pickingJail
+			this.#pickingPiece = piece
 		}
 	}
 
