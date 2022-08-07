@@ -85,7 +85,9 @@ class ChessHistoryUI {
 		while (historyDom.childElementCount % 3 !== 0) {
 			historyDom.appendChild(this.#EMPTYDOM)
 		}
-		historyDom.appendChild(this.#ROWSDOM(this.#rowCounter++))
+		let rowNumDom = this.#ROWSDOM(this.#rowCounter++)
+		historyDom.appendChild(rowNumDom)
+		this.scrollToElement(rowNumDom)
 	}
 
 	addWhiteValue(value) {
@@ -99,7 +101,7 @@ class ChessHistoryUI {
 			
 		let whiteMoveDom = this.#MOVESDOM(value)
 		historyDom.appendChild(whiteMoveDom)
-		
+		this.scrollToElement(whiteMoveDom)
 	}
 
 	addBlackValue(value) {
@@ -112,6 +114,7 @@ class ChessHistoryUI {
 		
 		let blackMoveDom = this.#MOVESDOM(value)
 		historyDom.appendChild(blackMoveDom)
+		this.scrollToElement(blackMoveDom)
 	}
 	
 	addValue(value, side) {
@@ -121,9 +124,9 @@ class ChessHistoryUI {
 			this.addBlackValue(value)
 	}
 
-	scrollToElement() {
+	scrollToElement(el) {
 		// https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
-		this.#chessHistoryDOM.scrollIntoView({ block: "end" })
+		el.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" })
 	}
 
 }
