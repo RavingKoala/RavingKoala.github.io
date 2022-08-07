@@ -64,7 +64,7 @@ class Chess {
 
 		let loggies = (e) => {
 			// console.clear()
-			console.log(this.#history.toString())
+			console.log(this.#history.toTable())
 			
 		}
 		document.addEventListener(Chess.events.onMove, loggies)

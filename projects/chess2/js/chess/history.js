@@ -4,6 +4,8 @@ class ChessHistory {
 	constructor (boardHistoryDOM) {
 		this.#history = { "w": [], "b": [] }
 		this.#chessHistoryUI = new ChessHistoryUI(boardHistoryDOM)
+		
+		
 	}
 
 	add(code, side) {
@@ -21,8 +23,24 @@ class ChessHistory {
 	clear() {
 		this.#history = { "w": [], "b": [] }
 	}
-
+	
 	toString() {
+		let retStr = ""
+		retStr += "{"
+		
+		retStr += "'w' = ["
+		retStr += this.#history["w"].join(",")
+		retStr += "], "
+		
+		retStr += "'b' = ["
+		retStr += this.#history["b"].join(",")
+		retStr += "]"
+		
+		retStr += "}"
+		return retStr
+	}
+
+	toTable() {
 		// ---------------------
 		// |  White  |  Black  |
 		// |_________|_________|
