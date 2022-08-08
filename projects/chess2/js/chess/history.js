@@ -1,11 +1,11 @@
 class ChessHistory {
+	#chess
 	#history
 	#chessHistoryUI
-	constructor (boardHistoryDOM) {
+	constructor (chess, boardHistoryDOM) {
+		this.#chess = chess
 		this.#history = { "w": [], "b": [] }
-		this.#chessHistoryUI = new ChessHistoryUI(boardHistoryDOM)
-		
-		
+		this.#chessHistoryUI = new ChessHistoryUI(this, boardHistoryDOM)
 	}
 
 	add(code, side) {
@@ -73,6 +73,7 @@ class ChessHistory {
 }
 
 class ChessHistoryUI {
+	#chessHistory
 	#chessHistoryDOM
 	#rowCounter
 
@@ -93,7 +94,8 @@ class ChessHistoryUI {
 		return document.createElement("span")
 	}
 
-	constructor (chessHistoryDOM) {
+	constructor (chessHistory, chessHistoryDOM) {
+		this.#chessHistory = chessHistory
 		this.#chessHistoryDOM = chessHistoryDOM
 		this.#rowCounter = 1
 	}
@@ -109,7 +111,6 @@ class ChessHistoryUI {
 	}
 
 	addWhiteValue(value) {
-		// TODO: ensure row number
 		let historyDom = this.#chessHistoryDOM.querySelector(".history")
 		
 		if (historyDom.childElementCount % 3 === 2)
@@ -123,7 +124,6 @@ class ChessHistoryUI {
 	}
 
 	addBlackValue(value) {
-		// TODO: ensure row number
 		let historyDom = this.#chessHistoryDOM.querySelector(".history")
 		if (historyDom.childElementCount % 3 === 0)
 			this.addRow()

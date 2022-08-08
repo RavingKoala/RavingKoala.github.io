@@ -4,12 +4,14 @@ class ChessUI {
 	#turn
 	#isDragging
 	#draggingDOM
+	#boardHistoryDOM
 	#isCenterHidden
 	#hinted
-	constructor (chess, boardDOM, turn) {
+	constructor (chess, boardDOM, boardHistoryDOM, turn) {
 		this.#chess = chess
-		this.#turn = turn // TODO: can only move pieces of color === turn.color (REMOVE IF DONE WITH CSS)
+		this.#turn = turn
 		this.#boardDOM = boardDOM
+		this.#boardHistoryDOM = boardHistoryDOM
 		this.#isDragging = false
 		this.#draggingDOM = null
 		this.#isCenterHidden = false
@@ -41,8 +43,9 @@ class ChessUI {
 
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
-			square.addEventListener("mouseenter", (e) => { // mouseenter or hints get overritten by multimove hints // now centerpiece doesnt have hover
+			square.addEventListener("mousemove", (e) => { // BUG: little bug with the first pickup square outline when picking up any piece (may not be so bad)
 				if (!this.#isDragging) return
+				if (this.#draggingDOM.parentNode === square && square.dataset.id === this.#hinted[0]) return
 
 				square.classList.add("dropping")
 
@@ -93,6 +96,20 @@ class ChessUI {
 
 			this.#dragMove(new Vec2(e.clientX, e.clientY))
 		})
+
+		const moveInputDOM = this.#boardHistoryDOM.querySelector("#moveInput")
+		
+		moveInputDOM.addEventListener("input", (e) => {
+			console.log(e.target.value);
+			this.#chess.onMoveInputUpdate(e.target.value)
+		})
+		
+		moveInputDOM.addEventListener("keydown", (e) => {
+			if (e.code === "Enter") {
+				console.log("ENTER");
+				let err = this.#chess.trySubmitMove()
+			}
+		})
 	}
 
 	hideCenterSquare() {
@@ -120,7 +137,7 @@ class ChessUI {
 			tempDOM.classList.add("moveable")
 		}
 		this.#hinted[1] = squares[0]
-		
+
 		for (const code of squares[1]) {
 			tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
 			tempDOM.classList.add("takeable")
@@ -148,7 +165,7 @@ class ChessUI {
 			}
 		}
 		this.#hinted[1] = []
-		
+
 		if (this.#hinted[2].length > 0) {
 			for (const code of this.#hinted[2]) { // takes
 				let tempDOM = this.#boardDOM.querySelector("[data-id='" + code + "']")
@@ -171,7 +188,7 @@ class ChessUI {
 			this.#hinted[4].push(jailSquare.dataset.id)
 		})
 	}
-	
+
 	hintSaveJail(code) {
 		document.querySelectorAll(".square[data-id='" + code + "']").forEach((jailSquare) => {
 			jailSquare.classList.add("jailSave")
@@ -253,7 +270,7 @@ class ChessUI {
 			this.#dragMove(new Vec2(e.clientX, e.clientY))
 		})
 	}
-	
+
 	changeTurn(turn) {
 		document.querySelector(".board").setAttribute("turn", turn)
 	}

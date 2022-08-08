@@ -178,7 +178,7 @@ input[type="text"] {
 	width: max(6em, 100%);
 	height: max(1.2em, 100%);
 	line-height: max(1em, 83%);
-	padding: max(0.05em, 8.5%) 0.8em;
+	padding: max(0.05em, 7.5%) 0.8em;
 	display: inline-block;
 	box-shadow: inset 0 0 0 1px var(--md-surface), 0 0 2px var(--md-primary-text);
 	border: none;

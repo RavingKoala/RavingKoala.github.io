@@ -50,16 +50,18 @@ class Chess {
 	#pickingPiece
 	#saving
 	#isSaving
+	#moveInputText
 	constructor (boardDOM, boardHistoryDOM) {
 		this.#board = new ChessBoard()
 		this.#turn = new ChessTurn()
-		this.#chessUI = new ChessUI(this, boardDOM, this.#turn)
+		this.#chessUI = new ChessUI(this, boardDOM, boardHistoryDOM, this.#turn)
 		this.#state = Chess.states.idle
-		this.#history = new ChessHistory(boardHistoryDOM)
+		this.#history = new ChessHistory(this, boardHistoryDOM)
 
 		this.#pickingPiece = null
 		this.#saving = null
 		this.#isSaving = false
+		this.#moveInputText = ""
 
 		this.initialize()
 	}
@@ -80,7 +82,6 @@ class Chess {
 		document.dispatchEvent(new CustomEvent(Chess.events.onStateChange, { detail: { from: lastState, to: state } }))
 	}
 
-
 	onDrag(pieceDOM) {
 		//suggest pieces to move/take
 		this.#chessUI.dragStart(pieceDOM)
@@ -88,13 +89,14 @@ class Chess {
 
 		let piece = this.#board.getPiece(code)
 		let hints = piece.possibleMoves(this.#board, code)
-
+		console.log(hints);
 		// if multimove -> give both multimove hints and normal hints
 		if (piece.canMultiMove) {
-			let multiMovesHints = piece.getMultiMoves(this.#board, code)
+			let multiMovesHints = piece.getMultiMoveHints(this.#board, code)
 			hints[0] = hints[0].concat(multiMovesHints[0])
 			hints[1] = hints[1].concat(multiMovesHints[1])
 		}
+		console.log(hints);
 		this.#chessUI.hintSquares(code, hints)
 
 		this.state = Chess.states.moving
@@ -204,6 +206,14 @@ class Chess {
 		this.#turn.swapTurn()
 
 		this.#chessUI.changeTurn(this.#turn.turn)
+	}
+	
+	onMoveInputUpdate(value) {
+		this.#moveInputText = value
+	}
+	
+	trySubmitMove() {
+		
 	}
 
 	#save(from, to) {
