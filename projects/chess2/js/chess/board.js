@@ -351,7 +351,7 @@ class ChessBoard {
 		let retArr = []
 		for (const pos of this.#piecesLookup[type]){
 			let piece = this.getPiece(pos)
-			if ((color !== null && piece.color === color))
+			if ((color === null || piece.color === color))
 				if (this.#canMakeMove(piece, piece.position, to))
 					retArr.push(pos)
 		}

@@ -90,7 +90,7 @@ class ChessTurn {
 		moveCode += this.#composeObj.from
 		if (isSaveMove)
 			moveCode += ChessTurn.#saveCodePiece(this.#composeObj.savePiece)
-		
+
 		if (!isTakeMove)
 			moveCode += ChessTurn.#moveCodePiece(this.#composeObj.to)
 		else
@@ -206,7 +206,7 @@ class ChessTurn {
 		let code = ChessTurn.#createTakeCode(piece, to, from)
 		return code + ChessTurn.#captureCodePiece(captureTo)
 	}
-	
+
 	static #createSaveCode(piece, to, savingPiece, from = null, isTakeMove = false) {
 		let code = ""
 		code + ChessTurn.#saveCodePiece(savingPiece)
@@ -282,6 +282,22 @@ class ChessTurn {
 	// #endregion
 
 	// #region deconstruct codes
+	static isValidTurnCode(code) {
+		return /^((?:FQ)|[FKQERMB]\^?)?(?:&((?:FQ)|[FKQERMB]\^?))?((?:[a-h][0-9])|[a-h]|[0-9])?x?[a-h][0-9](?:\=((?:FQ)|[KQERMB]\^?))?(?:>([45]))?(?:\+|\#)?$/.test(code)
+	}
 
+	static splitCodeTurn(code) {
+		const match = /((?:FQ)|[FKQERMB]\^?)?(?:&((?:FQ)|[KQERMB]\^?))?((?:[a-h][1-8])|[a-h]|[1-8])?(x)?([a-h][1-8])(?:\=((?:FQ)|[KQERMB]\^?))?(?:>([45]))?(?:\+|\#)?/.exec(code)
+		let result = {
+			piece: (match[1] !== undefined ? match[1] : ""),
+			savingPiece: match[2],
+			from: (match[3] !== undefined ? match[3] : ""),
+			isTakeMove: (match[4] === "x" ? true : false),
+			to: match[5],
+			promoteTo: match[6],
+			captureTo: match[7]
+		}
+		return result
+	}
 	// #endregion
 }

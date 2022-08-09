@@ -89,14 +89,12 @@ class Chess {
 
 		let piece = this.#board.getPiece(code)
 		let hints = piece.possibleMoves(this.#board, code)
-		console.log(hints);
 		// if multimove -> give both multimove hints and normal hints
 		if (piece.canMultiMove) {
 			let multiMovesHints = piece.getMultiMoveHints(this.#board, code)
 			hints[0] = hints[0].concat(multiMovesHints[0])
 			hints[1] = hints[1].concat(multiMovesHints[1])
 		}
-		console.log(hints);
 		this.#chessUI.hintSquares(code, hints)
 
 		this.state = Chess.states.moving
@@ -198,7 +196,6 @@ class Chess {
 	endMove() {
 		// create code
 		let code = this.#turn.composeAndCreate()
-
 		this.#history.add(code, this.#turn.turn)
 
 		this.#updateSpecialConditions()
@@ -207,13 +204,115 @@ class Chess {
 
 		this.#chessUI.changeTurn(this.#turn.turn)
 	}
-	
+
 	onMoveInputUpdate(value) {
 		this.#moveInputText = value
 	}
-	
+
 	trySubmitMove() {
-		
+		let value = this.#chessUI.getHistoryInputValue()
+
+		if (!ChessTurn.isValidTurnCode(value))
+			return { status: "error", message: "Input does not follow notation guidlines!" }
+
+		let codeObj = ChessTurn.splitCodeTurn(value)
+
+		if (codeObj.piece === "")
+			codeObj.piece = "F"
+
+		// determine from if not fully specified
+		if (codeObj.from.length < 2) {
+			let arr
+			if (codeObj.piece === "B")
+				arr = this.#board.typeCanMakeMove(codeObj.piece, codeObj.to)
+			else
+				arr = this.#board.typeCanMakeMove(codeObj.piece, codeObj.to, this.#turn.turn)
+
+			if (arr.length > 1) {
+				if (codeObj.from.length === 0)
+					return { status: "error", message: `Please specify who moves!` }
+
+				arr = arr.filter((pos) => pos[0].includes(codeObj.from))
+				if (arr.length > 1)
+					return { status: "error", message: `Please specify who moves!` }
+			}
+
+			if (arr.length === 0)
+				return { status: "error", message: `No piece of type \'${codeObj.piece}\' can move to ${codeObj.to}!` }
+
+			codeObj.from = arr[0]
+		} else { // codeObj.from.length === 2
+			let piece = this.#board.getPiece(codeObj.from)
+			if (!codeObj.piece.includes(piece.type))
+				return { status: "error", message: `Wrong piece specified, expected ${codeObj.piece} but found ${piece.type}!` }
+		}
+
+		let piece = this.#board.getPiece(codeObj.from)
+
+		// obvious mistakes
+		if (!this.#board.isOccupied(codeObj.to)) {
+			if (!piece.canMoveTo(this.#board, codeObj.from, codeObj.to))
+				return { status: "error", message: `Piece ${codeObj.piece}${codeObj.from} cannot move to ${codeObj.to}!` }
+			if (codeObj.isTakeMove)
+				return { status: "error", message: `Nothing to take at space ${codeObj.to}!` }
+			if (codeObj.captureTo !== undefined)
+				return { status: "error", message: `Nothing to capture at space ${codeObj.captureTo}!` }
+		} else {
+			if (!piece.canTakeTo(this.#board, codeObj.from, codeObj.to))
+				return { status: "error", message: `Piece ${codeObj.piece}${codeObj.from} cannot take ${codeObj.to}!` }
+			const takingPiece = this.#board.getPiece(codeObj.to)
+			if (/[wb][KQ]\^?/.test(takingPiece.code))
+				if (codeObj.captureTo === undefined)
+					return { status: "error", message: `When taking a Queen or King, specify on what square to jail them!` }
+		}
+		if (codeObj.promoteTo !== undefined) {
+			if (!piece.canPromote)
+				return { status: "error", message: `Piece ${codeObj.piece} cannot be promoted!` }
+			if (!piece.promotionCondition(this.#board, codeObj.to))
+				return { status: "error", message: `Piece ${codeObj.piece} does not meet the requirements to promote!` }
+		}
+		if (codeObj.savingPiece !== undefined) {
+			if (!piece.canSave)
+				return { status: "error", message: `Piece ${codeObj.piece} cannot save!` }
+			const savePieceJump = piece.canSavePiece(this.#board, codeObj.from)
+			if (savePieceJump === null)
+				return { status: "error", message: `Piece ${codeObj.piece}${codeObj.from} can\'t save currently!` }
+			const savePiece = this.#board.getPiece(savePieceJump.to)
+			if (!codeObj.savingPiece.includes(savePiece.type))
+				return { status: "error", message: `Can\'t save ${codeObj.savingPiece}${savePieceJump.to} currently!` }
+		}
+		if (codeObj.captureTo !== undefined) {
+			let capturingPiece = this.#board.getPiece(codeObj.to)
+			if (capturingPiece === null)
+				return { status: "error", message: `Nothing to take at space ${codeObj.to}!` }
+			if (!/[wb][KQ]\^?/.test(capturingPiece.code))
+				return { status: "error", message: `Cannot specify where to capture to when no king or queen is being taken!` }
+
+			let capturingToCode = `${capturingPiece.color}j${codeObj.captureTo}`
+			if (this.#board.isOccupied(capturingToCode))
+				return { status: "error", message: `Cannot capture to ${capturingToCode}, square is already occupied!` }
+		}
+
+		this.#submitMove(codeObj)
+
+		return { status: "success", message: "" }
+	}
+
+	#submitMove(codeObj) {
+		if (codeObj.savingPiece !== undefined) {
+			this.#saving = piece.canSavePiece(this.#board, codeObj.from)
+			this.#save(codeObj.from, codeObj.to)
+		} else {
+			if (this.#board.isTakable(codeObj.to, this.#turn.turn))
+				this.#take(codeObj.from, codeObj.to)
+			else
+				this.#move(codeObj.from, codeObj.to)
+		}
+
+		if (codeObj.captureTo !== undefined)
+			this.onSquarePicked(codeObj.captureTo)
+
+		this.#chessUI.historyInputClear()
 	}
 
 	#save(from, to) {
@@ -262,7 +361,7 @@ class Chess {
 
 		this.#tryPromote(piece, to)
 
-		
+
 		if (this.#pickingPiece === null)
 			this.state = Chess.states.turn
 
@@ -277,7 +376,8 @@ class Chess {
 		let pieceTaken = this.#board.getPiece(to)
 
 		if (!this.#isSaving)
-			this.#turn.addToComposeObj(this.#board, { "from": from, "to": to, "piece": piece, "isTakeMove": true }) // turn code
+			this.#turn.addToComposeObj(this.#board, { "from": from, "to": to, "piece": piece }) // turn code
+		this.#turn.addToCompose(this.#board, "isTakeMove", true)
 
 		this.#board.take(from, to)
 		this.#chessUI.take(from, to)

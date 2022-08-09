@@ -97,17 +97,12 @@ class ChessUI {
 			this.#dragMove(new Vec2(e.clientX, e.clientY))
 		})
 
-		const moveInputDOM = this.#boardHistoryDOM.querySelector("#moveInput")
-		
-		moveInputDOM.addEventListener("input", (e) => {
-			console.log(e.target.value);
-			this.#chess.onMoveInputUpdate(e.target.value)
-		})
-		
-		moveInputDOM.addEventListener("keydown", (e) => {
+		this.#boardHistoryDOM.querySelector("#moveInput").addEventListener("keydown", (e) => {
 			if (e.code === "Enter") {
-				console.log("ENTER");
-				let err = this.#chess.trySubmitMove()
+				if (this.getHistoryInputValue().length === 0)
+					return
+				let ret = this.#chess.trySubmitMove()
+				console.trace(ret)
 			}
 		})
 	}
@@ -273,5 +268,13 @@ class ChessUI {
 
 	changeTurn(turn) {
 		document.querySelector(".board").setAttribute("turn", turn)
+	}
+
+	getHistoryInputValue() {
+		return this.#boardHistoryDOM.querySelector("#moveInput").value
+	}
+
+	historyInputClear() {
+		this.#boardHistoryDOM.querySelector("#moveInput").value = ''
 	}
 }
