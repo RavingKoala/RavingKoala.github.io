@@ -25,8 +25,8 @@ class Chess {
 	}
 
 	static sides = {
-		white: "w",
-		black: "b"
+		w: "white",
+		b: "black",
 	}
 
 	/* board layout
@@ -232,22 +232,29 @@ class Chess {
 				if (codeObj.from.length === 0)
 					return { status: "error", message: `Please specify who moves!` }
 
-				arr = arr.filter((pos) => pos[0].includes(codeObj.from))
+				arr = arr.filter((pos) => pos.includes(codeObj.from))
+
 				if (arr.length > 1)
 					return { status: "error", message: `Please specify who moves!` }
 			}
 
 			if (arr.length === 0)
-				return { status: "error", message: `No piece of type \'${codeObj.piece}\' can move to ${codeObj.to}!` }
+				return { status: "error", message: `No piece of type \'${Piece.TYPES[codeObj.piece]}\' can move to ${codeObj.to}!` }
 
 			codeObj.from = arr[0]
-		} else { // codeObj.from.length === 2
-			let piece = this.#board.getPiece(codeObj.from)
-			if (!codeObj.piece.includes(piece.type))
-				return { status: "error", message: `Wrong piece specified, expected ${codeObj.piece} but found ${piece.type}!` }
 		}
+		// else: codeObj.from.length === 2
+
+		if (!this.#board.isOccupied(codeObj.from))
+			return { status: "error", message: `No piece found at ${codeObj.from}!` }
 
 		let piece = this.#board.getPiece(codeObj.from)
+
+		if (piece.color !== null && piece.color !== this.#turn.turn)
+			return { status: "error", message: `Players can only move their own color, it is ${Chess.sides[this.#turn.turn]}\'s turn!` }
+
+		if (!codeObj.piece.includes(piece.type))
+			return { status: "error", message: `Wrong piece specified, expected ${codeObj.piece} but found ${piece.type}!` }
 
 		// obvious mistakes
 		if (!this.#board.isOccupied(codeObj.to)) {

@@ -7,10 +7,12 @@
 		<link rel="shortcut icon" href="resources/icons/favicon.ico" type="image/x-icon">
 		<link rel="stylesheet" href="../../css/bootstrap.dark.css" />
 		<link rel="stylesheet" href="../../css/materialDesign.css" />
+		<link rel="stylesheet" href="../../modules/css/formControls.css">
+		<link rel="stylesheet" href="../../modules/css/inputNotifier.css">
 		<link rel="stylesheet" href="./css/main.css" />
 		<link rel="stylesheet" href="./css/chess.css">
 		<link rel="stylesheet" href="./css/history.css">
-		<link rel="stylesheet" href="../../modules/css/formControls.css">
+		<script src="../../modules/js/inputNotifierManager.js"></script>
 		<script src="./js/modules/vec.js"></script>
 		<script src="./js/modules/stringHelper.js"></script>
 		<script src="./js/chess/boardPositionsMap.js"></script>
@@ -172,7 +174,7 @@
 					<div class="colName">Black</div>
 				</div>
 				<div class="inputContainer">
-					<input type="text" id="moveInput" placeholder="move (eg. Me3)">
+					<input type="text" id="moveInput" placeholder="move (eg. Me3)" data-placement="bottom" data-color="danger">
 				</div>
 			</div>
 		</div>

@@ -11,19 +11,19 @@ class Piece {
 	get name() { return `${Piece.#COLORS[this.color]} ${Piece.TYPES[this.type]}${this.hasBanana ? " with banana" : ""}` }
 
 	static #COLORS = {
-		"w": "white",
-		"b": "black"
+		w: "white",
+		b: "black"
 	}
 	static TYPES = {
-		"K": "king",
-		"Q": "queen",
-		"F": "fishy",
-		"FQ": "fishy queen",
-		"E": "elephant",
-		"R": "rook",
-		"M": "monkey",
+		K: "king",
+		Q: "queen",
+		F: "fishy",
+		FQ: "fishy queen",
+		E: "elephant",
+		R: "rook",
+		M: "monkey",
 
-		"B": "bear"
+		B: "bear"
 	}
 	constructor (type, color, hasBanana = false) {
 		this.canMultiMove = false // default unless overwritten
@@ -99,7 +99,7 @@ class Piece {
 	}
 
 	toString() {
-		if (this.type === "b")
+		if (this.type === "B")
 			return this.type
 
 		let retString = ""

@@ -101,8 +101,17 @@ class ChessUI {
 			if (e.code === "Enter") {
 				if (this.getHistoryInputValue().length === 0)
 					return
+
 				let ret = this.#chess.trySubmitMove()
-				console.trace(ret)
+				const dom = e.target
+
+				if (ret.status === "success") {
+					InputNotifierManager.hide(dom)
+					return
+				}
+				// ret.status === "error"
+				dom.dataset.content = ret.message
+				InputNotifierManager.show(dom, 3000)
 			}
 		})
 	}

@@ -22,16 +22,16 @@ class ChessTurn {
 	#composeObj
 
 	constructor () {
-		this.turn = Chess.sides.white
+		this.turn = "w"
 		this.isComposing = false
 		this.#composeObj = null
 	}
 
 	swapTurn() {
-		if (this.turn === Chess.sides.white)
-			this.turn = Chess.sides.black
-		else if (this.turn === Chess.sides.black)
-			this.turn = Chess.sides.white
+		if (this.turn === "w")
+			this.turn = "b"
+		else if (this.turn === "b")
+			this.turn = "w"
 	}
 
 	// #region construct and create codes
