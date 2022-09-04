@@ -22,20 +22,21 @@ class ChessHistory {
 
 	clear() {
 		this.#history = { "w": [], "b": [] }
+		this.#chessHistoryUI.clear()
 	}
-	
+
 	toString() {
 		let retStr = ""
 		retStr += "{"
-		
+
 		retStr += "'w' = ["
 		retStr += this.#history["w"].join(",")
 		retStr += "], "
-		
+
 		retStr += "'b' = ["
 		retStr += this.#history["b"].join(",")
 		retStr += "]"
-		
+
 		retStr += "}"
 		return retStr
 	}
@@ -80,7 +81,7 @@ class ChessHistoryUI {
 	#ROWSDOM = (num) => {
 		let retDom = document.createElement("div")
 		retDom.classList.add("rowNum")
-		retDom.textContent = num+"."
+		retDom.textContent = num + "."
 		return retDom
 	}
 	#MOVESDOM = (move) => {
@@ -112,12 +113,12 @@ class ChessHistoryUI {
 
 	addWhiteValue(value) {
 		let historyDom = this.#chessHistoryDOM.querySelector(".history")
-		
+
 		if (historyDom.childElementCount % 3 === 2)
 			historyDom.appendChild(this.#EMPTYDOM())
 		if (historyDom.childElementCount % 3 === 0)
 			this.addRow()
-			
+
 		let whiteMoveDom = this.#MOVESDOM(value)
 		historyDom.appendChild(whiteMoveDom)
 		this.scrollToElement(whiteMoveDom)
@@ -129,12 +130,12 @@ class ChessHistoryUI {
 			this.addRow()
 		if (historyDom.childElementCount % 3 === 1)
 			historyDom.appendChild(this.#EMPTYDOM())
-		
+
 		let blackMoveDom = this.#MOVESDOM(value)
 		historyDom.appendChild(blackMoveDom)
 		this.scrollToElement(blackMoveDom)
 	}
-	
+
 	addValue(value, side) {
 		if (side === "w")
 			this.addWhiteValue(value)
@@ -147,4 +148,7 @@ class ChessHistoryUI {
 		el.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" })
 	}
 
+	clear() {
+		this.#chessHistoryDOM.querySelector(".history").innerHTML = '<div class="colName">#</div><div class="colName">White</div><div class="colName">Black</div>'
+	}
 }

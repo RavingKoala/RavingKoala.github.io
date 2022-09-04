@@ -90,21 +90,21 @@ class ChessBoard {
 	}
 
 	#initializeBoard() {
-
 		/*
-		[
-			[br,bm,bf,bq,bk,bf,bm,br]
-			[bf,bf,be,bf,bf,be,bf,bf]
-			[  ,  ,  ,  ,  ,  ,  ,  ]
-		[  ][  ,  ,  ,  ,  ,  ,  ,  ][  ]
-		[  ][  ,  ,  ,  ,  ,  ,  ,  ][  ]
-			[  ,  ,  ,  ,  ,  ,  ,  ]
-			[wf,wf,we,wf,wf,we,wf,wf]
-			[wr,wm,wf,wq,wk,wf,wm,wr]
-		]
+			[
+				[br,bm,bf,bq,bk,bf,bm,br]
+				[bf,bf,be,bf,bf,be,bf,bf]
+				[  ,  ,  ,  ,  ,  ,  ,  ]
+			[  ][  ,  ,  ,  ,  ,  ,  ,  ][  ]
+			[  ][  ,  ,  ,  ,  ,  ,  ,  ][  ]
+				[  ,  ,  ,  ,  ,  ,  ,  ]
+				[wf,wf,we,wf,wf,we,wf,wf]
+				[wr,wm,wf,wq,wk,wf,wm,wr]
+			]
 		*/
 
 		// board
+		this.#board["0"] = {}
 		for (const column of Object.keys(ChessBoard.columnMarks)) {
 			this.#board[column] = {}
 			for (const row of Object.keys(ChessBoard.rowMarks)) {
@@ -112,7 +112,6 @@ class ChessBoard {
 			}
 		}
 		// board pieces
-		this.#board["0"] = {}
 		this.setCenterPiece(new Bear())
 		this.setJailPiece(null, "wj5") // left/white jail top (row 5)
 		this.setJailPiece(null, "wj4") // left/white jail bottom (row 4)
@@ -152,6 +151,23 @@ class ChessBoard {
 		this.#setPiece(new Elephant("b"), "f", "7")
 		this.#setPiece(new Fishy("b"), "g", "7")
 		this.#setPiece(new Fishy("b"), "h", "7")
+	}
+
+	restart() {
+		this.#board["0"] = {}
+		this.setCenterPiece(null)
+		this.setJailPiece(null, "wj5")
+		this.setJailPiece(null, "wj4")
+		this.setJailPiece(null, "bj5")
+		this.setJailPiece(null, "bj4")
+		for (const column of Object.keys(ChessBoard.columnMarks)) {
+			this.#board[column] = {}
+			for (const row of Object.keys(ChessBoard.rowMarks)) {
+				this.#board[column][row] = null
+				this.#setPiece(null, column, row)
+			}
+		}
+		this.#initializeBoard()
 	}
 
 	static splitCode(code) {
@@ -342,14 +358,14 @@ class ChessBoard {
 			return piece.canMoveTo(this, from, to) // is move
 		else
 			return piece.canTakeTo(this, from, to) // is take
-		
+
 	}
 
 	typeCanMakeMove(type, to, color = null) {
 		this.#validateLookup()
-		
+
 		let retArr = []
-		for (const pos of this.#piecesLookup[type]){
+		for (const pos of this.#piecesLookup[type]) {
 			let piece = this.getPiece(pos)
 			if ((color === null || piece.color === color))
 				if (this.#canMakeMove(piece, piece.position, to))
@@ -365,10 +381,10 @@ class ChessBoard {
 		}
 		return retArr
 	}
-	
+
 	updatePiecesSpecialConditions(obj) {
 		this.#validateLookup()
-		
+
 		if (obj.hasOwnProperty("lastMove")) {
 			this.#piecesLookup["R"].forEach((pos) => {
 				this.getPiece(pos).lastMove = obj.lastMove
@@ -379,7 +395,7 @@ class ChessBoard {
 	static codeToVec(code) {
 		let [column, row] = ChessBoard.splitCode(code)
 
-		if ( !Object.keys(ChessBoard.columnMarks).includes(column) || !Object.keys(ChessBoard.rowMarks).includes(row))
+		if (!Object.keys(ChessBoard.columnMarks).includes(column) || !Object.keys(ChessBoard.rowMarks).includes(row))
 			return null
 
 		return new Vec2(ChessBoard.columnMarks[column], ChessBoard.rowMarks[row])

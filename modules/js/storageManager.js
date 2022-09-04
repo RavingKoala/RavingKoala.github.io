@@ -177,7 +177,7 @@ class CookieFlags {
 class CookieDataStorage extends Storage {
 	static #CookiesAllowed = false
 	static get CookiesAllowed() { return CookieDataStorage.#CookiesAllowed }
- 	static #cookieCollection = new CookieCollection()
+	static #cookieCollection = new CookieCollection()
 
 	static exists(key) {
 		if (!CookieDataStorage.#CookiesAllowed)

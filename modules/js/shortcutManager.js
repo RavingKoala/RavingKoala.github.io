@@ -101,9 +101,9 @@ class ShortcutManager {
 		this.activeShortcuts = {}
 		this.pressed = {}
 		document.addEventListener("keydown", (e) => {
-			if (this.pressed[e.code] === null) // prevent trigger from the same press
+			if (this.pressed[e.code] !== undefined) // prevent trigger from the same press
 				return
-			if (!this.activeShortcuts[e.code])
+			if (!this.activeShortcuts[e.code]) // prevent retrigger when holding
 				return
 
 			this.#onKeyDown(e)
@@ -123,34 +123,47 @@ class ShortcutManager {
 
 		if (!this.activeShortcuts[shortcut.keyCode])
 			this.activeShortcuts[shortcut.keyCode] = {}
-			
+
 
 		if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()]) {
 			if (unique)
-				if (typeof this.activeShortcuts[shortcut.keyCode][shortcut.toString()] === "function"){
+				if (typeof this.activeShortcuts[shortcut.keyCode][shortcut.toString()] === "function") {
 					let fn = this.activeShortcuts[shortcut.keyCode][shortcut.toString()]
 					this.activeShortcuts[shortcut.keyCode][shortcut.toString()] = [fn]
-				}	
-			else
-				if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()] === action) {
-					alert("that shortcut is already set")
-					return
+				} else {
+					if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()] === action) {
+						alert("that shortcut is already set")
+						return
+					}
 				}
 		}
 
 		if (Array.isArray(this.activeShortcuts[shortcut.keyCode][shortcut.toString()]))
 			this.activeShortcuts[shortcut.keyCode][shortcut.toString()].push(action)
-		else 
+		else
 			this.activeShortcuts[shortcut.keyCode][shortcut.toString()] = action
 	}
 
 	#ShortcutPressed(shortcut) {
-		if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()]) {
-			if (Array.isArray(this.activeShortcuts[shortcut.keyCode][shortcut.toString()]))
-				this.activeShortcuts[shortcut.keyCode][shortcut.toString()].forEach(fn => fn() )
-			else
-				this.activeShortcuts[shortcut.keyCode][shortcut.toString()]()
-		}
+		if (this.activeShortcuts[shortcut.keyCode][shortcut.toString()] === undefined) return
+
+		if (Array.isArray(this.activeShortcuts[shortcut.keyCode][shortcut.toString()]))
+			this.activeShortcuts[shortcut.keyCode][shortcut.toString()].forEach(fn => fn())
+		else
+			this.activeShortcuts[shortcut.keyCode][shortcut.toString()]()
+	}
+
+	#onKeyPress(e) {
+		let scMod = new ShortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
+		let sc = new Shortcut(e.code, scMod, KeyActions.press)
+		this.#ShortcutPressed(sc)
+	}
+
+	#onKeyHold(e) {
+		clearTimeout(this.pressed[e.code])
+		let scMod = new ShortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
+		let sc = new Shortcut(e.code, scMod, KeyActions.hold)
+		this.#ShortcutPressed(sc)
 	}
 
 	#onKeyDown(e) {
@@ -160,36 +173,24 @@ class ShortcutManager {
 			this.pressed[e.code] = null
 		}, this.holdTime)
 
-		let scMod = new shortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
-		let sc = new shortcut(e.code, scMod, KeyActions.keyDown)
-		this.#ShortcutPressed(sc)
-	}
-
-	#onKeyPress(e) {
-		let scMod = new shortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
-		let sc = new shortcut(e.code, scMod, KeyActions.press)
-		this.#ShortcutPressed(sc)
-	}
-
-	#onKeyHold(e) {
-		clearTimeout(this.pressed[e.code])
-		let scMod = new shortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
-		let sc = new shortcut(e.code, scMod, KeyActions.hold)
+		let scMod = new ShortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
+		let sc = new Shortcut(e.code, scMod, KeyActions.keyDown)
 		this.#ShortcutPressed(sc)
 	}
 
 	#onKeyUp(e) {
+		let shortcutMods = new ShortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
+		let sc = new Shortcut(e.code, shortcutMods, KeyActions.keyUp)
+		this.#ShortcutPressed(sc)
+
 		if (this.pressed[e.code] === null) {
 			delete this.pressed[e.code]
-		} else {
-			clearTimeout(this.pressed[e.code])
-			delete this.pressed[e.code]
-			this.#onKeyPress(e)
+			return
 		}
 
-		let shortcutMods = new shortcutMod(e.ctrlKey, e.altKey, e.shiftKey, e.metaKey)
-		let sc = new shortcut(e.code, shortcutMods, KeyActions.keyUp)
-		this.#ShortcutPressed(sc)
+		clearTimeout(this.pressed[e.code])
+		delete this.pressed[e.code]
+		this.#onKeyPress(e)
 	}
 
 	#resetTracking() {
@@ -206,7 +207,7 @@ class Shortcut {
 		if (keyCode === null) throw new Error("keyCode not defined!")
 		if (!keyAction instanceof ShortcutMod) throw new Error("keyCode not defined!")
 		if (keyAction === null) throw new Error("keyCode not defined!")
-		
+
 		this.keyCode = keyCode
 		this.mods = mods
 		this.keyAction = keyAction
@@ -222,7 +223,7 @@ class Shortcut {
 }
 
 class ShortcutMod {
-	constructor (ctrl = null, alt = null, shift = null, meta = null) {
+	constructor (ctrl = false, alt = false, shift = false, meta = false) {
 		this.ctrl = ctrl
 		this.alt = alt
 		this.shift = shift
@@ -231,10 +232,10 @@ class ShortcutMod {
 
 	toString() {
 		let string = ""
-		if (this.ctrl === null) string += "ctrl"
-		if (this.alt === null) string += "alt"
-		if (this.shift === null) string += "shift"
-		if (this.meta === null) string += "meta"
+		if (this.ctrl) string += "ctrl"
+		if (this.alt) string += "alt"
+		if (this.shift) string += "shift"
+		if (this.meta) string += "meta"
 		return string
 	}
 }

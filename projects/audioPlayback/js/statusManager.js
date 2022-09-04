@@ -29,19 +29,21 @@ class StatusStateManager {
 		if (state === this.#currentState.Sound)
 			return
 
+		let audioDOM = document.getElementById("audio")
+
 		switch (state) {
 			case SoundStates.Sound:
-				removeClass("audio", "danger-text")
-				removeClass("audio", "warning-text")
-				addClass("audio", "success-text")
+				audioDOM.classList.remove("danger-text")
+				audioDOM.classList.remove("warning-text")
+				audioDOM.classList.add("success-text")
 				getContent("./resources/SVGs/Sound.svg").then((result) => {
 					this.audioDOM.innerHTML = result
 				})
 				break
 			default:
-				removeClass("audio", "success-text")
-				removeClass("audio", "warning-text")
-				addClass("audio", "danger-text")
+				audioDOM.classList.remove("success-text")
+				audioDOM.classList.remove("warning-text")
+				audioDOM.classList.add("danger-text")
 				getContent("./resources/SVGs/NoSound.svg").then((result) => {
 					this.audioDOM.innerHTML = result
 				})
@@ -55,19 +57,21 @@ class StatusStateManager {
 		if (state === this.#currentState.Mic)
 			return
 
+		let micDOM = document.getElementById("microphone")
+
 		switch (state) {
 			case MicStates.Mic:
-				removeClass("microphone", "danger-text")
-				removeClass("microphone", "warning-text")
-				addClass("microphone", "success-text")
+				micDOM.classList.remove("danger-text")
+				micDOM.classList.remove("warning-text")
+				micDOM.classList.add("success-text")
 				getContent("./resources/SVGs/Mic.svg").then((result) => {
 					this.micDOM.innerHTML = result
 				})
 				break
 			default:
-				removeClass("microphone", "success-text")
-				removeClass("microphone", "warning-text")
-				addClass("microphone", "danger-text")
+				micDOM.classList.remove("success-text")
+				micDOM.classList.remove("warning-text")
+				micDOM.classList.add("danger-text")
 				getContent("./resources/SVGs/NoMic.svg").then((result) => {
 					this.micDOM.innerHTML = result
 				})

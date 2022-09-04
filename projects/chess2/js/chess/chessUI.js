@@ -19,35 +19,13 @@ class ChessUI {
 	}
 
 	initialize(board) {
-		// visual board
-		for (const column of Object.keys(ChessBoard.columnMarks)) {
-			for (const row of Object.keys(ChessBoard.rowMarks)) {
-				let code = ChessBoard.createCode(column, row)
-				let piece = board.getPiece(code)
-				if (piece !== null)
-					this.setPiece(piece, code)
-			}
-		}
-		let otherSquares = [
-			"c",
-			"wj5",
-			"wj4",
-			"bj5",
-			"bj4"
-		]
-		otherSquares.forEach((code) => {
-			let piece = board.getPiece(code)
-			if (piece === null) return
-			this.setPiece(piece, code)
-		})
+		this.loadBoard(board)
 
 		// append actionlistners
 		this.#boardDOM.querySelectorAll(".square").forEach((square) => {
 			square.addEventListener("mousemove", (e) => { // BUG: little bug with the first pickup square outline when picking up any piece (may not be so bad)
 				if (!this.#isDragging) return
 				if (this.#draggingDOM.parentNode === square && square.dataset.id === this.#hinted[0]) return
-
-				square.classList.add("dropping")
 
 				let origin = this.#draggingDOM.parentNode.dataset.id
 				let to = square.dataset.id
@@ -58,14 +36,9 @@ class ChessUI {
 			})
 			square.addEventListener("mouseleave", (e) => {
 				if (!this.#isDragging) return
-
-				square.classList.remove("dropping")
 			})
 			square.addEventListener("mouseup", (e) => {
 				if (!this.#isDragging) return
-
-				square.classList.remove("dropping")
-
 				let from = this.#draggingDOM.parentNode.dataset.id
 				let to = square.dataset.id
 
@@ -97,22 +70,75 @@ class ChessUI {
 			this.#dragMove(new Vec2(e.clientX, e.clientY))
 		})
 
+		let submitMove = () => {
+			if (this.getHistoryInputValue().length === 0)
+				return
+
+			const dom = this.#boardHistoryDOM.querySelector("#moveInput")
+
+			let ret = this.#chess.trySubmitMove()
+
+			if (ret.status === "success") {
+				InputNotifierManager.hide(dom)
+				return
+			}
+			// ret.status === "error"
+			dom.dataset.content = ret.message
+			InputNotifierManager.show(dom, 3000)
+		}
+
 		this.#boardHistoryDOM.querySelector("#moveInput").addEventListener("keydown", (e) => {
 			if (e.code === "Enter") {
-				if (this.getHistoryInputValue().length === 0)
-					return
-
-				let ret = this.#chess.trySubmitMove()
-				const dom = e.target
-
-				if (ret.status === "success") {
-					InputNotifierManager.hide(dom)
-					return
-				}
-				// ret.status === "error"
-				dom.dataset.content = ret.message
-				InputNotifierManager.show(dom, 3000)
+				submitMove()
 			}
+		})
+		this.#boardHistoryDOM.querySelector("#moveInputSend").addEventListener("click", (e) => {
+			submitMove()
+		})
+	}
+
+	clearBoard() {
+		for (const column of Object.keys(ChessBoard.columnMarks)) {
+			for (const row of Object.keys(ChessBoard.rowMarks)) {
+				let code = ChessBoard.createCode(column, row)
+				this.clearSquare(code)
+			}
+		}
+
+		let otherSquares = [
+			"c",
+			"wj5",
+			"wj4",
+			"bj5",
+			"bj4"
+		]
+		otherSquares.forEach((code) => {
+			this.clearSquare(code)
+		})
+	}
+
+	loadBoard(board) {
+		this.clearBoard()
+		// visual board
+		for (const column of Object.keys(ChessBoard.columnMarks)) {
+			for (const row of Object.keys(ChessBoard.rowMarks)) {
+				let code = ChessBoard.createCode(column, row)
+				let piece = board.getPiece(code)
+				if (piece !== null)
+					this.setPiece(piece, code)
+			}
+		}
+		let otherSquares = [
+			"c",
+			"wj5",
+			"wj4",
+			"bj5",
+			"bj4"
+		]
+		otherSquares.forEach((code) => {
+			let piece = board.getPiece(code)
+			if (piece === null) return
+			this.setPiece(piece, code)
 		})
 	}
 
@@ -255,6 +281,10 @@ class ChessUI {
 		let toContainerDOM = this.#boardDOM.querySelector("[data-id='" + to + "']")
 		toContainerDOM.innerHTML = ""
 		this.move(from, to)
+	}
+
+	clearSquare(code) {
+		this.#boardDOM.querySelector("[data-id='" + code + "']").innerHTML = ""
 	}
 
 	setPiece(piece, code) {

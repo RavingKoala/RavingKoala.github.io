@@ -82,6 +82,12 @@ class Chess {
 		document.dispatchEvent(new CustomEvent(Chess.events.onStateChange, { detail: { from: lastState, to: state } }))
 	}
 
+	restart() {
+		this.#board.restart()
+		this.#chessUI.loadBoard(this.#board)
+		this.#history.clear()
+	}
+
 	onDrag(pieceDOM) {
 		//suggest pieces to move/take
 		this.#chessUI.dragStart(pieceDOM)
