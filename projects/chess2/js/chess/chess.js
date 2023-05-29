@@ -441,3 +441,5 @@ class Chess {
 		this.#board.updatePiecesSpecialConditions(boardConditions)
 	}
 }
+
+/* TODO: add feature of selection upon click and be able to use pieces with clicking */

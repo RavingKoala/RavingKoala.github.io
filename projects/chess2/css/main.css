@@ -54,11 +54,24 @@ body,
 	margin: 0;
 }
 
+#settingsPopup {
+	width: clamp(800px, 90vw, 580px);
+}
+
+#settingsPopup .panel {
+	min-width: min(90vw, 640px);
+}
+
 #settingsPopup .panelContent {
 	display: grid;
-	grid-template-columns: repeat(2, 1fr);
 	grid-auto-rows: 60px;
 	gap: 1.2em;
+}
+
+@media (min-width: 800px) {
+	#settingsPopup .panelContent {
+		grid-template-columns: repeat(2, 1fr);
+	}
 }
 
 #settingsPopup .option .button {
