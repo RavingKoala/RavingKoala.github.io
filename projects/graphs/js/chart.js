@@ -22,9 +22,9 @@ class Chart {
 		XLeft: -1,
 		YDown: 1
 	}
-	static #roundNumbers = [
-		1, 2, 5, 10
-	]
+	// static #roundNumbers = [
+	// 	1, 2, 5, 10
+	// ]
 	static #minDensity = {
 		small: 20,
 		medium: 35,
@@ -45,14 +45,14 @@ class Chart {
 	static #chartWindowSize = new Vec2(600, 600) /* setting */
 	static #chartSize = new Vec2(400, 400) // Vec2(): canvas size /* setting */
 	static #chartStartPoint = new Vec2((this.#chartWindowSize.x - this.#chartSize.x) / 2, (this.#chartWindowSize.y - this.#chartSize.y) / 2) // (topleft) startpoint of chart area
-	static #chartPositive = new Vec2(this.#axisDirection.XRight, this.#axisDirection.YUp) // canvas direction /* setting */
+	static #chartPositive = new Vec2(this.#axisDirection.XRight, this.#axisDirection.YDown) // canvas direction /* setting */
 	static #gridAid = this.#gridAidOptions.line /* setting */
 
 	static #axisLineSide // Vec2(): chart point (0 point) of axis on canvas
 	static #axisLineStartValue // Vec2(): start value for chart interval numbers
 	static #axisLineEndValue // Vec2(): max value for chart interval numbers
 
-	/* temps */
+	/* temps? */
 	static #maxValue // Vec2(): max value of data
 	static #minValue // Vec2(): min value of data
 	static #gridDensity = new Vec2(this.#minDensity.large, this.#minDensity.large) // quick setting (maybe settable later) /* setting */
@@ -69,7 +69,7 @@ class Chart {
 			return console.error("CHART - no element exists with id " + parentDOMid)
 
 		this.prepareChartValues(data)
-		this.printVarData()
+		this.printVarData() // debug
 		this.drawChart(data, parentDOMid)
 	}
 
@@ -99,6 +99,7 @@ class Chart {
 		axisGroup.addAttr("stroke", "currentColor")
 		axisGroup.addAttr("stroke-width", "3")
 
+		//#region grid aid
 		let gridLinesGroup = new g()
 		svgObj.addChild(gridLinesGroup)
 		gridLinesGroup.addAttr("class", "gridLines")
@@ -107,7 +108,7 @@ class Chart {
 				let xoffset = this.#chartStartPoint.x + (this.#gridOffset.x * i)
 				
 				let from = new Vec2(xoffset, this.#chartStartPoint.y)
-				let to = new Vec2(xoffset, this.#chartStartPoint.y + (this.#chartSize.y))
+				let to = new Vec2(xoffset, this.#chartStartPoint.y + this.#chartSize.y)
 				let l = new line(from, to)
 				l.addAttr("stroke-dasharray", "0 " + this.#gridOffset.y)
 				l.addAttr("stroke-linecap", "round")
@@ -141,7 +142,8 @@ class Chart {
 			new Vec2(zeroPoint.x, this.#chartStartPoint.y),
 			new Vec2(zeroPoint.x, this.#chartStartPoint.y + this.#chartSize.y)
 		))
-		
+		//#endregion
+
 		//#region axis numbers
 		let numberGroup = new g()
 		svgObj.addChild(numberGroup)
@@ -206,7 +208,9 @@ class Chart {
 		let points = " "
 		data.forEach((dataPoint) => {
 			let dataPos = new Vec2()
-			// TODO: make positions work with inner data area (when it skips the 0 mark)
+            
+
+            // TODO: make positions work with inner data area (when it skips the 0 mark)
 			dataPos.x = this.#chartStartPoint.x + this.#chartSize.x * (dataPoint.x - this.#minValue.x) / (this.#maxValue.x - this.#minValue.x)
 			dataPos.y = this.#chartStartPoint.y + this.#chartSize.y * (dataPoint.y - this.#minValue.y) / (this.#maxValue.y - this.#minValue.y)
 			points += dataPos.x + "," +dataPos.y+" "
@@ -288,10 +292,10 @@ class Chart {
 		
 		this.#incrementValue = new Vec2(0, 0)
 		this.#gridIncrements = new Vec2(0, 0)
-		let [gridIncValX, gridIncsX] = this.#determineIncrements((this.#maxValue.x - this.#minValue.x), this.#maxGridIncrements.x)
+        let [gridIncValX, gridIncsX] = this.#determineIncrements((this.#maxValue.x - this.#minValue.x), this.#maxGridIncrements.x)
 		this.#incrementValue.x = gridIncValX
 		this.#gridIncrements.x = gridIncsX
-		let [gridIncValY, gridIncsY] = this.#determineIncrements((this.#maxValue.y - this.#minValue.y), this.#maxGridIncrements.y)
+        let [gridIncValY, gridIncsY] = this.#determineIncrements((this.#maxValue.y - this.#minValue.y), this.#maxGridIncrements.y)
 		this.#incrementValue.y = gridIncValY
 		this.#gridIncrements.y = gridIncsY
 
