@@ -22,6 +22,7 @@
 		<script src="./js/recorder.js"></script>
 		<script src="./js/volumeManager.js"></script>
 		<script src="./js/voiceApp.js"></script>
+		<script src="./js/audioVisualizer.js"></script>
 	</head>
 
 	<body class="dark mt-6">
@@ -32,7 +33,20 @@
 			</div>
 			<span class="textfield">Start recording</span>
 			<div id="waveforms">
-				<include src="./resources/SVGs/Soundwaves.svg" style="display: none;"></include>
+                <svg id="soundwaves" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="7" y="21" width="6" height="38" rx="3" fill="currentColor" />
+                    <rect x="16" y="20" width="6" height="40" rx="3" fill="currentColor" />
+                    <rect x="25" y="27" width="6" height="26" rx="3" fill="currentColor" />
+                    <rect x="34" y="10" width="6" height="60" rx="3" fill="currentColor" />
+                    <rect x="43" y="20" width="6" height="40" rx="3" fill="currentColor" />
+                    <rect x="52" y="29" width="6" height="22" rx="3" fill="currentColor" />
+                    <rect x="61" y="7" width="6" height="66" rx="3" fill="currentColor" />
+                    <rect x="70" y="18" width="6" height="44" rx="3" fill="currentColor" />
+                    <rect x="79" y="31" width="6" height="18" rx="3" fill="currentColor" />
+                    <rect x="88" y="24" width="6" height="32" rx="3" fill="currentColor" />
+                    <rect x="97" y="13" width="6" height="54" rx="3" fill="currentColor" />
+                    <rect x="106" y="26" width="6" height="28" rx="3" fill="currentColor" />
+                </svg>
 			</div>
 		</div>
 		<!-- #endregion -->
@@ -70,15 +84,18 @@
 		<popup src="./popups/Info.html" id="infoPopup"></popup>
 		<!-- #endregion -->
 		<script>
-			// content update
+            // content update
 			replaceIncludes()
+
+            // audioObj (replacement for <audio> needed for playing audio)
+            var audioObject = new Audio()
 
 			// settings
 			var VASettings = VoiceAppSettings
 			VASettings.pauseBeforeReview = LocalDataStorage.exists("pauseBeforeReview") ? LocalDataStorage.get("pauseBeforeReview") === "true" : false
 			VASettings.autoContinueAfterPlayed = LocalDataStorage.exists("autoContinueAfterPlayed") ? LocalDataStorage.get("autoContinueAfterPlayed") === "true" : true
 			var RSettings = RecorderSettings
-			RSettings.PlayASAP = VASettings.pauseBeforeReview
+			RSettings.PlayASAP = !VASettings.pauseBeforeReview
 
 			// ShortcutManager
 			var shortcutManager = new ShortcutManager()
@@ -92,35 +109,47 @@
 			})
 
 			// Recorder
-			var recorder = new Recorder(RSettings)
+			var recorder = new Recorder(RSettings, audioObject)
 			document.addEventListener(VolumeEvents.volumeChanged, (e) => {
 				recorder.setVolume(e.detail.volume)
 				statusManager.setSoundImage(e.detail.volume > 0 ? SoundStates.Sound : SoundStates.NoSound)
 			})
-			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, new ShortcutMod(true), KeyActions.keyDown), function() { volume.addVolume(0.1) })
-			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, new ShortcutMod(true), KeyActions.keyDown), function() { volume.subVolume(0.1) })
-			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), function() { volume.addVolume(0.05) })
-			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, undefined, KeyActions.keyDown), function() { volume.subVolume(0.05) })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, new ShortcutMod(true), KeyActions.keyDown), () => { volume.addVolume(0.1) })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, new ShortcutMod(true), KeyActions.keyDown), () => { volume.subVolume(0.1) })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), () => { volume.addVolume(0.05) })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, undefined, KeyActions.keyDown), () => { volume.subVolume(0.05) })
 
 			// VoiceApp
 			var actionButtonDOM = document.getElementById("actionButton")
 			var textfieldDOM = document.querySelector("span.textfield")
 			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, VASettings)
 			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
-			shortcutManager.addShortcut(new Shortcut(KeyCodes.Space, undefined, KeyActions.press), function() { voiceApp.nextState() })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.Space, undefined, KeyActions.press), () => { voiceApp.nextState() })
 
 			// VolumeManager
 			var volumeSlider = document.querySelector("#sliderContainer")
 			var volume = new VolumeManager(volumeSlider)
+
+            // AudioVisualizer
+            var soundwavesSVG = document.querySelector("#soundwaves")
+            var audioVisualizer = new AudioVisualizer(soundwavesSVG, audioObject)
+			    // document.addEventListener(RecorderEvents.onReady, (e) => {})
+            document.addEventListener(RecorderEvents.onPlay, (e) => {
+                console.log("play called")
+                audioVisualizer.startAnimation()
+            })
+            document.addEventListener(RecorderEvents.onEnded, (e) => {
+                audioVisualizer.stopAnimtaion()
+            })
 
 			// Settings
 			var settingsBtn = document.getElementById("settings")
 			includePopup("settingsPopup")
 				.then((settingsPopup) => {
 					settingsBtn.addEventListener("click", () => { settingsPopup.classList.add("show") })
-					shortcutManager.addShortcut(new Shortcut(KeyCodes.KeyI, new ShortcutMod(undefined, true), KeyActions.keyDown), function() { settingsPopup.classList.add("show") })
-					shortcutManager.addShortcut(new Shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)
-					shortcutManager.addShortcut(new Shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.KeyT, new ShortcutMod(undefined, true), KeyActions.keyDown), () => { settingsPopup.classList.add("show") })
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), () => { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), () => { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)
 					settingsPopup.querySelector(".overlay").addEventListener("click", () => { settingsPopup.classList.remove("show"); document.location.reload(true) })
 
 					Object.keys(VASettings).forEach((key) => {
@@ -137,8 +166,8 @@
 			includePopup("infoPopup")
 				.then((infoPopup) => {
 					infoBtn.addEventListener("click", () => { infoPopup.classList.add("show") })
-					shortcutManager.addShortcut(new Shortcut(KeyCodes.Slash, new ShortcutMod(undefined, true), KeyActions.keyDown), function() { infoPopup.classList.add("show") })
-					shortcutManager.addShortcut(new Shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), function() { infoPopup.classList.remove("show") }, true)
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Slash, new ShortcutMod(undefined, true), KeyActions.keyDown), () => { infoPopup.classList.add("show") })
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), () => { infoPopup.classList.remove("show") }, true)
 					infoPopup.querySelector(".overlay").addEventListener("click", () => { infoPopup.classList.remove("show") })
 				})
 
