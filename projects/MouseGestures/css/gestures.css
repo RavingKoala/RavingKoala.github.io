@@ -1,0 +1,8 @@
+:root {
+    --canvas-size: 16rem;
+}
+
+canvas.card {
+    width: var(--canvas-size);
+    height: var(--canvas-size);
+}
