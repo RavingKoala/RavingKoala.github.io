@@ -95,14 +95,4 @@ Gestures.OnGestureExecuted("name", (event) => {})
 // create storage manager that uses localstorage, but adds everything to a 1 entry key value pair using JSON.stringify and JSON.parse
 
 
-/*
-TODO:
-    - when editing enable drawing on canvas
-    - when in editing, and after action clicked (save, cancel, delete) -> enable swapping selection of actions/gestures
-    - when in editing, and after action clicked (save, cancel, delete) -> disable editing
-    - when selecting a saved gesture -> load gesture in display canvas
-    - when selecting a non saved gesture -> Clear canvas and display nothing
-*/
-
-
 ```
