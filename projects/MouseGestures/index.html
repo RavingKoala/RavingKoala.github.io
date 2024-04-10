@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mouse gestures demo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
         crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script src="../../modules/js/storageManager.js"></script>
     <link rel="stylesheet" href="./css/main.css">
@@ -24,7 +27,7 @@
         
         <br>
         
-        <button id="Edit" type="button" class="btn btn-primary">Edit</button>
+        <button id="Edit" type="button" class="btn btn-primary disabled">Edit</button>
         <button id="Save" type="button" class="btn btn-primary disabled">Save</button>
         <button id="Cancel" type="button" class="btn btn-primary disabled">Cancel</button>
         <button id="Remove" type="button" class="btn btn-danger disabled">Remove</button>
@@ -33,9 +36,15 @@
         
         <h2>List of actions:</h2>
         <div id="actionsList" class="list-group">
-            <button type="button" class="list-group-item list-group-item-action" data-id="1st"> The current button </button>
-            <button type="button" class="list-group-item list-group-item-action" data-id="2nd">A second item</button>
-            <button type="button" class="list-group-item list-group-item-action" data-id="3rd">A third button item</button>
+            <button type="button" class="list-group-item list-group-item-action" data-name="1st">
+                The current button
+            </button>
+            <button type="button" class="list-group-item list-group-item-action" data-name="2nd">
+                A second item
+            </button>
+            <button type="button" class="list-group-item list-group-item-action" data-name="3rd">
+                A third button item
+            </button>
         </div>
         
         <hr>
@@ -52,24 +61,6 @@
         const inputCanvas = document.getElementById("inputField")
         const outputCanvas = document.getElementById("resultView")
         
-        Gestures.SetInputCanvas(inputCanvas)
-        Gestures.SetOutputCanvas(outputCanvas)
-        
-        let selectedListItem
-
-        const addSelectItemActionListner = (el) => {
-            if (!(el instanceof HTMLElement))
-                return
-
-            el.addEventListener('mousedown', (event) => {
-                if (selectedListItem instanceof HTMLElement)
-                    selectedListItem.classList.remove("active")
-
-                el.classList.add("active")
-                selectedListItem = el
-            })
-        }
-
         const actionsList = document.getElementById("actionsList")
         const gesturesList = document.getElementById("gesturesList")
 
@@ -77,19 +68,74 @@
         const SaveButton = document.getElementById("Save")
         const CancelButton = document.getElementById("Cancel")
         const RemoveButton = document.getElementById("Remove")
+        
+        Gestures.SetInputCanvas(inputCanvas)
+        Gestures.SetOutputCanvas(outputCanvas)
+        
+        let selectedListItem
+
+        let state = null
+
+        const toViewState = () => {
+            EditButton.classList.remove("disabled")
+            SaveButton.classList.add("disabled")
+            CancelButton.classList.add("disabled")
+
+            state = "view"
+        }
+
+        const toEditState = () => {
+            EditButton.classList.add("disabled")
+            SaveButton.classList.remove("disabled")
+            CancelButton.classList.remove("disabled")
+
+            state = "edit"
+        }
+        
+        const addSelectItemActionListner = (el) => {
+            if (!(el instanceof HTMLElement))
+                return
+
+            el.addEventListener('mousedown', (event) => {
+                if (state === "edit")
+                    return
+
+                if (selectedListItem instanceof HTMLElement)
+                    selectedListItem.classList.remove("active")
+
+                el.classList.add("active")
+                selectedListItem = el
+
+                if (Gestures.Exists(el.dataset.name)) {
+                    Gestures.Display(el.dataset.name)
+                    RemoveButton.classList.remove("disabled")
+                } else {
+                    Gestures.StopDisplaying()
+                    RemoveButton.classList.add("disabled")
+                }
+
+                toViewState()
+            })
+        }
 
         ;(function() {
             actionsList.childNodes.forEach(el => { addSelectItemActionListner(el) })
             gesturesList.childNodes.forEach(el => { addSelectItemActionListner(el) })
+            actionsList.childNodes.forEach(el => {
+                if (!(el instanceof HTMLElement))
+                    return
+
+                if (Gestures.Exists(el.dataset.name))
+                    gesturesList.appendChild(el)
+            })
 
             EditButton.addEventListener("click", (event) => {
                 if (!(selectedListItem instanceof HTMLElement))
                     return
+                
+                Gestures.New()
 
-                EditButton.classList.add("disabled")
-                SaveButton.classList.remove("disabled")
-                CancelButton.classList.remove("disabled")
-                RemoveButton.classList.remove("disabled")
+                toEditState()
             })
             SaveButton.addEventListener("click", (event) => {
                 if (!(selectedListItem instanceof HTMLElement))
@@ -98,19 +144,20 @@
                 if (selectedListItem.parentElement === actionsList)
                     gesturesList.appendChild(selectedListItem)
 
-                EditButton.classList.remove("disabled")
-                SaveButton.classList.add("disabled")
-                CancelButton.classList.add("disabled")
-                RemoveButton.classList.add("disabled")
+                Gestures.Save(selectedListItem.dataset.name)
+                
+                toViewState()
             })
             CancelButton.addEventListener("click", (event) => {
                 if (!(selectedListItem instanceof HTMLElement))
                     return
 
-                EditButton.classList.remove("disabled")
-                SaveButton.classList.add("disabled")
-                CancelButton.classList.add("disabled")
-                RemoveButton.classList.add("disabled")
+                Gestures.Cancel()
+                if (selectedListItem.parentElement === gesturesList) {
+                    Gestures.Display(selectedListItem.dataset.name)
+                }
+
+                toViewState()
             })
             RemoveButton.addEventListener("click", (event) => {
                 if (!(selectedListItem instanceof HTMLElement))
@@ -119,32 +166,14 @@
                 if (selectedListItem.parentElement === gesturesList)
                     actionsList.appendChild(selectedListItem)
 
-                EditButton.classList.remove("disabled")
-                SaveButton.classList.add("disabled")
-                CancelButton.classList.add("disabled")
                 RemoveButton.classList.add("disabled")
+
+                Gestures.Forget(selectedListItem.dataset.name)
+                Gestures.StopDisplaying()
+
+                toViewState()
             })
         })()
-
-        /*
-        TODO:
-<<<<<<< HEAD
-            - (visually)disable edit
-            - on select item -> (visually)enable edit
-            - when editing disable swapping selection of actions/gestures
-            - when editing enable drawing on canvas
-            - when in editing, and after action clicked (save, cancel, delete) -> enable swapping selection of actions/gestures
-            - when in editing, and after action clicked (save, cancel, delete) -> disable editing
-            - when selecting a saved gesture -> load gesture in display canvas
-            - when selecting a non saved gesture -> Clear canvas and display nothing
-=======
-            - disable edit
-            - on select item -> enable edit
-            - when editing disable swapping selection of actions/gestures
-            - when in editing, and action clicked (save, cancel, delete) -> enable swapping selection of actions/gestures
->>>>>>> 55ea0c62e60594f0fa434330b3fdea96b9acebb3
-        */
-
     </script>
 
 </body>

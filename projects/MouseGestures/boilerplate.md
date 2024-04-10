@@ -86,8 +86,23 @@ Gestures.OnListUpdate((event) => { event.data = { Item: Gesture as int[] }})
 Gestures.OnEntryChange((event) => { event.data = { Item: Gesture as int[] }})
 Gestures.OnGestureExecuted("name", (event) => {})
 
-
 ```
 
-<!-- TODO: use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle) -->
-<!-- Optional TODO: save events to saved gestures -->
+```JS
+
+// TODO: use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle)
+// Optional TODO: save events to saved gestures
+// create storage manager that uses localstorage, but adds everything to a 1 entry key value pair using JSON.stringify and JSON.parse
+
+
+/*
+TODO:
+    - when editing enable drawing on canvas
+    - when in editing, and after action clicked (save, cancel, delete) -> enable swapping selection of actions/gestures
+    - when in editing, and after action clicked (save, cancel, delete) -> disable editing
+    - when selecting a saved gesture -> load gesture in display canvas
+    - when selecting a non saved gesture -> Clear canvas and display nothing
+*/
+
+
+```

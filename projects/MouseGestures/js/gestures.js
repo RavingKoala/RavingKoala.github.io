@@ -180,7 +180,7 @@ const GestureSettings = {
     DisplayColor: "#618eff", // str, hexColor
     DisplayToColor: "#333f",  // str, hexColor
     DisplayFps: 80, // int
-    DisplaySpeed: 33, // ?? px/s ??
+    DisplaySpeed: 50, // ?? px/s ??
     DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
     DisplayAnimationTrail: 1000, // int, ms how long the trail lasts
     MaxStrokes: 1000, // amount of stroke that can be drawn for the gestures
@@ -192,7 +192,8 @@ const GestureSettings = {
  * 
  * Used for setting validation of objects
  *
- * basicValidation means if variables of this type should only be validatied for being this type, and if equal to some value.
+ * basicValidation means if variables of this type should only be validatied for being this type,
+ * and if equal to some value.
  * This is for variables with predetermined facts such as size and subvalues.
  */
 const ValidationTypes = {
@@ -333,8 +334,8 @@ const GestureParsing = (function() {
         _lastPos = null
 
         let maxStrokes = _settingsManager.GetSetting("MaxStrokes")
-        if (returnDirections.length > maxStrokes)
-            returnDirections = returnDirections.slice(Math.max(returnDirections.length - maxStrokes, 0)) // only retrieve the last n strokes (n = maxStrokes)
+        if (maxStrokes !== 0 && returnDirections.length > maxStrokes) // only retrieve the last n strokes (n = maxStrokes)
+            returnDirections = returnDirections.slice(Math.max(returnDirections.length - maxStrokes, 0))
         return returnDirections
     }
 
@@ -614,6 +615,9 @@ const GestureDisplayingUi = (function() {
         _points = null
         _isDisplaying = true
 
+        if (gestureArr.length === 0)
+            return;
+
         _points = _gestureToPoints(gestureArr)
 
         _animate()
@@ -735,7 +739,7 @@ const GestureDisplaying = (function() {
 
     let Display = (gesture) => {
         if (!Array.isArray(gesture))
-            throw new Error("Gesture has to be an Array of numbers!")
+            throw new Error("Gesture has to be an Array!")
         if (gesture.length == 0)
             return
         if (!(typeof gesture[0] === 'number'))
@@ -763,6 +767,9 @@ const Gestures = (function() {
     let _outputDOM = null
 
     let _drawingEnabled = false
+    let _drawing = false
+
+    let _activeGesture = []
 
     const _settingsManager = GestureSettingsManager
     const _gestureDrawing = GestureDrawing
@@ -793,35 +800,47 @@ const Gestures = (function() {
         inputDom.addEventListener("mousedown", (event) => {
             event.preventDefault()
 
-            if (_drawingEnabled)
-                _gestureDrawing.StartDrawing(event)
+            if (!_drawingEnabled)
+                return
+
+            _drawing = true
+            _gestureDrawing.StartDrawing(event)
         })
         inputDom.addEventListener("mousemove", (event) => {
             event.preventDefault()
 
-            if (_drawingEnabled)
+            if (_drawing)
                 _gestureDrawing.OnDraw(event)
         })
         inputDom.addEventListener("mouseup", (event) => {
             event.preventDefault()
 
-            if (_drawingEnabled) {
-                let gesture = _gestureDrawing.StopDrawing()
+            if (!_drawingEnabled)
+                return
+            
+            _drawing = false
 
-                _gestureDisplaying.Display(gesture)
-            }
+            _activeGesture = _gestureDrawing.StopDrawing()
+
+            _gestureDisplaying.Display(_activeGesture)
+            
         })
         inputDom.addEventListener("mouseleave", (event) => {
             event.preventDefault()
 
-            if (_drawingEnabled)
-                _gestureDrawing.CancelDrawing()
+            _drawing = false
+
+            _gestureDrawing.CancelDrawing()
+
+            _activeGesture = []
         })
     }
 
     let SetDataStorage = (dataStorage) => {
         if (!(dataStorage instanceof DataStorage))
-            throw new Error("Param dataStorage is not of type Datastorage, please either LocalDataStorage or SessionDataStorage. Or use another class that extends from the interface DataStorage!")
+            throw new Error("Param dataStorage is not of type Datastorage, " +
+            "please either LocalDataStorage or SessionDataStorage. " +
+            "Or use another class that extends from the interface DataStorage!")
         
         _dataStorage = dataStorage
     }
@@ -830,31 +849,31 @@ const Gestures = (function() {
         
     }
 
-    let New = (name) => {
-        if (typeof name !== "string")
-            throw new Error("Param name must be a string!")
+    let Exists = (name) => {
+        return _dataStorage.exists(name)
+    }
 
-        __drawingEnabled = true
+    let New = () => {
+        _drawingEnabled = true
         _gestureDrawing.StartDrawing()
     }
 
     let Save = (name) => {
-        let gesture = _gestureDrawing.StopDrawing()
+        _dataStorage.set(name, JSON.stringify(_activeGesture))
 
-        _dataStorage.set(name, gesture)
-
-        __drawingEnabled = false
-
+        _drawingEnabled = false
     }
 
-    let Exists = (name) => {
-        return _dataStorage.exists(name)
+    let Cancel = () => {
+        _drawingEnabled = false
+        _gestureDisplaying.Stop()
     }
 
     let Display = (name) => {
         // param validation
 
-        let gesture = _dataStorage.get(name)
+        let gesture = JSON.parse(_dataStorage.get(name))
+        console.log(name, gesture);
 
         _gestureDisplaying.Display(gesture)
     }
@@ -874,10 +893,12 @@ const Gestures = (function() {
         SetGestureWindow: SetGestureWindow,
         EnableDrawing: _gestureDrawing.Enable,
         DisableDrawing: _gestureDrawing.Disable,
+        StopDisplaying: _gestureDisplaying.Stop,
+        Exists: Exists,
         New: New,
         Save: Save,
+        Cancel: Cancel,
         Display: Display,
-        StopDisplaying: _gestureDisplaying.Stop,
         Forget: Forget,
     }
 })()
