@@ -23,16 +23,10 @@ GestureSettings = {
      * ActivationEvent: rightClick
      * Gridcomplexion: 0 // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
      * Datastorage: instanceof DataStorage // (from file ../../../modules/js/storageManager.js)
+     * GestureWindowDetectOutside: true // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
      */
 }
 
-Gestures {
-    List<MouseGesture>
-}
-MouseGesture {
-    string name,
-    List<Stroke> strokes
-}
 enum Stroke {
     up
     down
@@ -44,21 +38,54 @@ enum Stroke {
 ## Usage
 ```js
 // functions
-Gestures.SetInputCanvas(INPUTDOM)
-Gestures.SetOutputCanvas(OUTPUTDOM)
-Gestures.GetSetting("Setting") // return value
-Gestures.SetSettings(obj)
-Gestures.SetSetting("Setting", "NewValue")
-Gestures.GetSettings() // return obj
-Gestures.GetList() // get all gestures
+Gestures.SetDrawingCanvas(instanceof HTMLElement)
+Gestures.SetDisplayingCanvas(instanceof HTMLElement)
+Gestures.SetGestureWindow(WINDOW|DOCUMENT|HTMLELEMENT)
 
-Gestures.newGesture("name")
-Gestures.newGestureConfirm("name", fn)
-Gestures.SetGestureWindow(WINDOW|HTMLELEMENT)
+Gestures.GetList(): Gesture[] as int[][] // get all gestures
+
+Gestures.New()
+Gestures.Save("name")
+Gestures.Exists("name")
+Gestures.Display("name")
+Gestures.Forget("name")
 
 // Events
-Gestures.OnMouseAction((event) => {})
-Gestures.OnListUpdate((event) => {})
+Gestures.OnListUpdate((event) => { event.data = { Item: Gesture as int[] }})
+Gestures.OnEntryChange((event) => { event.data = { Item: Gesture as int[] }})
+Gestures.OnGestureExecuted("name", (event) => {})
+```
+
+```js
+// functions
+Gestures.SetDrawingCanvas(instanceof HTMLElement)
+Gestures.SetDisplayingCanvas(instanceof HTMLElement)
+
+Gestures.GetSetting("Setting"): any // return value
+Gestures.SetSettings(obj)
+Gestures.SetSetting("Setting", "NewValue")
+Gestures.GetSettings(): dictionary // return obj
+Gestures.GetList(): Gesture[] as int[][] // get all gestures
+
+Gestures.SetDataStorage(instanceof DataStorage)
+
+Gestures.EnableDrawing()
+Gestures.DisableDrawing()
+
+Gestures.SetGestureWindow(WINDOW|DOCUMENT|HTMLELEMENT)
+Gestures.New()
+Gestures.Save("name")
+Gestures.Exists("name")
+Gestures.Display("name")
+Gestures.StopDisplaying()
+Gestures.Forget("name")
+
+// Events
+Gestures.OnListUpdate((event) => { event.data = { Item: Gesture as int[] }})
+Gestures.OnEntryChange((event) => { event.data = { Item: Gesture as int[] }})
+Gestures.OnGestureExecuted("name", (event) => {})
 
 
 ```
+
+<!-- TODO: use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle) -->
