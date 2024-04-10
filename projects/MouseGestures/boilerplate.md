@@ -92,7 +92,6 @@ Gestures.OnGestureExecuted("name", (event) => {})
 
 // TODO: use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle)
 // Optional TODO: save events to saved gestures
-// create storage manager that uses localstorage, but adds everything to a 1 entry key value pair using JSON.stringify and JSON.parse
-
+// Separate Gesturemanager in separate file (also remove localStorage and sessionStorage managers)
 
 ```
