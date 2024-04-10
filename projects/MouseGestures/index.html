@@ -21,28 +21,123 @@
         
         <p class="hidden">current:</p>
         <svg id="resultView" class="card" height="260" width="260" xmlns="http://www.w3.org/2000/svg"></svg>
-        <button type="button" class="btn btn-primary">Edit</button>
-        <button id="Save" type="button" class="btn btn-primary disabled" aria-disabled="true">Save</button>
-        <button id="Cancel" type="button" class="btn btn-primary disabled" aria-disabled="true">Cancel</button>
+        
+        <br>
+        
+        <button id="Edit" type="button" class="btn btn-primary">Edit</button>
+        <button id="Save" type="button" class="btn btn-primary disabled">Save</button>
+        <button id="Cancel" type="button" class="btn btn-primary disabled">Cancel</button>
+        <button id="Remove" type="button" class="btn btn-danger disabled">Remove</button>
         
         <hr>
         
+        <h2>List of actions:</h2>
+        <div id="actionsList" class="list-group">
+            <button type="button" class="list-group-item list-group-item-action" data-id="1st"> The current button </button>
+            <button type="button" class="list-group-item list-group-item-action" data-id="2nd">A second item</button>
+            <button type="button" class="list-group-item list-group-item-action" data-id="3rd">A third button item</button>
+        </div>
+        
+        <hr>
+
         <h2>List of saved gestures:</h2>
-        <div class="list-group">
-            <button type="button" class="list-group-item list-group-item-action active" aria-current="true"> The current button </button>
-            <button type="button" class="list-group-item list-group-item-action">A second item</button>
-            <button type="button" class="list-group-item list-group-item-action">A third button item</button>
+        <div id="gesturesList" class="list-group">
+
         </div>
     </div>
     <script type="module">
+        import { DataStorage, LocalDataStorage } from "./js/storageManager.js"
         import { Gestures } from "./js/gestures.js"
 
-        var inputCanvas = document.getElementById("inputField")
-        var outputCanvas = document.getElementById("resultView")
-
+        const inputCanvas = document.getElementById("inputField")
+        const outputCanvas = document.getElementById("resultView")
+        
         Gestures.SetInputCanvas(inputCanvas)
         Gestures.SetOutputCanvas(outputCanvas)
         
+        let selectedListItem
+
+        const addSelectItemActionListner = (el) => {
+            if (!(el instanceof HTMLElement))
+                return
+
+            el.addEventListener('mousedown', (event) => {
+                if (selectedListItem instanceof HTMLElement)
+                    selectedListItem.classList.remove("active")
+
+                el.classList.add("active")
+                selectedListItem = el
+            })
+        }
+
+        const actionsList = document.getElementById("actionsList")
+        const gesturesList = document.getElementById("gesturesList")
+
+        const EditButton = document.getElementById("Edit")
+        const SaveButton = document.getElementById("Save")
+        const CancelButton = document.getElementById("Cancel")
+        const RemoveButton = document.getElementById("Remove")
+
+        ;(function() {
+            actionsList.childNodes.forEach(el => { addSelectItemActionListner(el) })
+            gesturesList.childNodes.forEach(el => { addSelectItemActionListner(el) })
+
+            EditButton.addEventListener("click", (event) => {
+                if (!(selectedListItem instanceof HTMLElement))
+                    return
+
+                EditButton.classList.add("disabled")
+                SaveButton.classList.remove("disabled")
+                CancelButton.classList.remove("disabled")
+                RemoveButton.classList.remove("disabled")
+            })
+            SaveButton.addEventListener("click", (event) => {
+                if (!(selectedListItem instanceof HTMLElement))
+                    return
+
+                if (selectedListItem.parentElement === actionsList)
+                    gesturesList.appendChild(selectedListItem)
+
+                EditButton.classList.remove("disabled")
+                SaveButton.classList.add("disabled")
+                CancelButton.classList.add("disabled")
+                RemoveButton.classList.add("disabled")
+            })
+            CancelButton.addEventListener("click", (event) => {
+                if (!(selectedListItem instanceof HTMLElement))
+                    return
+
+                EditButton.classList.remove("disabled")
+                SaveButton.classList.add("disabled")
+                CancelButton.classList.add("disabled")
+                RemoveButton.classList.add("disabled")
+            })
+            RemoveButton.addEventListener("click", (event) => {
+                if (!(selectedListItem instanceof HTMLElement))
+                    return
+
+                if (selectedListItem.parentElement === gesturesList)
+                    actionsList.appendChild(selectedListItem)
+
+                EditButton.classList.remove("disabled")
+                SaveButton.classList.add("disabled")
+                CancelButton.classList.add("disabled")
+                RemoveButton.classList.add("disabled")
+            })
+        })()
+
+        /*
+        TODO:
+            - (visually)disable edit
+            - on select item -> (visually)enable edit
+            - when editing disable swapping selection of actions/gestures
+            - when editing enable drawing on canvas
+            - when in editing, and after action clicked (save, cancel, delete) -> enable swapping selection of actions/gestures
+            - when in editing, and after action clicked (save, cancel, delete) -> disable editing
+            - when selecting a saved gesture -> load gesture in display canvas
+            - when selecting a non saved gesture -> Clear canvas and display nothing
+        */
+
     </script>
 
 </body>

@@ -1,3 +1,5 @@
+import { DataStorage, LocalDataStorage } from "./storageManager.js";
+
 export { Gestures, GestureSettings, GestureDirection }
 
 //#region types
@@ -169,18 +171,19 @@ const GestureDirectionToVec2 = (gesture) => {
  * @public
  */
 const GestureSettings = {
-    Sensitivity: 20, // minimum px distance before stroke is counted
+    Sensitivity: 13, // minimum px distance before stroke is counted
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
     DrawFps: 0, // int, 
-    DrawDataUseEveryNUpdates: 5, // int, use draw data every n mousemove updates
+    DrawDataUseEveryNUpdates: 4, // int, use draw data every n mousemove updates
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
-    DisplayFps: 60, // int
-    DisplaySpeed: 30, // ?? px/s ??
+    DisplayToColor: "#333f",  // str, hexColor
+    DisplayFps: 80, // int
+    DisplaySpeed: 33, // ?? px/s ??
     DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
     DisplayAnimationTrail: 1000, // int, ms how long the trail lasts
-    MaxStrokes: 5, // amount of stroke that can be drawn for the gestures
+    MaxStrokes: 1000, // amount of stroke that can be drawn for the gestures
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 10, // px of the displayField
 }
@@ -201,7 +204,7 @@ const ValidationTypes = {
     symbol : (advancedValiation) => { return { typeof: "symbol", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
     function : (advancedValiation) => { return { typeof: "function", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
     object : (advancedValiation) => { return { typeof: "object", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    colorHex: () => ValidationTypes.string((str) => /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/.test(str))
+    colorHex: () => ValidationTypes.string((str) => /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/.test(str))
 }
 
 const SettingValidation = {
@@ -212,6 +215,7 @@ const SettingValidation = {
     DrawDataUseEveryNUpdates: ValidationTypes.number(null),
     DisplaySize: ValidationTypes.number(null),
     DisplayColor: ValidationTypes.colorHex(),
+    DisplayToColor: ValidationTypes.colorHex(),
     DisplayFps: ValidationTypes.number(null),
     DisplaySpeed: ValidationTypes.number(null),
     DisplayPause: ValidationTypes.number(null),
@@ -301,7 +305,6 @@ const GestureParsing = (function() {
 
         let delta = vec.clone().sub(_lastPos)
         let deltaDirection = delta.getDirection()
-        console.log(deltaDirection);
         
         if (deltaDirection !== _activeDirection || deltaDirection === _directions[_directions.length - 1]) {
             // reset
@@ -404,7 +407,6 @@ const GestureDrawingUi = (function() {
 
 const GestureDrawing = (function() {
     let _isDrawing = false
-    let _gestureResult = null
     
     let _inputDom = null
     
@@ -425,11 +427,19 @@ const GestureDrawing = (function() {
     let StartDrawing = (event) => {
         _isDrawing = true
 
-        var rect = _inputDom.getBoundingClientRect();
-        let newPoint = new Vec2(event.clientX - rect.left, event.clientY - rect.top);
+        _drawingUi.Clear()
+    
+        if (event === null)
+            return 
+        if (!(event instanceof MouseEvent)) {
+            console.warn("Param event should be a MouseEvent")
+            return
+        }
+        
+        var rect = _inputDom.getBoundingClientRect()
+        let newPoint = new Vec2(event.clientX - rect.left, event.clientY - rect.top)
 
         _gestureParsing.UpdateData(newPoint)
-        _drawingUi.Clear()
         _drawingUi.DrawPoint(newPoint)
     }
 
@@ -445,8 +455,9 @@ const GestureDrawing = (function() {
 
     let StopDrawing = () => {
         _isDrawing = false
-        _gestureResult = _gestureParsing.Finish()
+        let gestureResult = _gestureParsing.Finish()
         _drawingUi.Clear()
+        return gestureResult
     }
 
     let CancelDrawing = () => {
@@ -461,7 +472,6 @@ const GestureDrawing = (function() {
         OnDraw: OnDraw,
         StopDrawing: StopDrawing,
         CancelDrawing: CancelDrawing,
-        GetGestureResult: () => _gestureResult,
     }
 })()
 
@@ -599,7 +609,7 @@ const GestureDisplayingUi = (function() {
         return retArr
     }
 
-    let StartDisplaying = (gestureArr) => {
+    let Start = (gestureArr) => {
         Reset()
         _points = null
         _isDisplaying = true
@@ -629,15 +639,12 @@ const GestureDisplayingUi = (function() {
         newCircle.setAttribute("fill", _settingsManager.GetSetting("DisplayColor"))
         newCircle.setAttribute("r", _settingsManager.GetSetting("DisplaySize") / 2)
         let circleAnimation = document.createElementNS('http://www.w3.org/2000/svg', 'animate')
-        circleAnimation.setAttribute('attributeName', "opacity")
+        circleAnimation.setAttribute('attributeName', "fill")
         circleAnimation.setAttribute('begin', "0s")
         circleAnimation.setAttribute('dur', `${_settingsManager.GetSetting("DisplayAnimationTrail")}ms`)
-        circleAnimation.setAttribute('from', "1")
-        circleAnimation.setAttribute('to', "0")
+        circleAnimation.setAttribute('from', _settingsManager.GetSetting("DisplayColor"))
+        circleAnimation.setAttribute('to', _settingsManager.GetSetting("DisplayToColor"))
         circleAnimation.setAttribute('fill', "freeze")
-        circleAnimation.addEventListener('endEvent', () => {
-            _outputDom.removeChild(newCircle)
-        }, false);
         newCircle.appendChild(circleAnimation)
         _outputDom.appendChild(newCircle)
         circleAnimation.beginElement()
@@ -649,10 +656,8 @@ const GestureDisplayingUi = (function() {
                 _currentPointI = 0
                 _lastPoint = null
 
-                console.log("loop");
-
                 _animationLoopTimeout = setTimeout(() => {
-                    Clear()
+                    _clear()
                     _animationLoopReq = requestAnimationFrame(_animate)
                 }, _settingsManager.GetSetting("DisplayPause"))
                 return
@@ -665,7 +670,7 @@ const GestureDisplayingUi = (function() {
         }, 1000 / _settingsManager.GetSetting("DisplayFps"))
     }
 
-    let StopDisplaying = () => {
+    let Stop = () => {
         Reset()
     }
 
@@ -693,10 +698,10 @@ const GestureDisplayingUi = (function() {
             _animationLoopReq = null
         }
 
-        Clear()
+        _clear()
     }
 
-    let Clear = () => {
+    let _clear = () => {
         if (!(_outputDom instanceof SVGElement))
             throw new Error("Output DOM Element is not an SVG!")
 
@@ -706,9 +711,8 @@ const GestureDisplayingUi = (function() {
     return {
         SetOutputCanvas: SetOutputCanvas,
         SetSettingsManager: SetSettingsManager,
-        StartDisplaying: StartDisplaying,
-        StopDisplaying: StopDisplaying,
-        Clear: Clear,
+        Start: Start,
+        Stop: Stop,
     }
 })()
 
@@ -737,28 +741,35 @@ const GestureDisplaying = (function() {
         if (!(typeof gesture[0] === 'number'))
             throw new Error("Gesture has to be an Array of numbers!")
 
-        _displayingUi.StartDisplaying(gesture)
+        _displayingUi.Start(gesture)
+    }
+
+    let Stop = () => {
+        _displayingUi.Stop()
     }
 
     return {
         SetOutputCanvas: SetOutputCanvas,
         SetSettingsManager: SetSettingsManager,
         Display: Display,
+        Stop: Stop,
     }
 })()
 
 //#endregion
 
-
 const Gestures = (function() {
     let _inputDOM = null
     let _outputDOM = null
+
+    let _drawingEnabled = false
 
     const _settingsManager = GestureSettingsManager
     const _gestureDrawing = GestureDrawing
     _gestureDrawing.SetSettingsManager(_settingsManager)
     const _gestureDisplaying = GestureDisplaying
     _gestureDisplaying.SetSettingsManager(_settingsManager)
+    let _dataStorage = LocalDataStorage
     
     let SetInputCanvas = (inputDom) => {
         if (!(inputDom instanceof SVGElement))
@@ -781,22 +792,75 @@ const Gestures = (function() {
     let _addInputEventListners = (inputDom) => {
         inputDom.addEventListener("mousedown", (event) => {
             event.preventDefault()
-            _gestureDrawing.StartDrawing(event)
+
+            if (_drawingEnabled)
+                _gestureDrawing.StartDrawing(event)
         })
         inputDom.addEventListener("mousemove", (event) => {
             event.preventDefault()
-            _gestureDrawing.OnDraw(event)
+
+            if (_drawingEnabled)
+                _gestureDrawing.OnDraw(event)
         })
         inputDom.addEventListener("mouseup", (event) => {
             event.preventDefault()
-            _gestureDrawing.StopDrawing(event)
 
-            _gestureDisplaying.Display(_gestureDrawing.GetGestureResult())
+            if (_drawingEnabled) {
+                let gesture = _gestureDrawing.StopDrawing()
+
+                _gestureDisplaying.Display(gesture)
+            }
         })
         inputDom.addEventListener("mouseleave", (event) => {
             event.preventDefault()
-            _gestureDrawing.CancelDrawing()
+
+            if (_drawingEnabled)
+                _gestureDrawing.CancelDrawing()
         })
+    }
+
+    let SetDataStorage = (dataStorage) => {
+        if (!(dataStorage instanceof DataStorage))
+            throw new Error("Param dataStorage is not of type Datastorage, please either LocalDataStorage or SessionDataStorage. Or use another class that extends from the interface DataStorage!")
+        
+        _dataStorage = dataStorage
+    }
+
+    let SetGestureWindow = (el) => {
+        
+    }
+
+    let New = (name) => {
+        if (typeof name !== "string")
+            throw new Error("Param name must be a string!")
+
+        __drawingEnabled = true
+        _gestureDrawing.StartDrawing()
+    }
+
+    let Save = (name) => {
+        let gesture = _gestureDrawing.StopDrawing()
+
+        _dataStorage.set(name, gesture)
+
+        __drawingEnabled = false
+
+    }
+
+    let Exists = (name) => {
+        return _dataStorage.exists(name)
+    }
+
+    let Display = (name) => {
+        // param validation
+
+        let gesture = _dataStorage.get(name)
+
+        _gestureDisplaying.Display(gesture)
+    }
+
+    let Forget = (name) => {
+        _dataStorage.remove(name)
     }
 
     return {
@@ -806,5 +870,14 @@ const Gestures = (function() {
         SetSettings: _settingsManager.SetSettings,
         GetSetting: _settingsManager.GetSetting,
         SetSetting: _settingsManager.SetSetting,
+        SetDataStorage: SetDataStorage,
+        SetGestureWindow: SetGestureWindow,
+        EnableDrawing: _gestureDrawing.Enable,
+        DisableDrawing: _gestureDrawing.Disable,
+        New: New,
+        Save: Save,
+        Display: Display,
+        StopDisplaying: _gestureDisplaying.Stop,
+        Forget: Forget,
     }
 })()
