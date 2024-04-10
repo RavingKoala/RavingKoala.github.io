@@ -1,4 +1,4 @@
-import { DataStorage, LocalDataStorage } from "./storageManager.js";
+import { DataStorage, GestureDataStorage } from "./storageManager.js";
 
 export { Gestures, GestureSettings, GestureDirection }
 
@@ -430,7 +430,7 @@ const GestureDrawing = (function() {
 
         _drawingUi.Clear()
     
-        if (event === null)
+        if (event === undefined || event === null)
             return 
         if (!(event instanceof MouseEvent)) {
             console.warn("Param event should be a MouseEvent")
@@ -448,7 +448,7 @@ const GestureDrawing = (function() {
         if (!_isDrawing) return
 
         var rect = _inputDom.getBoundingClientRect();
-        let newPoint = new Vec2(event.clientX - rect.left, event.clientY - rect.top);
+        let newPoint = new Vec2(event.clientX - rect.left, event.clientY - rect.top)
 
         _gestureParsing.UpdateData(newPoint)
         _drawingUi.DrawPoint(newPoint)
@@ -738,6 +738,8 @@ const GestureDisplaying = (function() {
     }
 
     let Display = (gesture) => {
+        _displayingUi.Stop()
+        
         if (!Array.isArray(gesture))
             throw new Error("Gesture has to be an Array!")
         if (gesture.length == 0)
@@ -776,7 +778,7 @@ const Gestures = (function() {
     _gestureDrawing.SetSettingsManager(_settingsManager)
     const _gestureDisplaying = GestureDisplaying
     _gestureDisplaying.SetSettingsManager(_settingsManager)
-    let _dataStorage = LocalDataStorage
+    let _dataStorage = GestureDataStorage
     
     let SetInputCanvas = (inputDom) => {
         if (!(inputDom instanceof SVGElement))
@@ -831,8 +833,6 @@ const Gestures = (function() {
             _drawing = false
 
             _gestureDrawing.CancelDrawing()
-
-            _activeGesture = []
         })
     }
 
@@ -859,21 +859,23 @@ const Gestures = (function() {
     }
 
     let Save = (name) => {
-        _dataStorage.set(name, JSON.stringify(_activeGesture))
-
         _drawingEnabled = false
+        _dataStorage.set(name, _activeGesture)
+        _activeGesture = []
+
     }
 
     let Cancel = () => {
         _drawingEnabled = false
+        _activeGesture = []
+        
         _gestureDisplaying.Stop()
     }
 
     let Display = (name) => {
         // param validation
 
-        let gesture = JSON.parse(_dataStorage.get(name))
-        console.log(name, gesture);
+        let gesture = _dataStorage.get(name)
 
         _gestureDisplaying.Display(gesture)
     }
