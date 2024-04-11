@@ -9,10 +9,11 @@ GestureSettings = {
     DrawDataUseEveryNUpdates: 5, // int, use draw data every n mousemove updates
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
+    DisplayToColor: "#333f",  // str, hexColor
     DisplayFps: 30, // int
     DisplaySpeed: 100, // ?? px/s ??
     DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
-    DisplayAnimationTrail: 1000, // int, ms how long the trail lasts
+    DisplayTrail: 1000, // int, ms how long the trail lasts
     MaxStrokes: 5, // amount of stroke that can be drawn for the gestures
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 10, // px of the displayField
@@ -87,8 +88,6 @@ Gestures.OnGestureExecuted("name", (event) => {})
 
 ```JS
 // TODO:
-// implement time delta to animation
-// implement fade to animation
 // use [this](https://cloudinary.com/blog/creating_html5_animations#implementation_of_code_requestanimationframe_code_) for animating
 // use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle)
 // Optional TODO: save events to saved gestures

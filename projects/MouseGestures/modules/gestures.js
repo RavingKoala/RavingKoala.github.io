@@ -1,4 +1,4 @@
-import { DataStorage } from "./dataStorage.js";
+import { DataStorage } from "./dataStorage.js"
 import { GestureLocalStorage } from "./gestureLocalStorage.js"
 
 
@@ -180,11 +180,11 @@ const GestureSettings = {
     DrawDataUseEveryNUpdates: 4, // int, use draw data every n mousemove updates
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
-    DisplayToColor: "#333f",  // str, hexColor
-    DisplayFps: 100, // int
-    DisplaySpeed: 600, // ?? px/sec
-    DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
-    DisplayAnimationTrail: 1000, // int, ms how long the trail lasts
+    DisplayToColor: "#333",  // str, hexColor
+    DisplayFps: 0, // int
+    DisplaySpeed: 200, // px/sec
+    DisplayPause: 1000, // int, miliseconds of delay between finishing the animation, and starting the next
+    DisplayTrail: 40, // int, px length of the trail
     MaxStrokes: 1000, // amount of stroke that can be drawn for the gestures
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 10, // px of the displayField
@@ -222,7 +222,7 @@ const SettingValidation = {
     DisplayFps: ValidationTypes.number(null),
     DisplaySpeed: ValidationTypes.number(null),
     DisplayPause: ValidationTypes.number(null),
-    DisplayAnimationTrail: ValidationTypes.number(null),
+    DisplayTrail: ValidationTypes.number(null),
     MaxStrokes: ValidationTypes.number(null),
     DisplaySquareOffArea: ValidationTypes.boolean(null),
     DisplayStrokePadding: ValidationTypes.number(null),
@@ -328,7 +328,7 @@ const GestureParsing = (function() {
     }
 
     let Finish = () => {
-        let returnDirections = _directions;
+        let returnDirections = _directions
         
         _directions = []
         _activeDirection = null
@@ -382,13 +382,13 @@ const GestureDrawingUi = (function() {
         if (lastPoint === null)
             lastPoint = vec
 
-        _inputContext.beginPath();
-        _inputContext.moveTo(lastPoint.X, lastPoint.Y);
-        _inputContext.lineWidth = 15;
-        _inputContext.lineCap = "round";
+        _inputContext.beginPath()
+        _inputContext.moveTo(lastPoint.X, lastPoint.Y)
+        _inputContext.lineWidth = 15
+        _inputContext.lineCap = "round"
         _inputContext.strokeStyle = _settingsManager.GetSetting("DrawColor")
-        _inputContext.lineTo(vec.X, vec.Y);
-        _inputContext.stroke();
+        _inputContext.lineTo(vec.X, vec.Y)
+        _inputContext.stroke()
         
         lastPoint = vec
     }
@@ -491,10 +491,9 @@ const GestureDisplayingUi = (function() {
     let _points = null
     let _currentPointI = 0;
     let _lastPoint = null
-    let _animationTimeout = null
-    let _animationLoopTimeout = null
-    let _animationReq = null
-    let _animationLoopReq = null
+
+    let _lastUpdateTime = null
+    let _lastUpdateTimeLoop = null
 
     let _outputDom = null
     let _outputContext = null
@@ -505,8 +504,6 @@ const GestureDisplayingUi = (function() {
         window.mozRequestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.msRequestAnimationFrame
-    const cancelAnimationFrame =
-        window.cancelAnimationFrame || window.mozCancelAnimationFrame
 
     let SetOutputCanvas = (outputDom) => {
         _outputDom = outputDom
@@ -630,8 +627,58 @@ const GestureDisplayingUi = (function() {
     }
 
     let _animate = () => {
-        // Do animation
-        let distance = (_settingsManager.GetSetting("DisplaySpeed")) * (1 / _settingsManager.GetSetting("DisplayFps"))
+        if (!_isDisplaying) return
+
+        let deltaTime
+        if (_lastUpdateTime === null) {
+            _lastUpdateTime = Date.now()
+            deltaTime = 0
+        } else
+            deltaTime = Date.now() - _lastUpdateTime
+            
+        if (deltaTime < (1000 / _settingsManager.GetSetting("DisplayFps") && _settingsManager.GetSetting("DisplayFps") !== 0)) {
+            requestAnimationFrame(_animate)
+            return
+        }
+        _lastUpdateTime = Date.now()
+        
+        let distance = _settingsManager.GetSetting("DisplaySpeed") * deltaTime / 1000
+        
+        if (_lastPoint !== null) {
+            _outputContext.globalAlpha = distance / _settingsManager.GetSetting("DisplayTrail")
+            _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
+            _outputContext.lineWidth = 16
+            // _outputContext.lineCap = "round"
+            _outputContext.lineJoin = "round";
+
+            _outputContext.beginPath()
+            _outputContext.moveTo(_points[0].X, _points[0].Y)
+            for (let i = 1; i <= _currentPointI; i++)
+                _outputContext.lineTo(_points[i].X, _points[i].Y)
+            
+            _outputContext.lineTo(_lastPoint.X, _lastPoint.Y)
+
+            _outputContext.stroke()
+            _outputContext.globalAlpha = 1
+            
+            
+            // restarting animation
+            if (_currentPointI + 1 >= _points.length) {
+                if (Date.now() - _lastUpdateTimeLoop < _settingsManager.GetSetting("DisplayPause")) {
+                    requestAnimationFrame(_animate)
+                    return
+                }
+                
+                _outputContext.reset()
+                _currentPointI = 0
+                distance = 0
+                _lastPoint = null
+            }
+            
+        }
+        
+        _lastUpdateTimeLoop = _lastUpdateTime
+        
         let newPoint
         if (_lastPoint !== null) {
             let direnctionCurrentPath = _points[_currentPointI + 1].clone().sub(_points[_currentPointI]).getDirection()
@@ -645,63 +692,33 @@ const GestureDisplayingUi = (function() {
             _lastPoint = _points[0]
         }
 
-        _outputContext.beginPath();
-        _outputContext.moveTo(_lastPoint.X, _lastPoint.Y);
-        _outputContext.lineWidth = 15;
-        _outputContext.lineCap = "round";
+        _outputContext.beginPath()
+        _outputContext.moveTo(_lastPoint.X, _lastPoint.Y)
+        _outputContext.lineWidth = 15
+        _outputContext.lineCap = "round"
         _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayColor")
-        _outputContext.lineTo(newPoint.X, newPoint.Y);
-        _outputContext.stroke();
-
+        _outputContext.lineTo(newPoint.X, newPoint.Y)
+        _outputContext.stroke()
+        
         _lastPoint = newPoint
-        if (_lastPoint.equals(_points[_currentPointI + 1])){
+        if (_lastPoint.equals(_points[_currentPointI + 1])) {
             _currentPointI++
-            if (_currentPointI + 1 >= _points.length) {
-                _currentPointI = 0
-                _lastPoint = null
-
-                _animationLoopTimeout = setTimeout(() => {
-                    _clear()
-                    _animationLoopReq = requestAnimationFrame(_animate)
-                }, _settingsManager.GetSetting("DisplayPause"))
-                return
-            }
         }
-
-        // repeat animation after specified minutes
-        _animationTimeout = setTimeout(() => {
-            _animationReq = requestAnimationFrame(_animate)
-        }, 1000 / _settingsManager.GetSetting("DisplayFps"))
+        
+        requestAnimationFrame(_animate)
     }
-
+    
     let Stop = () => {
         Reset()
     }
-
+    
     let Reset = () => {
         _isDisplaying = false
-
-        _currentPointI = 0;
+        
+        _currentPointI = 0
         _lastPoint = null
         _points = null
-
-        if (_animationTimeout !== null) {
-            clearTimeout(_animationTimeout)
-            _animationTimeout = null
-        } 
-        if (_animationLoopTimeout !== null) {
-            clearTimeout(_animationLoopTimeout)
-            _animationLoopTimeout = null
-        }
-        if (_animationReq !== null) {
-            cancelAnimationFrame(_animationReq)
-            _animationReq = null
-        }
-        if (_animationLoopReq !== null) {
-            cancelAnimationFrame(_animationLoopReq)
-            _animationLoopReq = null
-        }
-
+        
         _clear()
     }
 
@@ -721,15 +738,12 @@ const GestureDisplayingUi = (function() {
 })()
 
 const GestureDisplaying = (function() {
-    let _outputDom = null
-
     const _displayingUi = GestureDisplayingUi
 
     let SetOutputCanvas = (outputDom) => {
         if (!(outputDom instanceof HTMLCanvasElement))
             throw new Error("Output DOM Element is not an SVG!")
 
-        _outputDom = outputDom
         _displayingUi.SetOutputCanvas(outputDom)
     }
 
@@ -765,9 +779,6 @@ const GestureDisplaying = (function() {
 //#endregion
 
 const Gestures = (function() {
-    let _inputDOM = null
-    let _outputDOM = null
-
     let _drawingEnabled = false
     let _drawing = false
 
@@ -787,7 +798,6 @@ const Gestures = (function() {
         _addInputEventListners(inputDom)
 
         _gestureDrawing.SetInputCanvas(inputDom)
-        _inputDOM = inputDom
     }
 
     let SetOutputCanvas = (outputDom) => {
@@ -795,7 +805,6 @@ const Gestures = (function() {
             throw new Error("Input DOM Element is not an SVG!")
 
         _gestureDisplaying.SetOutputCanvas(outputDom)
-        _outputDOM = outputDom
     }
 
     let _addInputEventListners = (inputDom) => {
