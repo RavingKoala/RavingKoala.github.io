@@ -1,4 +1,6 @@
-import { DataStorage, GestureDataStorage } from "./dataManager.js";
+import { DataStorage } from "./dataStorage.js";
+import { GestureLocalStorage } from "./gestureLocalStorage.js"
+
 
 export { Gestures, GestureSettings, GestureDirection }
 
@@ -179,8 +181,8 @@ const GestureSettings = {
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
     DisplayToColor: "#333f",  // str, hexColor
-    DisplayFps: 80, // int
-    DisplaySpeed: 50, // ?? px/s ??
+    DisplayFps: 100, // int
+    DisplaySpeed: 600, // ?? px/sec
     DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
     DisplayAnimationTrail: 1000, // int, ms how long the trail lasts
     MaxStrokes: 1000, // amount of stroke that can be drawn for the gestures
@@ -339,10 +341,18 @@ const GestureParsing = (function() {
         return returnDirections
     }
 
+    let Cancel = () => {
+        _directions = []
+        _activeDirection = null
+        _deltaActiveDirection = 0
+        _lastPos = null
+    }
+
     return {
         SetSettingsManager: SetSettingsManager,
         UpdateData: UpdateData,
         Finish: Finish,
+        Cancel: Cancel,
     }
 })()
 
@@ -350,10 +360,12 @@ const GestureDrawingUi = (function() {
     let lastPoint = null // vec to last point
 
     let _inputDom = null
+    let _inputContext = null
     let _settingsManager = null
 
     let SetInputCanvas = (inputDom) => {
         _inputDom = inputDom
+        _inputContext = inputDom.getContext("2d")
         Clear()
     }
 
@@ -366,36 +378,28 @@ const GestureDrawingUi = (function() {
             throw new Error("Param vec is not of type Vec2")
         if (_inputDom === null)
             throw new Error("Input is not set")
-            
-        if (lastPoint === null) {
-            let newCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            newCircle.setAttribute('cx', vec.X);
-            newCircle.setAttribute('cy', vec.Y);
-            newCircle.setAttribute("fill", _settingsManager.GetSetting("DrawColor"))
-            newCircle.setAttribute("r", _settingsManager.GetSetting("DrawSize")/2)
-            _inputDom.appendChild(newCircle)
-        } else {
-            let newLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            newLine.setAttribute('x1', lastPoint.X);
-            newLine.setAttribute('y1', lastPoint.Y);
-            newLine.setAttribute('x2', vec.X);
-            newLine.setAttribute('y2', vec.Y);
-            newLine.setAttribute("stroke-linecap", "round")
-            newLine.setAttribute("stroke", _settingsManager.GetSetting("DrawColor"))
-            newLine.setAttribute("stroke-width", _settingsManager.GetSetting("DrawSize"))
-            _inputDom.appendChild(newLine)
-        }
+        
+        if (lastPoint === null)
+            lastPoint = vec
 
+        _inputContext.beginPath();
+        _inputContext.moveTo(lastPoint.X, lastPoint.Y);
+        _inputContext.lineWidth = 15;
+        _inputContext.lineCap = "round";
+        _inputContext.strokeStyle = _settingsManager.GetSetting("DrawColor")
+        _inputContext.lineTo(vec.X, vec.Y);
+        _inputContext.stroke();
+        
         lastPoint = vec
     }
 
     let Clear = () => {
         lastPoint = null
         
-        if(!(_inputDom instanceof SVGElement))
+        if(!(_inputDom instanceof HTMLCanvasElement))
             throw new Error("Input DOM Element is not an SVG!")
 
-        _inputDom.innerHTML = ""
+        _inputContext.reset()
     }
 
     return {
@@ -463,6 +467,7 @@ const GestureDrawing = (function() {
 
     let CancelDrawing = () => {
         _isDrawing = false
+        _gestureParsing.Cancel()
         _drawingUi.Clear()
     }
 
@@ -492,6 +497,7 @@ const GestureDisplayingUi = (function() {
     let _animationLoopReq = null
 
     let _outputDom = null
+    let _outputContext = null
     let _settingsManager = null
     
     const requestAnimationFrame =
@@ -504,7 +510,7 @@ const GestureDisplayingUi = (function() {
 
     let SetOutputCanvas = (outputDom) => {
         _outputDom = outputDom
-
+        _outputContext = outputDom.getContext("2d")
         Reset()
     }
 
@@ -625,7 +631,7 @@ const GestureDisplayingUi = (function() {
 
     let _animate = () => {
         // Do animation
-        let distance = (_settingsManager.GetSetting("DisplaySpeed") / 100) * (1000 / _settingsManager.GetSetting("DisplayFps"))
+        let distance = (_settingsManager.GetSetting("DisplaySpeed")) * (1 / _settingsManager.GetSetting("DisplayFps"))
         let newPoint
         if (_lastPoint !== null) {
             let direnctionCurrentPath = _points[_currentPointI + 1].clone().sub(_points[_currentPointI]).getDirection()
@@ -634,24 +640,18 @@ const GestureDisplayingUi = (function() {
                 newPoint = _points[_currentPointI + 1]
             else
                 newPoint = _lastPoint.clone().add(deltaDistance)
-        } else
+        } else {
             newPoint = _points[0]
-        
-        let newCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-        newCircle.setAttribute('cx', newPoint.X)
-        newCircle.setAttribute('cy', newPoint.Y)
-        newCircle.setAttribute("fill", _settingsManager.GetSetting("DisplayColor"))
-        newCircle.setAttribute("r", _settingsManager.GetSetting("DisplaySize") / 2)
-        let circleAnimation = document.createElementNS('http://www.w3.org/2000/svg', 'animate')
-        circleAnimation.setAttribute('attributeName', "fill")
-        circleAnimation.setAttribute('begin', "0s")
-        circleAnimation.setAttribute('dur', `${_settingsManager.GetSetting("DisplayAnimationTrail")}ms`)
-        circleAnimation.setAttribute('from', _settingsManager.GetSetting("DisplayColor"))
-        circleAnimation.setAttribute('to', _settingsManager.GetSetting("DisplayToColor"))
-        circleAnimation.setAttribute('fill', "freeze")
-        newCircle.appendChild(circleAnimation)
-        _outputDom.appendChild(newCircle)
-        circleAnimation.beginElement()
+            _lastPoint = _points[0]
+        }
+
+        _outputContext.beginPath();
+        _outputContext.moveTo(_lastPoint.X, _lastPoint.Y);
+        _outputContext.lineWidth = 15;
+        _outputContext.lineCap = "round";
+        _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayColor")
+        _outputContext.lineTo(newPoint.X, newPoint.Y);
+        _outputContext.stroke();
 
         _lastPoint = newPoint
         if (_lastPoint.equals(_points[_currentPointI + 1])){
@@ -706,10 +706,10 @@ const GestureDisplayingUi = (function() {
     }
 
     let _clear = () => {
-        if (!(_outputDom instanceof SVGElement))
+        if (!(_outputDom instanceof HTMLCanvasElement))
             throw new Error("Output DOM Element is not an SVG!")
 
-        _outputDom.innerHTML = ""
+        _outputContext.reset()
     }
 
     return {
@@ -726,7 +726,7 @@ const GestureDisplaying = (function() {
     const _displayingUi = GestureDisplayingUi
 
     let SetOutputCanvas = (outputDom) => {
-        if (!(outputDom instanceof SVGElement))
+        if (!(outputDom instanceof HTMLCanvasElement))
             throw new Error("Output DOM Element is not an SVG!")
 
         _outputDom = outputDom
@@ -778,10 +778,10 @@ const Gestures = (function() {
     _gestureDrawing.SetSettingsManager(_settingsManager)
     const _gestureDisplaying = GestureDisplaying
     _gestureDisplaying.SetSettingsManager(_settingsManager)
-    let _dataStorage = GestureDataStorage
+    let _dataStorage = GestureLocalStorage
     
     let SetInputCanvas = (inputDom) => {
-        if (!(inputDom instanceof SVGElement))
+        if (!(inputDom instanceof HTMLCanvasElement))
             throw new Error("Input DOM Element is not an SVG!")
         
         _addInputEventListners(inputDom)
@@ -791,7 +791,7 @@ const Gestures = (function() {
     }
 
     let SetOutputCanvas = (outputDom) => {
-        if (!(outputDom instanceof SVGElement))
+        if (!(outputDom instanceof HTMLCanvasElement))
             throw new Error("Input DOM Element is not an SVG!")
 
         _gestureDisplaying.SetOutputCanvas(outputDom)

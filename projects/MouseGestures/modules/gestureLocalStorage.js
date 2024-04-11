@@ -1,8 +1,8 @@
-import { DataStorage } from "./dataManager.js"
+import { DataStorage } from "./dataStorage.js"
 
-export { GestureDataStorage }
+export { GestureLocalStorage }
 
-class GestureDataStorage extends DataStorage {
+class GestureLocalStorage extends DataStorage {
     static #gestures = null
 
     static #ensureInit() {

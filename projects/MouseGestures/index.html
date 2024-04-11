@@ -18,11 +18,11 @@
     <div class="container-sm">
         <h1>Mouse Gestures demo</h1>
         <p class="hidden">Input</p>
-        <svg id="inputField" class="card" height="260" width="260" xmlns="http://www.w3.org/2000/svg"></svg>
+        <canvas id="inputField" class="card" height="250" width="250"></canvas>
         <hr>
         
         <p class="hidden">current:</p>
-        <svg id="resultView" class="card" height="260" width="260" xmlns="http://www.w3.org/2000/svg"></svg>
+        <canvas id="resultView" class="card" height="250" width="250"></canvas>
         
         <br>
         
@@ -54,7 +54,6 @@
         </div>
     </div>
     <script type="module">
-        import { DataStorage, LocalDataStorage } from "./modules/storageManager.js"
         import { Gestures } from "./modules/gestures.js"
 
         const inputCanvas = document.getElementById("inputField")
