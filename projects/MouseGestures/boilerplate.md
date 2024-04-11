@@ -88,7 +88,6 @@ Gestures.OnGestureExecuted("name", (event) => {})
 
 ```JS
 // TODO:
-// use [this](https://cloudinary.com/blog/creating_html5_animations#implementation_of_code_requestanimationframe_code_) for animating
 // use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle)
 // Optional TODO: save events to saved gestures
 // Separate Gesturemanager in separate file (also remove localStorage and sessionStorage managers)
