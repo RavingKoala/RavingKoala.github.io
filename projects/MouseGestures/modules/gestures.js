@@ -1,4 +1,4 @@
-import { DataStorage, GestureDataStorage } from "./storageManager.js";
+import { DataStorage, GestureDataStorage } from "./dataManager.js";
 
 export { Gestures, GestureSettings, GestureDirection }
 

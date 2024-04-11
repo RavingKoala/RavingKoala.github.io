@@ -19,11 +19,8 @@ GestureSettings = {
 
     
     /** TODO:
-     * InputActivationEvent: LeftClick,
-     * ActivationEvent: rightClick
      * Gridcomplexion: 0 // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
-     * Datastorage: instanceof DataStorage // (from file ../../../modules/js/storageManager.js)
-     * GestureWindowDetectOutside: true // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
+     * GestureCancelOnMouseLeave: true // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
      */
 }
 
@@ -89,9 +86,11 @@ Gestures.OnGestureExecuted("name", (event) => {})
 ```
 
 ```JS
-
-// TODO: use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle)
+// TODO:
+// use [this](https://cloudinary.com/blog/creating_html5_animations#implementation_of_code_requestanimationframe_code_) for animating
+// use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle)
 // Optional TODO: save events to saved gestures
 // Separate Gesturemanager in separate file (also remove localStorage and sessionStorage managers)
-
+// an alternative to the drawing action (currently any mousebutton)
+// an alternative to the action key that has to be pressed 
 ```
