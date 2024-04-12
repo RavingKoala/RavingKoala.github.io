@@ -117,62 +117,67 @@
         }
 
         ;(function() {
-            actionsList.childNodes.forEach(el => { addSelectItemActionListner(el) })
-            gesturesList.childNodes.forEach(el => { addSelectItemActionListner(el) })
-            actionsList.childNodes.forEach(el => {
-                if (!(el instanceof HTMLElement))
-                    return
+            var supportsCanvas = !!document.createElement("canvas").getContext
+            supportsCanvas && (window.onload = onLoad)
 
-                if (Gestures.Exists(el.dataset.name))
-                    gesturesList.appendChild(el)
-            })
+            function onLoad() {
+                actionsList.childNodes.forEach(el => { addSelectItemActionListner(el) })
+                gesturesList.childNodes.forEach(el => { addSelectItemActionListner(el) })
+                actionsList.childNodes.forEach(el => {
+                    if (!(el instanceof HTMLElement))
+                        return
 
-            EditButton.addEventListener("click", (event) => {
-                if (!(selectedListItem instanceof HTMLElement))
-                    return
-                
-                Gestures.New()
+                    if (Gestures.Exists(el.dataset.name))
+                        gesturesList.appendChild(el)
+                })
 
-                toEditState()
-            })
-            SaveButton.addEventListener("click", (event) => {
-                if (!(selectedListItem instanceof HTMLElement))
-                    return
+                EditButton.addEventListener("click", (event) => {
+                    if (!(selectedListItem instanceof HTMLElement))
+                        return
 
-                if (selectedListItem.parentElement === actionsList)
-                gesturesList.appendChild(selectedListItem)
-            
-                RemoveButton.classList.remove("disabled")
-                
-                Gestures.Save(selectedListItem.dataset.name)
+                    Gestures.New()
 
-                toViewState()
-            })
-            CancelButton.addEventListener("click", (event) => {
-                if (!(selectedListItem instanceof HTMLElement))
-                    return
+                    toEditState()
+                })
+                SaveButton.addEventListener("click", (event) => {
+                    if (!(selectedListItem instanceof HTMLElement))
+                        return
 
-                Gestures.Cancel()
-                if (selectedListItem.parentElement === gesturesList) {
-                    Gestures.Display(selectedListItem.dataset.name)
-                }
+                    if (selectedListItem.parentElement === actionsList)
+                        gesturesList.appendChild(selectedListItem)
 
-                toViewState()
-            })
-            RemoveButton.addEventListener("click", (event) => {
-                if (!(selectedListItem instanceof HTMLElement))
-                    return
+                    RemoveButton.classList.remove("disabled")
 
-                if (selectedListItem.parentElement === gesturesList)
-                    actionsList.appendChild(selectedListItem)
+                    Gestures.Save(selectedListItem.dataset.name)
 
-                RemoveButton.classList.add("disabled")
+                    toViewState()
+                })
+                CancelButton.addEventListener("click", (event) => {
+                    if (!(selectedListItem instanceof HTMLElement))
+                        return
 
-                Gestures.Forget(selectedListItem.dataset.name)
-                Gestures.StopDisplaying()
+                    Gestures.Cancel()
+                    if (selectedListItem.parentElement === gesturesList) {
+                        Gestures.Display(selectedListItem.dataset.name)
+                    }
 
-                toViewState()
-            })
+                    toViewState()
+                })
+                RemoveButton.addEventListener("click", (event) => {
+                    if (!(selectedListItem instanceof HTMLElement))
+                        return
+
+                    if (selectedListItem.parentElement === gesturesList)
+                        actionsList.appendChild(selectedListItem)
+
+                    RemoveButton.classList.add("disabled")
+
+                    Gestures.Forget(selectedListItem.dataset.name)
+                    Gestures.StopDisplaying()
+
+                    toViewState()
+                })
+            }
         })()
     </script>
 

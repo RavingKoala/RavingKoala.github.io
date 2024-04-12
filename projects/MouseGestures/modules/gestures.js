@@ -176,18 +176,17 @@ const GestureSettings = {
     Sensitivity: 13, // minimum px distance before stroke is counted
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
-    DrawFps: 0, // int, 
-    DrawDataUseEveryNUpdates: 4, // int, use draw data every n mousemove updates
+    DrawUseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
     DisplayToColor: "#333",  // str, hexColor
-    DisplayFps: 0, // int
-    DisplaySpeed: 200, // px/sec
-    DisplayPause: 1000, // int, miliseconds of delay between finishing the animation, and starting the next
-    DisplayTrail: 40, // int, px length of the trail
-    MaxStrokes: 1000, // amount of stroke that can be drawn for the gestures
+    DisplayFps: 3, // int
+    DisplaySpeed: 200, // px/s
+    DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
+    DisplayTrail: 100, // int, px how length of the trail
+    MaxStrokes: 5, // amount of stroke that can be drawn for the gestures
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
-    DisplayStrokePadding: 10, // px of the displayField
+    DisplayStrokePadding: 30, // px of the displayField
 }
 
 /** ValidationTypes
@@ -215,7 +214,7 @@ const SettingValidation = {
     DrawSize: ValidationTypes.number(null),
     DrawColor: ValidationTypes.colorHex(),
     DrawFps: ValidationTypes.number(null),
-    DrawDataUseEveryNUpdates: ValidationTypes.number(null),
+    DrawUseDataEveryNUpdates: ValidationTypes.number(null),
     DisplaySize: ValidationTypes.number(null),
     DisplayColor: ValidationTypes.colorHex(),
     DisplayToColor: ValidationTypes.colorHex(),
@@ -298,13 +297,14 @@ const GestureParsing = (function() {
         if (_lastPos === null)
             _lastPos = vec
 
-        let delayMax = _settingsManager.GetSetting("DrawDataUseEveryNUpdates")
+        let delayMax = _settingsManager.GetSetting("DrawUseDataEveryNUpdates")
         if (delayMax !== 0)
             if (_delayCounter < delayMax){
                 _delayCounter++
                 return
             } else 
                 _delayCounter = 0
+
 
         let delta = vec.clone().sub(_lastPos)
         let deltaDirection = delta.getDirection()
@@ -397,7 +397,7 @@ const GestureDrawingUi = (function() {
         lastPoint = null
         
         if(!(_inputDom instanceof HTMLCanvasElement))
-            throw new Error("Input DOM Element is not an SVG!")
+            throw new Error("Input DOM Element is not a Canvas!")
 
         _inputContext.reset()
     }
@@ -516,8 +516,6 @@ const GestureDisplayingUi = (function() {
     }
 
     let _gestureToPoints = (gestureArr) => {
-        const paddingSetting = 30 // px // TODO: make settings
-
         const outputDomRect = _outputDom.getBoundingClientRect()
         let drawradius = _settingsManager.GetSetting("DisplaySize")
         let drawRect = { left: 0, top: 0, width: outputDomRect.width, height: outputDomRect.height }
@@ -532,7 +530,7 @@ const GestureDisplayingUi = (function() {
             }    
         }
 
-        const padding = paddingSetting + (drawradius / 2)
+        const padding = _settingsManager.GetSetting("DisplayStrokePadding") + (drawradius / 2)
         drawRect.left += padding
         drawRect.top += padding
         drawRect.width -= padding * 2
@@ -566,11 +564,11 @@ const GestureDisplayingUi = (function() {
         let rows = yMax - yMin
         if (cols != rows && _settingsManager.GetSetting("DisplaySquareOffArea")) {
             if (cols > rows) {
-                const offset = drawRect.height * rows / cols
+                const offset = drawRect.height / cols
                 drawRect.top += offset / 2
                 drawRect.height -= offset
             } else {
-                const offset = drawRect.width * cols / rows
+                const offset = drawRect.width / rows
                 drawRect.left += offset / 2
                 drawRect.width -= offset
             }
@@ -647,17 +645,13 @@ const GestureDisplayingUi = (function() {
         if (_lastPoint !== null) {
             _outputContext.globalAlpha = distance / _settingsManager.GetSetting("DisplayTrail")
             _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
-            _outputContext.lineWidth = 16
-            // _outputContext.lineCap = "round"
+            _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")+1
             _outputContext.lineJoin = "round";
-
             _outputContext.beginPath()
             _outputContext.moveTo(_points[0].X, _points[0].Y)
             for (let i = 1; i <= _currentPointI; i++)
                 _outputContext.lineTo(_points[i].X, _points[i].Y)
-            
             _outputContext.lineTo(_lastPoint.X, _lastPoint.Y)
-
             _outputContext.stroke()
             _outputContext.globalAlpha = 1
             
@@ -694,7 +688,7 @@ const GestureDisplayingUi = (function() {
 
         _outputContext.beginPath()
         _outputContext.moveTo(_lastPoint.X, _lastPoint.Y)
-        _outputContext.lineWidth = 15
+        _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
         _outputContext.lineCap = "round"
         _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayColor")
         _outputContext.lineTo(newPoint.X, newPoint.Y)
@@ -724,7 +718,7 @@ const GestureDisplayingUi = (function() {
 
     let _clear = () => {
         if (!(_outputDom instanceof HTMLCanvasElement))
-            throw new Error("Output DOM Element is not an SVG!")
+            throw new Error("Output DOM Element is not a Canvas!")
 
         _outputContext.reset()
     }
@@ -742,7 +736,7 @@ const GestureDisplaying = (function() {
 
     let SetOutputCanvas = (outputDom) => {
         if (!(outputDom instanceof HTMLCanvasElement))
-            throw new Error("Output DOM Element is not an SVG!")
+            throw new Error("Output DOM Element is not a Canvas!")
 
         _displayingUi.SetOutputCanvas(outputDom)
     }
@@ -759,7 +753,7 @@ const GestureDisplaying = (function() {
         if (gesture.length == 0)
             return
         if (!(typeof gesture[0] === 'number'))
-            throw new Error("Gesture has to be an Array of numbers!")
+            throw new Error("Gesture has to be an Array of numbers! Make use of the GestureDirection enum.")
 
         _displayingUi.Start(gesture)
     }
@@ -793,16 +787,15 @@ const Gestures = (function() {
     
     let SetInputCanvas = (inputDom) => {
         if (!(inputDom instanceof HTMLCanvasElement))
-            throw new Error("Input DOM Element is not an SVG!")
+            throw new Error("Input DOM Element is not a Canvas!")
         
         _addInputEventListners(inputDom)
-
         _gestureDrawing.SetInputCanvas(inputDom)
     }
 
     let SetOutputCanvas = (outputDom) => {
         if (!(outputDom instanceof HTMLCanvasElement))
-            throw new Error("Input DOM Element is not an SVG!")
+            throw new Error("Input DOM Element is not a Canvas!")
 
         _gestureDisplaying.SetOutputCanvas(outputDom)
     }
@@ -817,6 +810,7 @@ const Gestures = (function() {
             _drawing = true
             _gestureDrawing.StartDrawing(event)
         })
+
         inputDom.addEventListener("mousemove", (event) => {
             event.preventDefault()
 
@@ -830,9 +824,7 @@ const Gestures = (function() {
                 return
             
             _drawing = false
-
             _activeGesture = _gestureDrawing.StopDrawing()
-
             _gestureDisplaying.Display(_activeGesture)
             
         })
@@ -840,7 +832,6 @@ const Gestures = (function() {
             event.preventDefault()
 
             _drawing = false
-
             _gestureDrawing.CancelDrawing()
         })
     }

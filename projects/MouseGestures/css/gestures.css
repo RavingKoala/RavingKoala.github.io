@@ -3,6 +3,4 @@
 }
 
 canvas.card {
-    width: var(--canvas-size);
-    height: var(--canvas-size);
 }
