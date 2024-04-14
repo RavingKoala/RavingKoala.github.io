@@ -105,13 +105,15 @@ class ShortcutManager {
 				return
 			if (!this.activeShortcuts[e.code]) // prevent retrigger when holding
 				return
-
+                
+            e.preventDefault() // TODO: check if this can be improved
 			this.#onKeyDown(e)
 		})
 		document.addEventListener("keyup", (e) => {
 			if (!this.activeShortcuts[e.code])
 				return
 
+            e.preventDefault() // TODO: check if this can be improved
 			this.#onKeyUp(e)
 		})
 		window.addEventListener("blur", this.#resetTracking)

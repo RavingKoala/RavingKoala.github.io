@@ -56,9 +56,9 @@ class VoiceAppStateManager {
 				return States.recording
 			case States.recording:
 				if (this.settings.pauseBeforeReview)
-					return States.reviewing
-				else
-					return States.hold
+                    return States.hold
+                else
+                    return States.reviewing
 			case States.hold:
 				return States.reviewing
 			case States.reviewing:
@@ -85,7 +85,7 @@ class VoiceAppUIStateManager {
 				this.#changeUI("./resources/SVGs/RecordButton.svg", "Start recording")
 				break
 			case States.recording:
-				let actionbuttonURI = this.settings.pauseBeforeReview ? "./resources/SVGs/PlayButton.svg" : "./resources/SVGs/PauseButton.svg"
+                let actionbuttonURI = this.settings.pauseBeforeReview ? "./resources/SVGs/PauseButton.svg" : "./resources/SVGs/PlayButton.svg"
 				this.#changeUI(actionbuttonURI, "Recording")
 				break
 			case States.hold:
@@ -134,9 +134,9 @@ class VoiceAppRecorderStateManager {
 				break
 			case States.reviewing:
 				if (this.#voiceAppSettings.pauseBeforeReview)
-					this.#Rec.stopRecording() // Automatically call playRecording on ready
+                    this.#Rec.playRecording()
 				else
-					this.#Rec.playRecording()
+                    this.#Rec.stopRecording() // Automatically call playRecording on ready
 				break
 			default:
 				break

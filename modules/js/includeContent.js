@@ -49,21 +49,30 @@ async function getContent(URI, wrap = false) {
 		}))
 	})
 }
+async function replaceNodeWithContent(node, file) {
+    await getContent(file)
+        .then(async (content) => {
+            node.outerHTML = content
+        }).catch((err) => {
+            console.error("An error occured whilst including content from " + file + ": " + err.toString());
+        })
+}
+
+var replaceRetryInterval = null
+const intervalMaxRetry = 20
+var intervalRetryCount = 0
 
 async function replaceIncludes(tag = "include", attr = "src") {
-	let els = document.getElementsByTagName(tag)
-	for (let node of els) {
-		let file = node.getAttribute(attr)
-		await getContent(file)
-			.then(async (content) => {
-				node.outerHTML = content
-				await replaceIncludes(tag, attr)
-			}).catch((err) => {
-				if (node)
-					node.outerHTML = "error"
-				throw new Error("An error occured whilst including content: " + Error.toString())
-			})
-		return
-	}
-	document.dispatchEvent(new Event(IncludeContentEvents.onLoaded))
+    replaceRetryInterval = setInterval(() => {
+        let els = document.getElementsByTagName(tag)
+        for (let node of els) {
+            let file = node.getAttribute(attr)
+            replaceNodeWithContent(node, file)
+        }
+        if (intervalRetryCount > intervalMaxRetry || els.length == 0) {
+            document.dispatchEvent(new Event(IncludeContentEvents.onLoaded))
+            clearInterval(replaceRetryInterval)
+        }
+        intervalRetryCount++
+    }, 300)
 }
