@@ -78,10 +78,6 @@ Gestures.StopDisplaying()
 Gestures.Forget("name")
 Gestures.GestureExists(Gesture as int[])
 
-// Events
-Gestures.OnListUpdate((event) => { event.data = { Item: Gesture as int[] }})
-Gestures.OnEntryChange((event) => { event.data = { Item: Gesture as int[] }})
-Gestures.OnGestureExecuted("name", (event) => {})
 
 ```
 
