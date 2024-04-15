@@ -44,7 +44,7 @@ class Chart {
 	/* global vars */
 	static #chartWindowSize = new Vec2(600, 600) /* setting */
 	static #chartSize = new Vec2(400, 400) // Vec2(): canvas size /* setting */
-	static #chartStartPoint = new Vec2((this.#chartWindowSize.x - this.#chartSize.x) / 2, (this.#chartWindowSize.y - this.#chartSize.y) / 2) // (topleft) startpoint of chart area
+	static #chartStartpoint = new Vec2((this.#chartWindowSize.x - this.#chartSize.x) / 2, (this.#chartWindowSize.y - this.#chartSize.y) / 2) // (topleft) startpoint of chart area
 	static #chartPositive = new Vec2(this.#axisDirection.XRight, this.#axisDirection.YDown) // canvas direction /* setting */
 	static #gridAid = this.#gridAidOptions.line /* setting */
 
@@ -53,12 +53,14 @@ class Chart {
 	static #axisLineEndValue // Vec2(): max value for chart interval numbers
 
 	/* temps? */
-	static #maxValue // Vec2(): max value of data
-	static #minValue // Vec2(): min value of data
+    static #dataStartpoint // Vec2(): (topleft) startpoint of chart data
+    static #dataSize // Vec2(): Side of data area
+	static #dataMaxValue // Vec2(): max value of data
+	static #dataMinValue // Vec2(): min value of data
+	static #dataIncrementValue // increment of chart label values (chars have a size so could be rough)
 	static #gridDensity = new Vec2(this.#minDensity.large, this.#minDensity.large) // quick setting (maybe settable later) /* setting */
 	static #maxGridIncrements // Vec2(): min increment distance in px
 	static #gridIncrements // Vec2(): the amount of increments there are
-	static #incrementValue // increment of chart label values (chars have a size so could be rough)
 	static #gridOffset // distance between nodes in px
 
 	
@@ -76,9 +78,9 @@ class Chart {
 	static printVarData() {
 		console.log("-- chart vars --")
 		console.log("chartWindowSize:", this.#chartWindowSize, "chartSize", this.#chartSize)
-		console.log("chart Startpoint:", this.#chartStartPoint, "chart size:", this.#chartSize)
+		console.log("chart Startpoint:", this.#chartStartpoint, "chart size:", this.#chartSize)
 		console.log("positive direction:", "x:", this.#chartPositive.x, "y:", this.#chartPositive.y)
-		console.log("values ", "from:", this.#minValue, "increment:", this.#incrementValue, "to:", this.#maxValue)
+		console.log("values ", "from:", this.#dataMinValue, "increment:", this.#dataIncrementValue, "to:", this.#dataMaxValue)
 		console.log("")
 		console.log("0 point:", this.#axisLineSide)
 		console.log("value range", this.#axisLineStartValue, this.#axisLineEndValue)
@@ -91,7 +93,7 @@ class Chart {
 	static drawChart(data, parentDOMid) {
 		let svgObj = new svg(this.#chartWindowSize)
 		
-		let zeroPoint = new Vec2(this.#chartStartPoint.x + (((this.#axisLineSide.x * this.#chartPositive.x) + 1) * this.#chartSize.x / 2), this.#chartStartPoint.y + (((this.#axisLineSide.y * this.#chartPositive.y) + 1) * this.#chartSize.y / 2))
+		let zeroPoint = new Vec2(this.#chartStartpoint.x + (((this.#axisLineSide.x * this.#chartPositive.x) + 1) * this.#chartSize.x / 2), this.#chartStartpoint.y + (((this.#axisLineSide.y * this.#chartPositive.y) + 1) * this.#chartSize.y / 2))
 		
 		let axisGroup = new g()
 		svgObj.addChild(axisGroup)
@@ -105,10 +107,10 @@ class Chart {
 		gridLinesGroup.addAttr("class", "gridLines")
 		if (this.#gridAid === this.#gridAidOptions.dot) {
 			for (let i = 0; i < this.#gridIncrements.x; i++) {
-				let xoffset = this.#chartStartPoint.x + (this.#gridOffset.x * i)
+				let xoffset = this.#chartStartpoint.x + (this.#gridOffset.x * i)
 				
-				let from = new Vec2(xoffset, this.#chartStartPoint.y)
-				let to = new Vec2(xoffset, this.#chartStartPoint.y + this.#chartSize.y)
+				let from = new Vec2(xoffset, this.#chartStartpoint.y)
+				let to = new Vec2(xoffset, this.#chartStartpoint.y + this.#chartSize.y)
 				let l = new line(from, to)
 				l.addAttr("stroke-dasharray", "0 " + this.#gridOffset.y)
 				l.addAttr("stroke-linecap", "round")
@@ -118,29 +120,29 @@ class Chart {
 		}
 		if (this.#gridAid === this.#gridAidOptions.line) {
 			for (let i = 0; i <= this.#gridIncrements.x; i++) {
-				let xoffset = this.#chartStartPoint.x + (this.#gridOffset.x * i)
+				let xoffset = this.#chartStartpoint.x + (this.#gridOffset.x * i)
 				
-				let from = new Vec2(xoffset, this.#chartStartPoint.y)
-				let to = new Vec2(xoffset, this.#chartStartPoint.y + this.#chartSize.y)
+				let from = new Vec2(xoffset, this.#chartStartpoint.y)
+				let to = new Vec2(xoffset, this.#chartStartpoint.y + this.#chartSize.y)
 				let l = new line(from, to)
 				gridLinesGroup.addChild(l)
 			}
 			for (let i = 0; i <= this.#gridIncrements.y; i++) {
-				let yoffset = this.#chartStartPoint.y + (this.#gridOffset.y * i)
-				let from = new Vec2(this.#chartStartPoint.x, yoffset)
-				let to = new Vec2(this.#chartStartPoint.x + this.#chartSize.x, yoffset)
+				let yoffset = this.#chartStartpoint.y + (this.#gridOffset.y * i)
+				let from = new Vec2(this.#chartStartpoint.x, yoffset)
+				let to = new Vec2(this.#chartStartpoint.x + this.#chartSize.x, yoffset)
 				let l = new line(from, to)
 				gridLinesGroup.addChild(l)
 			}
 		}
 
 		axisGroup.addChild(new line(
-			new Vec2(this.#chartStartPoint.x, zeroPoint.y),
-			new Vec2(this.#chartStartPoint.x + this.#chartSize.x, zeroPoint.y)
+			new Vec2(this.#chartStartpoint.x, zeroPoint.y),
+			new Vec2(this.#chartStartpoint.x + this.#chartSize.x, zeroPoint.y)
 		))
 		axisGroup.addChild(new line(
-			new Vec2(zeroPoint.x, this.#chartStartPoint.y),
-			new Vec2(zeroPoint.x, this.#chartStartPoint.y + this.#chartSize.y)
+			new Vec2(zeroPoint.x, this.#chartStartpoint.y),
+			new Vec2(zeroPoint.x, this.#chartStartpoint.y + this.#chartSize.y)
 		))
 		//#endregion
 
@@ -157,20 +159,17 @@ class Chart {
 
 		Array("x", "y").forEach((axis) => {
 			for (let i = 0; i <= this.#gridIncrements[axis]; i++) {
-				let startValue = (this.#chartPositive[axis] === 1 ? this.#minValue[axis] : this.#maxValue[axis])
-				let value = startValue + ((this.#incrementValue[axis] * i) * this.#chartPositive[axis])
-				value = Number(parseFloat(value).toFixed((this.#determineDecimalDepth(this.#incrementValue[axis]) + "").length - 1)) // fix for bad float calculations (0.4 + 0.2 == 0.6000000000000001)
+				let startValue = (this.#chartPositive[axis] === 1 ? this.#dataMinValue[axis] : this.#dataMaxValue[axis])
+				let value = startValue + ((this.#dataIncrementValue[axis] * i) * this.#chartPositive[axis])
+				value = Number(parseFloat(value).toFixed((this.#determineDecimalDepth(this.#dataIncrementValue[axis]) + "").length - 1)) // fix for bad float calculations (eg. 0.4 + 0.2 == 0.6000000000000001)
 				
 				if (value === 0) continue
 				
-				let pos = new Vec2()
-				let startpoint = this.#chartStartPoint[axis]
-				if ((this.#axisLineSide[axis] * this.#chartPositive[axis]) === -1 && startValue !== 0)
-					startpoint += this.#gridOffset[axis]
-				pos[axis] = startpoint + (i * this.#gridOffset[axis])
-				let otherAxis = axis === "x" ? "y" : "x"
-				pos[otherAxis] = zeroPoint[otherAxis]
-				
+                let pos = new Vec2()
+                pos[axis] = this.#dataStartpoint[axis] + (i * this.#gridOffset[axis])
+                let otherAxis = axis === "x" ? "y" : "x"
+                pos[otherAxis] = zeroPoint[otherAxis]
+
 				let num = new text(value, pos)
 				num.addAttr("text-anchor", "middle")
 				num.addAttr("class", "num")
@@ -209,10 +208,9 @@ class Chart {
 		data.forEach((dataPoint) => {
 			let dataPos = new Vec2()
             
-
             // TODO: make positions work with inner data area (when it skips the 0 mark)
-			dataPos.x = this.#chartStartPoint.x + this.#chartSize.x * (dataPoint.x - this.#minValue.x) / (this.#maxValue.x - this.#minValue.x)
-			dataPos.y = this.#chartStartPoint.y + this.#chartSize.y * (dataPoint.y - this.#minValue.y) / (this.#maxValue.y - this.#minValue.y)
+			dataPos.x = this.#dataStartpoint.x + (this.#dataSize.x * (dataPoint.x - this.#dataMinValue.x) / (this.#dataMaxValue.x - this.#dataMinValue.x))
+			dataPos.y = this.#dataStartpoint.y + (this.#dataSize.y * (dataPoint.y - this.#dataMinValue.y) / (this.#dataMaxValue.y - this.#dataMinValue.y))
 			points += dataPos.x + "," +dataPos.y+" "
 			
 			let dot = new circle(dataPos, 7)
@@ -221,46 +219,45 @@ class Chart {
 		})
 		pLine.addAttr("points", points)
 		//#endregion
-
 		
 		svgObj.appendComponent(parentDOMid)
 	}
 
 	static prepareChartValues(data) {
 		// determine value range
-		this.#maxValue = new Vec2(data[0].x, data[0].y)
-		this.#minValue = new Vec2(data[0].x, data[0].y)
+		this.#dataMaxValue = new Vec2(data[0].x, data[0].y)
+		this.#dataMinValue = new Vec2(data[0].x, data[0].y)
 		data.forEach(vec2 => {
-			if (vec2.x > this.#maxValue.x)
-				this.#maxValue.x = vec2.x
-			else if (vec2.x < this.#minValue.x)
-				this.#minValue.x = vec2.x
+			if (vec2.x > this.#dataMaxValue.x)
+				this.#dataMaxValue.x = vec2.x
+			else if (vec2.x < this.#dataMinValue.x)
+				this.#dataMinValue.x = vec2.x
 
-			if (vec2.y > this.#maxValue.y)
-				this.#maxValue.y = vec2.y
-			else if (vec2.y < this.#minValue.y)
-				this.#minValue.y = vec2.y
+			if (vec2.y > this.#dataMaxValue.y)
+				this.#dataMaxValue.y = vec2.y
+			else if (vec2.y < this.#dataMinValue.y)
+				this.#dataMinValue.y = vec2.y
 		})
 		// determine startpoint
 		this.#axisLineSide = new Vec2(this.#axisLineOptions.center, this.#axisLineOptions.center)
-		if (this.#minValue.x < 0)
+		if (this.#dataMinValue.x < 0)
 			this.#axisLineSide.x -= this.#axisLineOptions.negative
-		if (this.#minValue.y < 0)
+		if (this.#dataMinValue.y < 0)
 			this.#axisLineSide.y -= this.#axisLineOptions.negative
-		if (this.#maxValue.x > 0)
+		if (this.#dataMaxValue.x > 0)
 			this.#axisLineSide.x -= this.#axisLineOptions.positive
-		if (this.#maxValue.y > 0)
+		if (this.#dataMaxValue.y > 0)
 			this.#axisLineSide.y -= this.#axisLineOptions.positive
 		// determine max intervals
 		let nth = new Vec2(1, 1)
-		if (this.#maxValue.x < 0) nth.x = -1
-		if (this.#maxValue.y < 0) nth.y = -1
-		while (nth.x * 10 < this.#maxValue.x - this.#minValue.x) { nth.x *= 10 }
-		while (nth.y * 10 < this.#maxValue.y - this.#minValue.y) { nth.y *= 10 }
+		if (this.#dataMaxValue.x < 0) nth.x = -1
+		if (this.#dataMaxValue.y < 0) nth.y = -1
+		while (nth.x * 10 < this.#dataMaxValue.x - this.#dataMinValue.x) { nth.x *= 10 }
+		while (nth.y * 10 < this.#dataMaxValue.y - this.#dataMinValue.y) { nth.y *= 10 }
 		if (nth.x === 1)
-			while (nth.x / 10 > this.#maxValue.x - this.#minValue.x) { nth.x /= 10 }
+			while (nth.x / 10 > this.#dataMaxValue.x - this.#dataMinValue.x) { nth.x /= 10 }
 		if (nth.y === 1)
-			while (nth.y / 10 > this.#maxValue.y - this.#minValue.y) { nth.y /= 10 }
+			while (nth.y / 10 > this.#dataMaxValue.y - this.#dataMinValue.y) { nth.y /= 10 }
 		/* TODO: change this ^  to use determineIntHeight and determineDecimalDepth */
 		this.#axisLineEndValue = new Vec2(nth.x, nth.y)
 		this.#axisLineStartValue = new Vec2(nth.x, nth.y)
@@ -285,24 +282,38 @@ class Chart {
 
 		// determine interval
 		this.#maxGridIncrements = new Vec2(this.#chartSize.x / this.#gridDensity.x, this.#chartSize.y / this.#gridDensity.y)
-		if (this.#minValue.x > 0 || this.#maxValue.x < 0)
+		if (this.#dataMinValue.x > 0  || this.#dataMaxValue.x < 0)
 			this.#maxGridIncrements.x -= 1
-		if (this.#minValue.y > 0 || this.#maxValue.y < 0)
+		if (this.#dataMinValue.y > 0 || this.#dataMaxValue.y < 0)
 			this.#maxGridIncrements.y -= 1
-		
-		this.#incrementValue = new Vec2(0, 0)
+        
+
+		this.#dataIncrementValue = new Vec2(0, 0)
 		this.#gridIncrements = new Vec2(0, 0)
-        let [gridIncValX, gridIncsX] = this.#determineIncrements((this.#maxValue.x - this.#minValue.x), this.#maxGridIncrements.x)
-		this.#incrementValue.x = gridIncValX
+        let [gridIncValX, gridIncsX] = this.#determineIncrements((this.#dataMaxValue.x - this.#dataMinValue.x), this.#maxGridIncrements.x)
+		this.#dataIncrementValue.x = gridIncValX
 		this.#gridIncrements.x = gridIncsX
-        let [gridIncValY, gridIncsY] = this.#determineIncrements((this.#maxValue.y - this.#minValue.y), this.#maxGridIncrements.y)
-		this.#incrementValue.y = gridIncValY
+        let [gridIncValY, gridIncsY] = this.#determineIncrements((this.#dataMaxValue.y - this.#dataMinValue.y), this.#maxGridIncrements.y)
+		this.#dataIncrementValue.y = gridIncValY
 		this.#gridIncrements.y = gridIncsY
 
 		// determine distance of intervals
-		this.#gridOffset = new Vec2()
-		this.#gridOffset.x = this.#minValue.x > 0 || this.#maxValue.x < 0 ? this.#chartSize.x / (this.#gridIncrements.x+1) : this.#chartSize.x / this.#gridIncrements.x
-		this.#gridOffset.y = this.#minValue.y > 0 || this.#maxValue.y < 0 ? this.#chartSize.y / (this.#gridIncrements.y+1) : this.#chartSize.y / this.#gridIncrements.y
+		this.#gridOffset = new Vec2(0, 0)
+		this.#gridOffset.x = this.#dataMinValue.x > 0 || this.#dataMaxValue.x < 0 ? this.#chartSize.x / (this.#gridIncrements.x+1) : this.#chartSize.x / this.#gridIncrements.x
+		this.#gridOffset.y = this.#dataMinValue.y > 0 || this.#dataMaxValue.y < 0 ? this.#chartSize.y / (this.#gridIncrements.y+1) : this.#chartSize.y / this.#gridIncrements.y
+
+        // determine data area
+        this.#dataStartpoint = new Vec2(this.#chartStartpoint.x, this.#chartStartpoint.y)
+        this.#dataSize = new Vec2(this.#chartSize.x, this.#chartSize.y)
+        // TODO this depends on which way is positive (this.#chartPositive)
+        if (this.#dataMinValue.x > 0)
+            this.#dataStartpoint.x += this.#gridOffset.x
+        if (this.#dataMinValue.x > 0 || this.#dataMaxValue.x < 0)
+            this.#dataSize.x -= this.#gridOffset.x
+        if (this.#dataMinValue.y > 0)
+            this.#dataStartpoint.y += this.#gridOffset.y
+        if (this.#dataMinValue.y > 0 || this.#dataMaxValue.y < 0)
+            this.#dataSize.y -= this.#gridOffset.y
 	}
 
 	//#region prepareChartValues funcs

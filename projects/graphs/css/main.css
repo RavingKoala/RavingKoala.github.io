@@ -1,11 +1,11 @@
 @font-face {
 	font-family: "Fira Sans";
-	src: url("../../resource/font/FiraSans/FiraSans-Bold.ttf") format("truetype");
+	src: url("../../../resource/font/Fira Sans/FiraSans-Bold.ttf") format("truetype");
 }
 
 @font-face {
 	font-family: "Fira Code";
-	src: url("../../resource/font/FiraCode/FiraCode-Medium.ttf") format("truetype");
+	src: url("../../../resource/font/FiraCode/FiraCode-Medium.ttf") format("truetype");
 }
 
 * {
