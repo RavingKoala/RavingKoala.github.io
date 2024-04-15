@@ -9,6 +9,8 @@
 svg {
 	background-color: var(--md-surface);
 	color: var(--md-text);
+    fill: transparent;
+    max-height: 100%;
 }
 
 svg .num {
