@@ -45,7 +45,7 @@ class Chart {
     static #chartWindowSize = new Vec2(600, 600) /* setting */
     static #chartSize = new Vec2(400, 400) // Vec2(): canvas size /* setting */
     static #chartStartpoint = new Vec2((this.#chartWindowSize.x - this.#chartSize.x) / 2, (this.#chartWindowSize.y - this.#chartSize.y) / 2) // (topleft) startpoint of chart area
-    static #chartPositive = new Vec2(this.#axisDirection.XLeft, this.#axisDirection.YDown) // canvas direction /* setting */
+    static #chartPositive = new Vec2(this.#axisDirection.XRight, this.#axisDirection.YUp) // canvas direction /* setting */
     static #gridAid = this.#gridAidOptions.line /* setting */
 
     static #axisLineSide // Vec2(): chart point (0 point) of axis on canvas
@@ -58,7 +58,7 @@ class Chart {
     static #dataMaxValue // Vec2(): max value of data
     static #dataMinValue // Vec2(): min value of data
     static #dataIncrementValue // increment of chart label values (chars have a size so could be rough)
-    static #gridDensity = new Vec2(this.#minDensity.large, this.#minDensity.large) // quick setting (maybe settable later) /* setting */
+    static #gridDensity = new Vec2(this.#minDensity.medium, this.#minDensity.medium) // quick setting (maybe settable later) /* setting */
     static #gridIncrements // Vec2(): the amount of increments there are
     static #gridOffset // distance between nodes in px
 
@@ -300,10 +300,10 @@ class Chart {
 
         this.#dataIncrementValue = new Vec2(0, 0)
         this.#gridIncrements = new Vec2(0, 0)
-        let [gridIncValX, gridIncsX] = this.#determineIncrements((this.#dataMaxValue.x - this.#dataMinValue.x), maxGridIncrements.x)
+        let [gridIncValX, gridIncsX] = this.#determineIncrements((this.#dataMaxValue.x - this.#dataMinValue.x), Math.floor(maxGridIncrements.x)) // floor maxGridIncrements because it can be a decimal
         this.#dataIncrementValue.x = gridIncValX
         this.#gridIncrements.x = gridIncsX
-        let [gridIncValY, gridIncsY] = this.#determineIncrements((this.#dataMaxValue.y - this.#dataMinValue.y), maxGridIncrements.y)
+        let [gridIncValY, gridIncsY] = this.#determineIncrements((this.#dataMaxValue.y - this.#dataMinValue.y), Math.floor(maxGridIncrements.y)) // floor maxGridIncrements because it can be a decimal
         this.#dataIncrementValue.y = gridIncValY
         this.#gridIncrements.y = gridIncsY
 
