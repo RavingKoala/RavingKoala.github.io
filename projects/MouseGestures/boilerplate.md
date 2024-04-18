@@ -3,6 +3,7 @@
 ```js
 GestureSettings = {
     Sensitivity: 14, // minimum px distance before stroke is counted
+    MaxStrokes: 0, // amount of stroke that can be drawn for the gestures
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
     DrawDataUseEveryNUpdates: 4, // int, use draw data every n mousemove updates
@@ -12,15 +13,14 @@ GestureSettings = {
     DisplayFps: 60, // int
     DisplaySpeed: 200, // px/s
     DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
-    DisplayTrail: 100, // int, px how length of the trail
-    MaxStrokes: 0, // amount of stroke that can be drawn for the gestures
+    DisplayTrailLength: 100, // int, px how length of the trail
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
-    DisplayStrokePadding: 10, // px of the displayField
+    DisplayStrokePadding: 10, // px of the displayed gesture within the displayField
 
     
     /** TODO:
      * GestureCancelOnMouseLeave: true // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
-     * Gridcomplexion: 0 // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
+     * Gridcomplexity: 0 // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
      */
     }
 

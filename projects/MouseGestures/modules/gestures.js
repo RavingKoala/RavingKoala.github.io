@@ -174,17 +174,17 @@ const GestureDirectionToVec2 = (gesture) => {
  */
 const GestureSettings = {
     Sensitivity: 13, // minimum px distance before stroke is counted
+    MaxStrokes: 5, // amount of stroke that can be drawn for the gestures
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
     DrawUseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
     DisplayToColor: "#333",  // str, hexColor
-    DisplayFps: 3, // int
+    DisplayFps: 10, // int
     DisplaySpeed: 200, // px/s
     DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
-    DisplayTrail: 100, // int, px how length of the trail
-    MaxStrokes: 5, // amount of stroke that can be drawn for the gestures
+    DisplayTrailLength: 100, // int, px how length of the trail
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 30, // px of the displayField
 }
@@ -221,7 +221,7 @@ const SettingValidation = {
     DisplayFps: ValidationTypes.number(null),
     DisplaySpeed: ValidationTypes.number(null),
     DisplayPause: ValidationTypes.number(null),
-    DisplayTrail: ValidationTypes.number(null),
+    DisplayTrailLength: ValidationTypes.number(null),
     MaxStrokes: ValidationTypes.number(null),
     DisplaySquareOffArea: ValidationTypes.boolean(null),
     DisplayStrokePadding: ValidationTypes.number(null),
@@ -531,8 +531,8 @@ const GestureDisplayingUi = (function() {
         }
 
         const padding = _settingsManager.GetSetting("DisplayStrokePadding") + (drawradius / 2)
-        drawRect.left += padding
-        drawRect.top += padding
+        drawRect.left += padding + (drawradius % 2 !== 0 ? 0 : 0.5)
+        drawRect.top += padding + (drawradius % 2 !== 0 ? 0 : 0.5)
         drawRect.width -= padding * 2
         drawRect.height -= padding * 2
 
@@ -628,13 +628,14 @@ const GestureDisplayingUi = (function() {
         if (!_isDisplaying) return
 
         let deltaTime
-        if (_lastUpdateTime === null) {
+        if (_lastUpdateTime !== null)
+            deltaTime = Date.now() - _lastUpdateTime
+        else  {
             _lastUpdateTime = Date.now()
             deltaTime = 0
-        } else
-            deltaTime = Date.now() - _lastUpdateTime
+        } 
             
-        if (deltaTime < (1000 / _settingsManager.GetSetting("DisplayFps") && _settingsManager.GetSetting("DisplayFps") !== 0)) {
+        if (_settingsManager.GetSetting("DisplayFps") !== 0 && deltaTime < (1000 / _settingsManager.GetSetting("DisplayFps"))) {
             requestAnimationFrame(_animate)
             return
         }
@@ -643,9 +644,9 @@ const GestureDisplayingUi = (function() {
         let distance = _settingsManager.GetSetting("DisplaySpeed") * deltaTime / 1000
         
         if (_lastPoint !== null) {
-            _outputContext.globalAlpha = distance / _settingsManager.GetSetting("DisplayTrail")
+            _outputContext.globalAlpha = distance / _settingsManager.GetSetting("DisplayTrailLength")
             _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
-            _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")+1
+            _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
             _outputContext.lineJoin = "round";
             _outputContext.beginPath()
             _outputContext.moveTo(_points[0].X, _points[0].Y)
@@ -654,7 +655,6 @@ const GestureDisplayingUi = (function() {
             _outputContext.lineTo(_lastPoint.X, _lastPoint.Y)
             _outputContext.stroke()
             _outputContext.globalAlpha = 1
-            
             
             // restarting animation
             if (_currentPointI + 1 >= _points.length) {
@@ -686,11 +686,11 @@ const GestureDisplayingUi = (function() {
             _lastPoint = _points[0]
         }
 
-        _outputContext.beginPath()
-        _outputContext.moveTo(_lastPoint.X, _lastPoint.Y)
         _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
         _outputContext.lineCap = "round"
         _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayColor")
+        _outputContext.beginPath()
+        _outputContext.moveTo(_lastPoint.X, _lastPoint.Y)
         _outputContext.lineTo(newPoint.X, newPoint.Y)
         _outputContext.stroke()
         
@@ -700,6 +700,13 @@ const GestureDisplayingUi = (function() {
         }
         
         requestAnimationFrame(_animate)
+
+
+        let canvasTransitionColor = () => {
+            
+        }
+        
+        let pxTransitionColor = () => {}
     }
     
     let Stop = () => {
