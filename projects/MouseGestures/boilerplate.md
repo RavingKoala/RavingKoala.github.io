@@ -13,7 +13,7 @@ GestureSettings = {
     DisplayFps: 60, // int
     DisplaySpeed: 200, // px/s
     DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
-    DisplayTrailLength: 100, // int, px how length of the trail
+    DisplayTrailLength: 100, // int, px length of the trail
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 10, // px of the displayed gesture within the displayField
 
@@ -89,4 +89,5 @@ Gestures.GestureExists(Gesture as int[])
 // an alternative to the action key that has to be pressed
 // color transition displaying still has fragments (and goes to lighter color of original color, try colors: from #f00 to #333)
 // would also like to go to transparent colors
+// right now most code uses settings so when they live update they can break, check and save them as class properties when they do
 ```
