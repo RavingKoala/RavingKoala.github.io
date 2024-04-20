@@ -329,7 +329,7 @@ const GestureParsing = (function() {
        _lastPos = vec
     }
 
-    let Finish = () => {
+    let Finish = (maxStrokes) => {
         let returnDirections = _directions
         
         _directions = []
@@ -337,7 +337,6 @@ const GestureParsing = (function() {
         _deltaActiveDirection = 0
         _lastPos = null
 
-        let maxStrokes = _settingsManager.GetSetting("MaxStrokes")
         if (maxStrokes !== 0 && returnDirections.length > maxStrokes) // only retrieve the last n strokes (n = maxStrokes)
             returnDirections = returnDirections.slice(Math.max(returnDirections.length - maxStrokes, 0))
         return returnDirections
@@ -462,7 +461,7 @@ const GestureDrawing = (function() {
 
     let StopDrawing = () => {
         _isDrawing = false
-        let gestureResult = _gestureParsing.Finish()
+        let gestureResult = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"))
         _drawingUi.Clear()
         return gestureResult
     }

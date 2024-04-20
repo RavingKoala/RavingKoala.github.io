@@ -20,8 +20,9 @@ GestureSettings = {
 
     
     /** TODO:
-     * GestureCancelOnMouseLeave: true // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
      * Gridcomplexity: 0 // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
+     * GestureCancelOnMouseLeave: true // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
+     * GestureConcelOnTooManyStrokes: true // true: if (MaxStrokes === 5 && drawnGesture.length === 6) cancel, false; if (MaxStrokes === 5 && drawnGesture.length === 6) use last 5 strokes
      */
     }
 
@@ -85,10 +86,10 @@ Gestures.GestureExists(Gesture as int[])
 ```JS
 // TODO:
 // use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle)
-// optional: save events to saved gestures
 // an alternative to the drawing action (currently any mousebutton)
 // an alternative to the action key that has to be pressed
 // color transition displaying still has fragments (and goes to lighter color of original color, try colors: from #f00 to #333)
 // would also like to go to transparent colors
 // right now most code uses settings so when they live update they can break, check and save them as class properties when they do
+// optional: save events to saved gestures
 ```
