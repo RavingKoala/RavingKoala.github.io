@@ -183,8 +183,9 @@ const GestureSettings = {
     DisplayToColor: "#333",  // str, hexColor
     DisplayFps: 120, // int
     DisplaySpeed: 200, // int, px/s
-    DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
-    DisplayTrailLength: 200, // int, px length of the trail
+    DisplayPause: 1000, // int, miliseconds of delay between finishing the animation, and starting the next
+    DisplayPauseOnArrive: false, // true: start pause timer when head reaches the end of the animation segments // false: start pause timer when end of the tail reaches the end
+    DisplayTrailLength: 100, // int, px length of the trail
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 30, // px of the displayField
 }
@@ -221,6 +222,7 @@ const SettingValidation = {
     DisplayFps: ValidationTypes.number(null),
     DisplaySpeed: ValidationTypes.number(null),
     DisplayPause: ValidationTypes.number(null),
+    DisplayPauseOnArrive: ValidationTypes.boolean(null),
     DisplayTrailLength: ValidationTypes.number(null),
     MaxStrokes: ValidationTypes.number(null),
     DisplaySquareOffArea: ValidationTypes.boolean(null),
@@ -734,6 +736,9 @@ const GestureDisplayingUi = (function() {
 
         if (_currentPointI >= _points.length - 1) {
             // restarting animation
+            if (!_settingsManager.GetSetting("DisplayPauseOnArrive"))
+                if (!_snakeChunks[_snakeChunks.length - 1].pos.equals(new Vec2(-1, -1))) // check if tail reached end
+                    _lastUpdateTimeLoop = _lastUpdateTime
             if (Date.now() - _lastUpdateTimeLoop < _settingsManager.GetSetting("DisplayPause")) {
                 requestAnimationFrame(_animate)
                 return

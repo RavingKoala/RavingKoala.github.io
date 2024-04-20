@@ -13,13 +13,13 @@ GestureSettings = {
     DisplayFps: 60, // int
     DisplaySpeed: 200, // px/s
     DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
+    DisplayPauseOnArrive: false, // true: start pause timer when head reaches the end of the animation segments // false: start pause timer when end of the tail reaches the end
     DisplayTrailLength: 100, // int, px length of the trail
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 10, // px of the displayed gesture within the displayField
 
     
     /** TODO:
-     * PauseAtStart: false // true: start pause timer when head reaches the end of the animation segments // false: start pause timer when end of the tail reaches the end
      * GestureCancelOnMouseLeave: true // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
      * Gridcomplexity: 0 // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
      */
