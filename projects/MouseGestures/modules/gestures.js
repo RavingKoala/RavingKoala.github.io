@@ -181,10 +181,10 @@ const GestureSettings = {
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
     DisplayToColor: "#333",  // str, hexColor
-    DisplayFps: 10, // int
-    DisplaySpeed: 200, // px/s
+    DisplayFps: 120, // int
+    DisplaySpeed: 200, // int, px/s
     DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
-    DisplayTrailLength: 100, // int, px how length of the trail
+    DisplayTrailLength: 200, // int, px length of the trail
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 30, // px of the displayField
 }
@@ -490,7 +490,7 @@ const GestureDisplayingUi = (function() {
 
     let _points = null
     let _currentPointI = 0;
-    let _lastPoint = null
+    let _snakeChunks = null
 
     let _lastUpdateTime = null
     let _lastUpdateTimeLoop = null
@@ -621,7 +621,50 @@ const GestureDisplayingUi = (function() {
 
         _points = _gestureToPoints(gestureArr)
 
+        _snakeChunks = []
+        const chunks = 1 + (_settingsManager.GetSetting("DisplayTrailLength") / (_settingsManager.GetSetting("DisplaySpeed") * (1000 / _settingsManager.GetSetting("DisplayFps")) / 1000))
+        
+        _snakeChunks.push({ pos: _points[0].clone(), color: _settingsManager.GetSetting("DisplayColor") })
+        for (let index = 1; index < chunks; index++) {
+            _snakeChunks.push({ pos: _points[0].clone(), color: _findColor(_settingsManager.GetSetting("DisplayColor"), _settingsManager.GetSetting("DisplayToColor"), (index / chunks)) })
+        }
+        _snakeChunks.push({ pos: _points[0].clone(), color: _settingsManager.GetSetting("DisplayToColor") })
+        
         _animate()
+    }
+
+    // param examples: (fromColorHex = "#00ff00", toColorHex = "#333", colorTransition = 0.8)
+    // if (colorTransition === 0) return fromColorHex and if (colorTransition === 1) return toColorHex
+    let _findColor = (fromColorHex, toColorHex, colorTransition) => {
+        let fromColor = hexToRGB(fromColorHex)
+        let toColor = hexToRGB(toColorHex)
+
+        let r = Math.floor((fromColor.r * (1 - colorTransition)) + (toColor.r * colorTransition))
+        let g = Math.floor((fromColor.g * (1 - colorTransition)) + (toColor.g * colorTransition))
+        let b = Math.floor((fromColor.b * (1 - colorTransition)) + (toColor.b * colorTransition))
+        let a = Math.ceil((fromColor.a * (1 - colorTransition)) + (toColor.a * colorTransition))
+        if (a >= 255)
+            a = null
+        
+        return RGBToHex(r, g, b, a)
+
+
+        function hexToRGB(hex) {
+            if (hex.length === 4)
+                return { r: parseInt(hex[1] + hex[1], 16), g: parseInt(hex[2] + hex[2], 16), b: parseInt(hex[3] + hex[3], 16), a: 255 }
+            else if (hex.length === 5)
+                return { r: parseInt(hex[1] + hex[1], 16), g: parseInt(hex[2] + hex[2], 16), b: parseInt(hex[3] + hex[3], 16), a: parseInt(hex[4] + hex[4], 16) }
+            else if (hex.length === 7)
+                return { r: parseInt(hex.substring(1, 3), 16), g: parseInt(hex.substring(3, 5), 16), b: parseInt(hex.substring(5, 7), 16), a: 255 }
+            else if (hex.length === 9)
+                return { r: parseInt(hex.substring(1, 3), 16), g: parseInt(hex.substring(3, 5), 16), b: parseInt(hex.substring(5, 7), 16), a: parseInt(hex.substring(7, 9), 16) }
+            
+            return { r: 0, g: 0, b: 0, a: 255 }
+        }
+
+        function RGBToHex(red, green, blue, alpha) {
+            return `#${red.toString(16)}${green.toString(16)}${blue.toString(16)}` + (alpha === undefined || alpha === null ? "" : alpha.toString(16))
+        }
     }
 
     let _animate = () => {
@@ -630,83 +673,89 @@ const GestureDisplayingUi = (function() {
         let deltaTime
         if (_lastUpdateTime !== null)
             deltaTime = Date.now() - _lastUpdateTime
-        else  {
+        else {
             _lastUpdateTime = Date.now()
             deltaTime = 0
-        } 
-            
+        }
+
         if (_settingsManager.GetSetting("DisplayFps") !== 0 && deltaTime < (1000 / _settingsManager.GetSetting("DisplayFps"))) {
             requestAnimationFrame(_animate)
             return
         }
         _lastUpdateTime = Date.now()
-        
-        let distance = _settingsManager.GetSetting("DisplaySpeed") * deltaTime / 1000
-        
-        if (_lastPoint !== null) {
-            _outputContext.globalAlpha = distance / _settingsManager.GetSetting("DisplayTrailLength")
-            _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
-            _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
-            _outputContext.lineJoin = "round";
+
+        // clear canvas
+        _outputContext.reset()
+        // draw path that snake has passed
+        _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
+        _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
+        _outputContext.lineJoin = "round";
+        _outputContext.lineCap = "round"
+        _outputContext.beginPath()
+        _outputContext.moveTo(_points[0].X, _points[0].Y)
+        for (let i = 1; i <= _currentPointI; i++)
+        _outputContext.lineTo(_points[i].X, _points[i].Y)
+        if (!_snakeChunks[0].pos.equals(new Vec2(-1, -1)))
+            _outputContext.lineTo(_snakeChunks[0].pos.X, _snakeChunks[0].pos.Y)
+        _outputContext.stroke()
+        // draw snake entirely
+        _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
+        _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
+        for (let i = _snakeChunks.length - 1; i > 0; i--) {
+            if (_snakeChunks[i - 1].pos.equals(new Vec2(-1, -1)))
+                continue
+            
+            _outputContext.strokeStyle = _snakeChunks[i - 1].color
             _outputContext.beginPath()
-            _outputContext.moveTo(_points[0].X, _points[0].Y)
-            for (let i = 1; i <= _currentPointI; i++)
-                _outputContext.lineTo(_points[i].X, _points[i].Y)
-            _outputContext.lineTo(_lastPoint.X, _lastPoint.Y)
+            _outputContext.moveTo(Math.floor(_snakeChunks[i].pos.X), Math.floor(_snakeChunks[i].pos.Y))
+            _outputContext.lineTo(Math.floor(_snakeChunks[i-1].pos.X), Math.floor(_snakeChunks[i-1].pos.Y))
             _outputContext.stroke()
-            _outputContext.globalAlpha = 1
-            
-            // restarting animation
-            if (_currentPointI + 1 >= _points.length) {
-                if (Date.now() - _lastUpdateTimeLoop < _settingsManager.GetSetting("DisplayPause")) {
-                    requestAnimationFrame(_animate)
-                    return
-                }
-                
-                _outputContext.reset()
-                _currentPointI = 0
-                distance = 0
-                _lastPoint = null
-            }
-            
         }
-        
-        _lastUpdateTimeLoop = _lastUpdateTime
-        
+
+        let distance = (_settingsManager.GetSetting("DisplaySpeed") / 1000) * deltaTime 
+
         let newPoint
-        if (_lastPoint !== null) {
+        if (_snakeChunks[0].pos.equals(_points[_points.length - 1]) || _snakeChunks[0].pos.equals(new Vec2(-1, -1))) // ending animation
+            newPoint = new Vec2(-1, -1)
+        else {
             let direnctionCurrentPath = _points[_currentPointI + 1].clone().sub(_points[_currentPointI]).getDirection()
             let deltaDistance = GestureDirectionToVec2(direnctionCurrentPath).mult(distance)
-            if (deltaDistance.lengthSq() > _points[_currentPointI + 1].clone().sub(_lastPoint).lengthSq())
+            if (deltaDistance.lengthSq() > _points[_currentPointI + 1].clone().sub(_snakeChunks[0].pos).lengthSq())
                 newPoint = _points[_currentPointI + 1]
             else
-                newPoint = _lastPoint.clone().add(deltaDistance)
-        } else {
-            newPoint = _points[0]
-            _lastPoint = _points[0]
+                newPoint = _snakeChunks[0].pos.clone().add(deltaDistance)
         }
 
-        _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
-        _outputContext.lineCap = "round"
-        _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayColor")
-        _outputContext.beginPath()
-        _outputContext.moveTo(_lastPoint.X, _lastPoint.Y)
-        _outputContext.lineTo(newPoint.X, newPoint.Y)
-        _outputContext.stroke()
-        
-        _lastPoint = newPoint
-        if (_lastPoint.equals(_points[_currentPointI + 1])) {
-            _currentPointI++
+        for (let i = _snakeChunks.length - 1; i > 0; i--) {
+            _snakeChunks[i].pos = _snakeChunks[i - 1].pos.clone()
         }
-        
-        requestAnimationFrame(_animate)
+        _snakeChunks[0].pos = newPoint
 
 
-        let canvasTransitionColor = () => {
+        if (_currentPointI >= _points.length - 1) {
+            // restarting animation
+            if (Date.now() - _lastUpdateTimeLoop < _settingsManager.GetSetting("DisplayPause")) {
+                requestAnimationFrame(_animate)
+                return
+            }
+
+            _outputContext.reset()
             
+            _snakeChunks.forEach((chunk) => {
+                chunk.pos = _points[0].clone()
+            })
+            
+            _currentPointI = 0
+            distance = 0
+        } else if (_snakeChunks[0].pos.equals(_points[_currentPointI + 1])) { // reached end of gesture direction
+            _currentPointI++
+            if (_currentPointI >= _points.length - 1) {
+                _snakeChunks[0].pos = new Vec2(-1, -1)
+            }
         }
-        
-        let pxTransitionColor = () => {}
+        _lastUpdateTimeLoop = _lastUpdateTime
+
+        requestAnimationFrame(_animate)
     }
     
     let Stop = () => {
@@ -717,16 +766,13 @@ const GestureDisplayingUi = (function() {
         _isDisplaying = false
         
         _currentPointI = 0
-        _lastPoint = null
+        _snakeChunks = null
         _points = null
         
         _clear()
     }
 
     let _clear = () => {
-        if (!(_outputDom instanceof HTMLCanvasElement))
-            throw new Error("Output DOM Element is not a Canvas!")
-
         _outputContext.reset()
     }
 
@@ -809,7 +855,6 @@ const Gestures = (function() {
 
     let _addInputEventListners = (inputDom) => {
         inputDom.addEventListener("mousedown", (event) => {
-            event.preventDefault()
 
             if (!_drawingEnabled)
                 return
@@ -819,13 +864,12 @@ const Gestures = (function() {
         })
 
         inputDom.addEventListener("mousemove", (event) => {
-            event.preventDefault()
 
             if (_drawing)
                 _gestureDrawing.OnDraw(event)
         })
+
         inputDom.addEventListener("mouseup", (event) => {
-            event.preventDefault()
 
             if (!_drawingEnabled)
                 return
@@ -835,9 +879,8 @@ const Gestures = (function() {
             _gestureDisplaying.Display(_activeGesture)
             
         })
-        inputDom.addEventListener("mouseleave", (event) => {
-            event.preventDefault()
 
+        inputDom.addEventListener("mouseleave", (event) => {
             _drawing = false
             _gestureDrawing.CancelDrawing()
         })
