@@ -13,10 +13,10 @@
 .dark ::before,
 .dark ::after,
 .dark {
-	--tab-bg-color: #000000;
-	--tab-border-color: #000000;
+	--tab-bg-color: #191919;
+	--tab-border-color: #191919;
 	--tab-selected-bg-color: #242424;
-	--tab-selected-border-color: #242424;
+	--tab-selected-border-color: var(--tab-selected-bg-color);
 	--tab-text-color: var(--md-bg-text);
 	}
 
@@ -73,8 +73,8 @@
 	border-color: var(--tab-border-color);
 	border-bottom-color: var(--tab-selected-border-color);
 	border-width: 2px 3px;
+    border-radius: 3px;
 	cursor: default;
-	z-index: -2;
 	z-index: 1;
 	}
 
@@ -118,6 +118,7 @@
 .tabContainer .tabContent .content {
 	display: none;
 	height: 100%;
+    z-index: 1;
 }
 
 .tabContainer .tabContent .content.show {
