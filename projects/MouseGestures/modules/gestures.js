@@ -185,7 +185,7 @@ const GestureSettings = {
     DisplaySpeed: 200, // int, px/s
     DisplayPause: 1000, // int, miliseconds of delay between finishing the animation, and starting the next
     DisplayPauseOnArrive: false, // true: start pause timer when head reaches the end of the animation segments // false: start pause timer when end of the tail reaches the end
-    DisplayTrailLength: 100, // int, px length of the trail
+    DisplayTrailLength: 60, // int, px length of the trail
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 30, // px of the displayField
 }
@@ -240,8 +240,10 @@ const GestureSettingsManager = (function() {
     }
 
     let SetSetting = (key, value) => {
+        if (!_settings.hasOwnProperty(key))
+            throw new Error(`${key} is not a valid setting!`)
         if (SettingValidation[key].typeof !== typeof value)
-            throw new Error("invalid type")
+            throw new Error("invalid type! " + key + "should be of type: " + SettingValidation[key].typeof)
         if (!SettingValidation[key].basicValidation)
             if (!SettingValidation[key].advancedValiation(value))
                 throw new Error("value is not valid, please make the format valid!")
@@ -257,12 +259,8 @@ const GestureSettingsManager = (function() {
         if (!(typeof settings === "object"))
             throw new Error("settings have to be a key-value pair object!")
         
-        for (const [key, value] of Object.entries(settings)) {
-            if (!Object.hasOwnProperty(_settings, key))
-                throw new Error(`${key} is not a valid setting!`)
-
+        for (const [key, value] of Object.entries(settings))
             SetSetting(key, value)
-        }
     }
 
     return {
@@ -416,18 +414,16 @@ const GestureDrawing = (function() {
     
     let _inputDom = null
     
+    const _settingsManager = GestureSettingsManager
     const _gestureParsing = GestureParsing
+    _gestureParsing.SetSettingsManager(_settingsManager)
     const _drawingUi = GestureDrawingUi
+    _drawingUi.SetSettingsManager(_settingsManager)
 
     let SetInputCanvas = (inputDom) => {
         _inputDom = inputDom
 
         _drawingUi.SetInputCanvas(inputDom)
-    }
-
-    let SetSettingsManager = (settingsManager) => {
-        _gestureParsing.SetSettingsManager(settingsManager)
-        _drawingUi.SetSettingsManager(settingsManager)
     }
 
     let StartDrawing = (event) => {
@@ -474,7 +470,10 @@ const GestureDrawing = (function() {
 
     return {
         SetInputCanvas: SetInputCanvas,
-        SetSettingsManager: SetSettingsManager,
+        GetSettings: _settingsManager.GetSettings,
+        SetSettings: _settingsManager.SetSettings,
+        GetSetting: _settingsManager.GetSetting,
+        SetSetting: _settingsManager.SetSetting,
         StartDrawing: StartDrawing,
         OnDraw: OnDraw,
         StopDrawing: StopDrawing,
@@ -498,6 +497,7 @@ const GestureDisplayingUi = (function() {
 
     let _outputDom = null
     let _outputContext = null
+
     let _settingsManager = null
     
     const requestAnimationFrame =
@@ -713,10 +713,11 @@ const GestureDisplayingUi = (function() {
             _outputContext.stroke()
         }
 
-        let distance = (_settingsManager.GetSetting("DisplaySpeed") / 1000) * deltaTime 
+        let distance = (_settingsManager.GetSetting("DisplaySpeed") / 1000) * deltaTime
+
 
         let newPoint
-        if (_snakeChunks[0].pos.equals(_points[_points.length - 1]) || _snakeChunks[0].pos.equals(new Vec2(-1, -1))) // ending animation
+        if (_currentPointI >= _points.length - 1 && _snakeChunks[0].pos.equals(_points[_points.length - 1]) || _snakeChunks[0].pos.equals(new Vec2(-1, -1))) // ending animation
             newPoint = new Vec2(-1, -1)
         else {
             let direnctionCurrentPath = _points[_currentPointI + 1].clone().sub(_points[_currentPointI]).getDirection()
@@ -789,17 +790,15 @@ const GestureDisplayingUi = (function() {
 })()
 
 const GestureDisplaying = (function() {
+    const _settingsManager = GestureSettingsManager
     const _displayingUi = GestureDisplayingUi
+    _displayingUi.SetSettingsManager(_settingsManager)
 
     let SetOutputCanvas = (outputDom) => {
         if (!(outputDom instanceof HTMLCanvasElement))
             throw new Error("Output DOM Element is not a Canvas!")
 
         _displayingUi.SetOutputCanvas(outputDom)
-    }
-
-    let SetSettingsManager = (settingsManager) => {
-        _displayingUi.SetSettingsManager(settingsManager)
     }
 
     let Display = (gesture) => {
@@ -821,7 +820,10 @@ const GestureDisplaying = (function() {
 
     return {
         SetOutputCanvas: SetOutputCanvas,
-        SetSettingsManager: SetSettingsManager,
+        GetSettings: _settingsManager.GetSettings,
+        SetSettings: _settingsManager.SetSettings,
+        GetSetting: _settingsManager.GetSetting,
+        SetSetting: _settingsManager.SetSetting,
         Display: Display,
         Stop: Stop,
     }
@@ -837,9 +839,7 @@ const Gestures = (function() {
 
     const _settingsManager = GestureSettingsManager
     const _gestureDrawing = GestureDrawing
-    _gestureDrawing.SetSettingsManager(_settingsManager)
     const _gestureDisplaying = GestureDisplaying
-    _gestureDisplaying.SetSettingsManager(_settingsManager)
     let _dataStorage = GestureLocalStorage
     
     let SetInputCanvas = (inputDom) => {
@@ -890,20 +890,39 @@ const Gestures = (function() {
         })
     }
 
+    let SetSettings = (settings) => {
+        _settingsManager.SetSettings(settings)
+        _gestureDrawing.SetSettings(settings)
+        _gestureDisplaying.SetSettings(settings)
+    }
+
+    let SetSetting = (key, value) => {
+        _settingsManager.SetSetting(key, value)
+        _gestureDrawing.SetSetting(key, value)
+        _gestureDisplaying.SetSetting(key, value)
+    }
+
     let SetDataStorage = (dataStorage) => {
         if (!(dataStorage instanceof DataStorage))
             throw new Error("Param dataStorage is not of type Datastorage, " +
-            "please either LocalDataStorage or SessionDataStorage. " +
-            "Or use another class that extends from the interface DataStorage!")
+            "Use either DataStorage or use another class that extends from the interface DataStorage!")
         
         _dataStorage = dataStorage
     }
 
     let SetGestureWindow = (el) => {
+        // param validation
+
+        // append actionlistners
+        
+        // trigger event
         
     }
 
     let Exists = (name) => {
+        if (typeof name !== "string")
+            throw new Error("param name must be a string!")
+
         return _dataStorage.exists(name)
     }
 
@@ -913,6 +932,9 @@ const Gestures = (function() {
     }
 
     let Save = (name) => {
+        if (typeof name !== "string")
+            throw new Error("param name must be a string!")
+
         _drawingEnabled = false
         _dataStorage.set(name, _activeGesture)
         _activeGesture = []
@@ -927,7 +949,8 @@ const Gestures = (function() {
     }
 
     let Display = (name) => {
-        // param validation
+        if (typeof name !== "string")
+            throw new Error("param name must be a string!")
 
         let gesture = _dataStorage.get(name)
 
@@ -935,6 +958,9 @@ const Gestures = (function() {
     }
 
     let Forget = (name) => {
+        if (typeof name !== "string")
+            throw new Error("param name must be a string!")
+
         _dataStorage.remove(name)
     }
 
@@ -942,9 +968,9 @@ const Gestures = (function() {
         SetInputCanvas: SetInputCanvas,
         SetOutputCanvas: SetOutputCanvas,
         GetSettings: _settingsManager.GetSettings,
-        SetSettings: _settingsManager.SetSettings,
+        SetSettings: SetSettings,
         GetSetting: _settingsManager.GetSetting,
-        SetSetting: _settingsManager.SetSetting,
+        SetSetting: SetSetting,
         SetDataStorage: SetDataStorage,
         SetGestureWindow: SetGestureWindow,
         EnableDrawing: _gestureDrawing.Enable,
