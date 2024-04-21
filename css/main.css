@@ -94,18 +94,19 @@ h1 {
 	align-content: center;
 }
 
-button {
+a {
 	border: none;
 	border-radius: 15px;
-	padding: 0.8em 1.6em;
 	margin: 1em;
+	padding: 0.8em 1.6em;
+    text-align: center;
 	box-shadow: inset -4px -6px 10px rgba(0, 0, 0, 0.47), inset 6px 5px 6px rgba(255, 255, 255, 0.32);
 	font-size: 24px;
 	white-space: nowrap;
 	cursor: pointer;
 }
 
-button:active {
+a:active {
 	box-shadow: inset 4px 6px 10px rgba(0, 0, 0, 0.47), inset -6px -5px 6px rgba(255, 255, 255, 0.32);
 }
 
