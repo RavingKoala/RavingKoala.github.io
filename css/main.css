@@ -104,6 +104,7 @@ a {
 	font-size: 24px;
 	white-space: nowrap;
 	cursor: pointer;
+    text-decoration: none;
 }
 
 a:active {
