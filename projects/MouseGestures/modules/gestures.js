@@ -4,6 +4,7 @@ import { GestureLocalStorage } from "./gestureLocalStorage.js"
 
 export { Gestures, GestureSettings, GestureDirection }
 
+
 //#region types
 
 /**
@@ -36,24 +37,24 @@ const GestureDirection = {
  * @class
  */
 class Vec2 {
-    X = 0
-    Y = 0
+    x = 0
+    y = 0
     
     constructor(x, y) {
-        this.X = x
-        this.Y = y
+        this.x = x
+        this.y = y
     }
 
     get() {
-        return [this.X, this.Y]
+        return [this.x, this.y]
     }
     
     add(vec) {
         if (!(vec instanceof Vec2))
             throw new Error("Param vec is not of type Vec2!")
 
-        this.X += vec.X
-        this.Y += vec.Y
+        this.x += vec.x
+        this.y += vec.y
 
         return this
     }
@@ -62,8 +63,8 @@ class Vec2 {
         if (!(value instanceof Vec2))
             throw new Error("Param vec is not of type Vec2!")
 
-        this.X -= value.X
-        this.Y -= value.Y
+        this.x -= value.x
+        this.y -= value.y
 
         return this
     }
@@ -73,11 +74,11 @@ class Vec2 {
             throw new Error("Param vec is neither of type Vec2 nor of type number")
 
         if (value instanceof Vec2) {
-            this.X *= value.X
-            this.Y *= value.Y
+            this.x *= value.x
+            this.y *= value.y
         } else {
-            this.X *= value
-            this.Y *= value
+            this.x *= value
+            this.y *= value
         }
 
         return this
@@ -88,56 +89,56 @@ class Vec2 {
             throw new Error("Param vec is neither of type Vec2 nor of type number!")
 
         if (value instanceof Vec2) {
-            this.X /= value.X
-            this.Y /= value.Y
+            this.x /= value.x
+            this.y /= value.y
         } else {
-            this.X /= value
-            this.Y /= value
+            this.x /= value
+            this.y /= value
         }
 
         return this
     }
 
     abs() {
-        this.X = this.X < 0 ? -this.X : this.X
-        this.Y = this.Y < 0 ? -this.Y : this.Y
+        this.x = this.x < 0 ? -this.x : this.x
+        this.y = this.y < 0 ? -this.y : this.y
 
         return this
     }
 
     length() {
-        return 𝙼𝚊𝚝𝚑.𝚜𝚚𝚛𝚝((this.X * this.X + this.Y * this.Y))
+        return 𝙼𝚊𝚝𝚑.𝚜𝚚𝚛𝚝((this.x * this.x + this.y * this.y))
     }
 
     lengthSq() {
-        return this.X * this.X + this.Y * this.Y
+        return this.x * this.x + this.y * this.y
     }
     
     getDirection() {
-        if (this.X === 0 && this.Y === 0)
+        if (this.x === 0 && this.y === 0)
             return GestureDirection.neutral
         let thisAbs = this.clone().abs()
-        if (thisAbs.X > thisAbs.Y)
-            if (this.X > 0)
+        if (thisAbs.x > thisAbs.y)
+            if (this.x > 0)
                 return GestureDirection.right
             else
                 return GestureDirection.left
 
-        if (this.Y > 0)
+        if (this.y > 0)
             return GestureDirection.down
         else
             return GestureDirection.up
     }
 
     getDistanceInDirection(direction) {
-        if (direction === GestureDirection.left && this.X < 0)
-            return this.X * -1
-        if (direction === GestureDirection.right && this.X > 0)
-            return this.X
-        if (direction === GestureDirection.up && this.Y < 0)
-            return this.Y * -1
-        if (direction === GestureDirection.down && this.Y > 0)
-            return this.Y
+        if (direction === GestureDirection.left && this.x < 0)
+            return this.x * -1
+        if (direction === GestureDirection.right && this.x > 0)
+            return this.x
+        if (direction === GestureDirection.up && this.y < 0)
+            return this.y * -1
+        if (direction === GestureDirection.down && this.y > 0)
+            return this.y
         
         return 0;
     }
@@ -146,11 +147,11 @@ class Vec2 {
         if (!(vec instanceof Vec2))
             throw new Error("Param vec is not of type Vec2!")
 
-        return this.X === vec.X && this.Y === vec.Y
+        return this.x === vec.x && this.y === vec.y
     }
 
     clone() {
-        return new Vec2(this.X, this.Y)
+        return new Vec2(this.x, this.y)
     }
 }
 
@@ -166,7 +167,7 @@ const GestureDirectionToVec2 = (gesture) => {
     else if (gesture === GestureDirection.down)
         return new Vec2(0, 1)
     else
-        throw new Error("Gesture not found. Make sure to pass in a gesture!")
+        throw new Error("Gesture direction not found. Make sure to pass in a gesture!")
 }
 
 /**
@@ -174,20 +175,22 @@ const GestureDirectionToVec2 = (gesture) => {
  */
 const GestureSettings = {
     Sensitivity: 13, // minimum px distance before stroke is counted
-    MaxStrokes: 5, // amount of stroke that can be drawn for the gestures
+    MaxStrokes: 0, // amount of stroke that can be drawn for the gestures (0 = infinite)
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
     DrawUseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
     DisplayToColor: "#333",  // str, hexColor
-    DisplayFps: 120, // int
+    DisplayFps: 120, // int (0 = as high as possible)
     DisplaySpeed: 200, // int, px/s
     DisplayPause: 1000, // int, miliseconds of delay between finishing the animation, and starting the next
     DisplayPauseOnArrive: false, // true: start pause timer when head reaches the end of the animation segments // false: start pause timer when end of the tail reaches the end
     DisplayTrailLength: 60, // int, px length of the trail
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 30, // px of the displayField
+    Gridcomplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
+
 }
 
 /** ValidationTypes
@@ -227,6 +230,7 @@ const SettingValidation = {
     MaxStrokes: ValidationTypes.number(null),
     DisplaySquareOffArea: ValidationTypes.boolean(null),
     DisplayStrokePadding: ValidationTypes.number(null),
+    Gridcomplexity: ValidationTypes.number(null),
 }
 
 const GestureSettingsManager = (function() {
@@ -280,7 +284,7 @@ const GestureParsing = (function() {
     let _deltaActiveDirection = 0 // total distance consecutively traveld in a direction
     let _lastPos = null // vec of last position, updates every UpdateData
     
-    let _directions = [] // list of gesture directions for this gesture
+    let _gesture = [] // list of gesture directions for this gesture
 
     let _settingsManager = null
 
@@ -309,7 +313,7 @@ const GestureParsing = (function() {
         let delta = vec.clone().sub(_lastPos)
         let deltaDirection = delta.getDirection()
         
-        if (deltaDirection !== _activeDirection || deltaDirection === _directions[_directions.length - 1]) {
+        if (deltaDirection !== _activeDirection || deltaDirection === _gesture[_gesture.length - 1]) {
             // reset
             _activeDirection = deltaDirection
             _deltaActiveDirection = 0
@@ -318,7 +322,7 @@ const GestureParsing = (function() {
             _deltaActiveDirection += delta.getDistanceInDirection(_activeDirection)
 
             if (_deltaActiveDirection > _settingsManager.GetSetting("Sensitivity")) {
-                _directions.push(_activeDirection)
+                _gesture.push(_activeDirection)
                 _activeDirection = null
                 _lastPos = null
             }
@@ -327,21 +331,43 @@ const GestureParsing = (function() {
        _lastPos = vec
     }
 
-    let Finish = (maxStrokes) => {
-        let returnDirections = _directions
+    let Finish = (maxStrokes, gridcomplexity) => {
+        let returnGesture = _gesture
         
-        _directions = []
+        _gesture = []
         _activeDirection = null
         _deltaActiveDirection = 0
         _lastPos = null
 
-        if (maxStrokes !== 0 && returnDirections.length > maxStrokes) // only retrieve the last n strokes (n = maxStrokes)
-            returnDirections = returnDirections.slice(Math.max(returnDirections.length - maxStrokes, 0))
-        return returnDirections
+        if (maxStrokes !== 0 && returnGesture.length > maxStrokes) // only retrieve the last n strokes (n = maxStrokes)
+            returnGesture = returnGesture.slice(Math.max(returnGesture.length - maxStrokes, 0))
+        if (gridcomplexity !== 0) {
+            let tempGesture = []
+            let min = new Vec2(0, 0), max = new Vec2(0, 0), temp = new Vec2(0, 0)
+            for (const direction in returnGesture.toReversed()) {
+                temp.add(GestureDirectionToVec2(direction))
+                if (temp.x > max.x)
+                    max.x = temp.x
+                if (temp.y > max.y)
+                    max.y = temp.y
+                if (temp.x < min.x)
+                    min.x = temp.x
+                if (temp.y > min.y)
+                    min.y = temp.y
+                if (max.x - min.x > gridcomplexity || max.y - min.y > gridcomplexity) {
+                    returnGesture = tempGesture.reverse()
+                    break
+                }
+                tempGesture.push(direction)
+            }
+            // if made to the end gesture was already valid for gridcomplexity
+        }
+
+        return returnGesture
     }
 
     let Cancel = () => {
-        _directions = []
+        _gesture = []
         _activeDirection = null
         _deltaActiveDirection = 0
         _lastPos = null
@@ -382,11 +408,11 @@ const GestureDrawingUi = (function() {
             lastPoint = vec
 
         _inputContext.beginPath()
-        _inputContext.moveTo(lastPoint.X, lastPoint.Y)
+        _inputContext.moveTo(lastPoint.x, lastPoint.y)
         _inputContext.lineWidth = 15
         _inputContext.lineCap = "round"
         _inputContext.strokeStyle = _settingsManager.GetSetting("DrawColor")
-        _inputContext.lineTo(vec.X, vec.Y)
+        _inputContext.lineTo(vec.x, vec.y)
         _inputContext.stroke()
         
         lastPoint = vec
@@ -457,7 +483,7 @@ const GestureDrawing = (function() {
 
     let StopDrawing = () => {
         _isDrawing = false
-        let gestureResult = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"))
+        let gestureResult = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"))
         _drawingUi.Clear()
         return gestureResult
     }
@@ -614,8 +640,9 @@ const GestureDisplayingUi = (function() {
 
     let Start = (gestureArr) => {
         Reset()
-        _points = null
         _isDisplaying = true
+
+        _lastUpdateTime = Date.now()
 
         if (gestureArr.length === 0)
             return;
@@ -671,13 +698,7 @@ const GestureDisplayingUi = (function() {
     let _animate = () => {
         if (!_isDisplaying) return
 
-        let deltaTime
-        if (_lastUpdateTime !== null)
-            deltaTime = Date.now() - _lastUpdateTime
-        else {
-            _lastUpdateTime = Date.now()
-            deltaTime = 0
-        }
+        let deltaTime = Date.now() - _lastUpdateTime
 
         if (_settingsManager.GetSetting("DisplayFps") !== 0 && deltaTime < (1000 / _settingsManager.GetSetting("DisplayFps"))) {
             requestAnimationFrame(_animate)
@@ -693,11 +714,11 @@ const GestureDisplayingUi = (function() {
         _outputContext.lineJoin = "round";
         _outputContext.lineCap = "round"
         _outputContext.beginPath()
-        _outputContext.moveTo(_points[0].X, _points[0].Y)
+        _outputContext.moveTo(_points[0].x, _points[0].y)
         for (let i = 1; i <= _currentPointI; i++)
-        _outputContext.lineTo(_points[i].X, _points[i].Y)
+        _outputContext.lineTo(_points[i].x, _points[i].y)
         if (!_snakeChunks[0].pos.equals(new Vec2(-1, -1)))
-            _outputContext.lineTo(_snakeChunks[0].pos.X, _snakeChunks[0].pos.Y)
+            _outputContext.lineTo(_snakeChunks[0].pos.x, _snakeChunks[0].pos.y)
         _outputContext.stroke()
         // draw snake entirely
         _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
@@ -708,8 +729,8 @@ const GestureDisplayingUi = (function() {
             
             _outputContext.strokeStyle = _snakeChunks[i - 1].color
             _outputContext.beginPath()
-            _outputContext.moveTo(Math.floor(_snakeChunks[i].pos.X), Math.floor(_snakeChunks[i].pos.Y))
-            _outputContext.lineTo(Math.floor(_snakeChunks[i-1].pos.X), Math.floor(_snakeChunks[i-1].pos.Y))
+            _outputContext.moveTo(Math.floor(_snakeChunks[i].pos.x), Math.floor(_snakeChunks[i].pos.y))
+            _outputContext.lineTo(Math.floor(_snakeChunks[i-1].pos.x), Math.floor(_snakeChunks[i-1].pos.y))
             _outputContext.stroke()
         }
 
