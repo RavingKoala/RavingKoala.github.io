@@ -85,6 +85,7 @@ Gestures.GestureExists(Gesture as int[])
 
 ```JS
 // TODO:
+// safely unset actionlistners if input/output doms are overridden
 // use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle)
 // an alternative to the drawing action (currently any mousebutton)
 // an alternative to the action key that has to be pressed
