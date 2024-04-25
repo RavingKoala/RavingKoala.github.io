@@ -175,7 +175,7 @@ const GestureDirectionToVec2 = (gesture) => {
  */
 const GestureSettings = {
     Sensitivity: 13, // minimum px distance before stroke is counted
-    MaxStrokes: 0, // amount of stroke that can be drawn for the gestures (0 = infinite)
+    MaxStrokes: 5, // amount of stroke that can be drawn for the gestures (0 = infinite)
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
     DrawUseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
@@ -190,7 +190,6 @@ const GestureSettings = {
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 30, // px of the displayField
     Gridcomplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
-
 }
 
 /** ValidationTypes
@@ -331,7 +330,7 @@ const GestureParsing = (function() {
        _lastPos = vec
     }
 
-    let Finish = (maxStrokes, gridcomplexity) => {
+    let Finish = (maxStrokes, gridComplexity) => {
         let returnGesture = _gesture
         
         _gesture = []
@@ -341,10 +340,10 @@ const GestureParsing = (function() {
 
         if (maxStrokes !== 0 && returnGesture.length > maxStrokes) // only retrieve the last n strokes (n = maxStrokes)
             returnGesture = returnGesture.slice(Math.max(returnGesture.length - maxStrokes, 0))
-        if (gridcomplexity !== 0) {
+        if (gridComplexity !== 0) {
             let tempGesture = []
             let min = new Vec2(0, 0), max = new Vec2(0, 0), temp = new Vec2(0, 0)
-            for (const direction in returnGesture.toReversed()) {
+            for (let direction of returnGesture.toReversed()) {
                 temp.add(GestureDirectionToVec2(direction))
                 if (temp.x > max.x)
                     max.x = temp.x
@@ -352,15 +351,14 @@ const GestureParsing = (function() {
                     max.y = temp.y
                 if (temp.x < min.x)
                     min.x = temp.x
-                if (temp.y > min.y)
+                if (temp.y < min.y)
                     min.y = temp.y
-                if (max.x - min.x > gridcomplexity || max.y - min.y > gridcomplexity) {
+                if (max.x - min.x > gridComplexity || max.y - min.y > gridComplexity) {
                     returnGesture = tempGesture.reverse()
                     break
                 }
                 tempGesture.push(direction)
             }
-            // if made to the end gesture was already valid for gridcomplexity
         }
 
         return returnGesture
