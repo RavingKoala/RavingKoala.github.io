@@ -86,8 +86,6 @@ Gestures.GestureExists(Gesture as int[])
 // use [this](https://stackoverflow.com/questions/11533098/how-to-catch-mouse-up-event-outside-of-element#answer-11533211) to detect mouseevents outside the page (look at the fiddle)
 // an alternative to the drawing action (currently any mousebutton)
 // an alternative to the action key that has to be pressed
-// color transition displaying still has fragments (and goes to lighter color of original color, try colors: from #f00 to #333)
-// would also like to go to transparent colors
 // right now most code uses settings so when they live update they can break, check and save them as class properties when they do
 // optional: save events to saved gestures
 // think over what StopDisplaying should do and when
