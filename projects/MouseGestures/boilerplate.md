@@ -2,26 +2,26 @@
 
 ```js
 GestureSettings = {
-    Sensitivity: 14, // minimum px distance before stroke is counted
-    MaxStrokes: 0, // amount of stroke that can be drawn for the gestures
+    Sensitivity: 13, // minimum px distance before stroke is counted
+    MaxStrokes: 5, // amount of stroke that can be drawn for the gestures (0 = infinite)
+    Gridcomplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
-    DrawDataUseEveryNUpdates: 4, // int, use draw data every n mousemove updates
+    DrawUseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
-    DisplayToColor: "#333f",  // str, hexColor
-    DisplayFps: 60, // int
-    DisplaySpeed: 200, // px/s
-    DisplayPause: 2000, // int, miliseconds of delay between finishing the animation, and starting the next
+    DisplayToColor: "#333",  // str, hexColor
+    DisplayFps: 120, // int (0 = as high as possible)
+    DisplaySpeed: 200, // int, px/s
+    DisplayPause: 1000, // int, miliseconds of delay between finishing the animation, and starting the next
     DisplayPauseOnArrive: false, // true: start pause timer when head reaches the end of the animation segments // false: start pause timer when end of the tail reaches the end
-    DisplayTrailLength: 100, // int, px length of the trail
+    DisplayTrailLength: 60, // int, px length of the trail
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
-    DisplayStrokePadding: 10, // px of the displayed gesture within the displayField
-    Gridcomplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
+    DisplayStrokePadding: 30, // px of the displayField
+    GestureCancelOnMouseLeave: true, // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
 
     
     /** TODO:
-     * GestureCancelOnMouseLeave: true // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
      * GestureConcelOnTooManyStrokes: true // true: if (MaxStrokes === 5 && drawnGesture.length === 6) cancel, false; if (MaxStrokes === 5 && drawnGesture.length === 6) use last 5 strokes
      */
     }
@@ -92,4 +92,5 @@ Gestures.GestureExists(Gesture as int[])
 // optional: save events to saved gestures
 // think over what StopDisplaying should do and when
 // think over if drawing module neest a sandbox drawing feedback state
+// other contextmenu setting: contextmenuPrevention (could be an enum: always, possibleGesture, gesture, gestureAndCancel, never) prevents opening contextmenu depending on the situation (always,never are obvious, possible gesture is when any strokes have been made > 0, gesture is only when an available gesture has been drawn, gestureAndCancel is like gesture but also when amount of trokes are more than limit (dependant on setting: GestureConcelOnTooManyStrokes))
 ```

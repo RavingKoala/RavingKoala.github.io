@@ -176,6 +176,7 @@ const GestureDirectionToVec2 = (gesture) => {
 const GestureSettings = {
     Sensitivity: 13, // minimum px distance before stroke is counted
     MaxStrokes: 5, // amount of stroke that can be drawn for the gestures (0 = infinite)
+    Gridcomplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
     DrawUseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
@@ -189,7 +190,7 @@ const GestureSettings = {
     DisplayTrailLength: 60, // int, px length of the trail
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 30, // px of the displayField
-    Gridcomplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
+    GestureCancelOnMouseLeave: true, // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
 }
 
 /** ValidationTypes
@@ -207,16 +208,16 @@ const ValidationTypes = {
     bigint : (advancedValiation) => { return { typeof: "bigint", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
     string : (advancedValiation) => { return { typeof: "string", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
     symbol : (advancedValiation) => { return { typeof: "symbol", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    function : (advancedValiation) => { return { typeof: "function", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    object : (advancedValiation) => { return { typeof: "object", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    colorHex: () => ValidationTypes.string((str) => /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/.test(str))
+    function: () => ValidationTypes.object((obj) => Array.isArray(obj)),
+    colorHex: () => ValidationTypes.string((str) => /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/.test(str)),
 }
 
 const SettingValidation = {
     Sensitivity: ValidationTypes.number(null),
+    MaxStrokes: ValidationTypes.number(null),
+    Gridcomplexity: ValidationTypes.number(null),
     DrawSize: ValidationTypes.number(null),
     DrawColor: ValidationTypes.colorHex(),
-    DrawFps: ValidationTypes.number(null),
     DrawUseDataEveryNUpdates: ValidationTypes.number(null),
     DisplaySize: ValidationTypes.number(null),
     DisplayColor: ValidationTypes.colorHex(),
@@ -226,10 +227,9 @@ const SettingValidation = {
     DisplayPause: ValidationTypes.number(null),
     DisplayPauseOnArrive: ValidationTypes.boolean(null),
     DisplayTrailLength: ValidationTypes.number(null),
-    MaxStrokes: ValidationTypes.number(null),
     DisplaySquareOffArea: ValidationTypes.boolean(null),
     DisplayStrokePadding: ValidationTypes.number(null),
-    Gridcomplexity: ValidationTypes.number(null),
+    GestureCancelOnMouseLeave: ValidationTypes.boolean(null),
 }
 
 const GestureSettingsManager = (function() {
@@ -995,7 +995,7 @@ const GestureManager = (function() {
     }
 })()
 
-const GestureListener = (function(window) {
+const GestureListener = (function(window, document) {
     const _settingsManager = GestureSettingsManager
     const _gestureParsing = GestureParsing
     _gestureParsing.SetSettingsManager(_settingsManager)
@@ -1006,6 +1006,7 @@ const GestureListener = (function(window) {
     let _window = window
 
     let _parsing = false
+    let _preventContextmenu = false
 
     let _addWindowEventListners = (window) => {
         window.addEventListener("mousedown", (event) => {
@@ -1017,8 +1018,23 @@ const GestureListener = (function(window) {
         })
 
         window.addEventListener("mousemove", (event) => {
-            if (_parsing)
-                _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
+            if (!_parsing)
+                return
+            if (_settingsManager.GetSetting("GestureCancelOnMouseLeave")) {
+                if (event.clientX < 0 || event.clientX > window.innerWidth
+                    || event.clientY < 0 || event.clientY > window.innerHeight ) {
+                    _parsing = false
+                    _gestureParsing.Cancel()
+                    return
+                }
+            }
+
+            _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
+        })
+        window.addEventListener("contextmenu", (event) => {
+            if (_preventContextmenu)
+                event.preventDefault()
+            _preventContextmenu = false
         })
 
         window.addEventListener("mouseup", (event) => {
@@ -1027,12 +1043,9 @@ const GestureListener = (function(window) {
 
             _parsing = false
             let gesture = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"))
+            if (gesture.length > 0)
+                _preventContextmenu = true
             _onGestureEvent(gesture)
-        })
-
-        window.addEventListener("mouseleave", (event) => {
-            _parsing = false
-            _gestureParsing.Cancel()
         })
     }
 
@@ -1082,4 +1095,4 @@ const GestureListener = (function(window) {
         SetSetting: _settingsManager.GetSettings,
         Activate: Activate,
     }
-})(window)
+})(window, document)

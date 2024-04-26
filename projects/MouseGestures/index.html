@@ -46,7 +46,7 @@
                 Previous page in history
             </button>
             <button type="button" class="list-group-item list-group-item-action" data-gesture-name="HistoryForward">
-                Next pagein history
+                Next page in history
             </button>
             <button type="button" class="list-group-item list-group-item-action" data-gesture-name="ScrollBottom">
                 Scroll to bottom
@@ -71,16 +71,16 @@
             HistoryBack: () => {history.back()},
             HistoryForward: () => {history.forward()},
             ScrollBottom: () => {
-                if (document.body) 
-                    document.body.scrollTop = 0
-                if (document.documentElement)
-                    document.documentElement.scrollTop = 0
-            },
-            ScrollTop: () => {
                 if (document.body)
                     document.body.scrollTop = document.body.scrollHeight
                 if (document.documentElement)
                     document.documentElement.scrollTop = document.documentElement.scrollHeight
+            },
+            ScrollTop: () => {
+                if (document.body)
+                    document.body.scrollTop = 0
+                if (document.documentElement)
+                    document.documentElement.scrollTop = 0
             },
         }
 
