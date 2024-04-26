@@ -17,12 +17,16 @@
 <body>
     <div class="container-sm">
         <h1>Mouse Gestures demo</h1>
-        <p class="hidden">Input</p>
-        <canvas id="inputField" class="card" height="250" width="250"></canvas>
-        <hr>
-        
-        <p class="hidden">current:</p>
-        <canvas id="resultView" class="card" height="250" width="250"></canvas>
+        <div class="row">
+            <div class="col-sm-6"  style="width: 18rem;">
+                <p class="hidden">Input</p>
+                <canvas id="inputField" class="card" height="250" width="250"></canvas>
+            </div>
+            <div class="col-sm-6" style="width: 18rem;">
+                <p class="hidden">current:</p>
+                <canvas id="resultView" class="card" height="250" width="250"></canvas>
+            </div>
+        </div>
         
         <br>
         
@@ -35,14 +39,20 @@
         
         <h2>List of actions:</h2>
         <div id="actionsList" class="list-group">
-            <button type="button" class="list-group-item list-group-item-action" data-name="1st">
-                The current button
+            <button type="button" class="list-group-item list-group-item-action" data-gesture-name="LogTest">
+                log "TEST" in console
             </button>
-            <button type="button" class="list-group-item list-group-item-action" data-name="2nd">
-                A second item
+            <button type="button" class="list-group-item list-group-item-action" data-gesture-name="HistoryBack">
+                Previous page in history
             </button>
-            <button type="button" class="list-group-item list-group-item-action" data-name="3rd">
-                A third button item
+            <button type="button" class="list-group-item list-group-item-action" data-gesture-name="HistoryForward">
+                Next pagein history
+            </button>
+            <button type="button" class="list-group-item list-group-item-action" data-gesture-name="ScrollBottom">
+                Scroll to bottom
+            </button>
+            <button type="button" class="list-group-item list-group-item-action" data-gesture-name="ScrollTop">
+                Scroll to top
             </button>
         </div>
         
@@ -54,7 +64,25 @@
         </div>
     </div>
     <script type="module">
-        import { Gestures } from "./modules/gestures.js"
+        import { GestureManager, GestureListener } from "./modules/gestures.js"
+
+        const ListItemActions = {
+            LogTest: () => {console.log("TEST")},
+            HistoryBack: () => {history.back()},
+            HistoryForward: () => {history.forward()},
+            ScrollBottom: () => {
+                if (document.body) 
+                    document.body.scrollTop = 0
+                if (document.documentElement)
+                    document.documentElement.scrollTop = 0
+            },
+            ScrollTop: () => {
+                if (document.body)
+                    document.body.scrollTop = document.body.scrollHeight
+                if (document.documentElement)
+                    document.documentElement.scrollTop = document.documentElement.scrollHeight
+            },
+        }
 
         const inputCanvas = document.getElementById("inputField")
         const outputCanvas = document.getElementById("resultView")
@@ -67,11 +95,10 @@
         const CancelButton = document.getElementById("Cancel")
         const RemoveButton = document.getElementById("Remove")
         
-        Gestures.SetInputCanvas(inputCanvas)
-        Gestures.SetOutputCanvas(outputCanvas)
+        GestureManager.SetInputCanvas(inputCanvas)
+        GestureManager.SetOutputCanvas(outputCanvas)
         
         let selectedListItem
-
         let state = null
 
         const toViewState = () => {
@@ -104,11 +131,11 @@
                 el.classList.add("active")
                 selectedListItem = el
 
-                if (Gestures.Exists(el.dataset.name)) {
-                    Gestures.Display(el.dataset.name)
+                if (GestureManager.Exists(el.dataset.gestureName)) {
+                    GestureManager.Display(el.dataset.gestureName)
                     RemoveButton.classList.remove("disabled")
                 } else {
-                    Gestures.StopDisplaying()
+                    GestureManager.StopDisplaying()
                     RemoveButton.classList.add("disabled")
                 }
 
@@ -127,7 +154,7 @@
                     if (!(el instanceof HTMLElement))
                         return
 
-                    if (Gestures.Exists(el.dataset.name))
+                    if (GestureManager.Exists(el.dataset.gestureName))
                         gesturesList.appendChild(el)
                 })
 
@@ -135,7 +162,7 @@
                     if (!(selectedListItem instanceof HTMLElement))
                         return
 
-                    Gestures.New()
+                    GestureManager.New()
 
                     toEditState()
                 })
@@ -148,7 +175,7 @@
 
                     RemoveButton.classList.remove("disabled")
 
-                    Gestures.Save(selectedListItem.dataset.name)
+                    GestureManager.Save(selectedListItem.dataset.gestureName)
 
                     toViewState()
                 })
@@ -156,9 +183,9 @@
                     if (!(selectedListItem instanceof HTMLElement))
                         return
 
-                    Gestures.Cancel()
+                    GestureManager.Cancel()
                     if (selectedListItem.parentElement === gesturesList) {
-                        Gestures.Display(selectedListItem.dataset.name)
+                        GestureManager.Display(selectedListItem.dataset.gestureName)
                     }
 
                     toViewState()
@@ -172,12 +199,19 @@
 
                     RemoveButton.classList.add("disabled")
 
-                    Gestures.Forget(selectedListItem.dataset.name)
-                    Gestures.StopDisplaying()
+                    GestureManager.Forget(selectedListItem.dataset.gestureName)
+                    GestureManager.StopDisplaying()
 
                     toViewState()
                 })
             }
+
+            window.addEventListener("gesture", (e) => { ListItemActions[e.detail.name]() })
+
+            window.addEventListener("failedGesture", (e) => {console.log(e.detail.gesture) })
+                
+
+            GestureListener.Activate()
         })()
     </script>
 
