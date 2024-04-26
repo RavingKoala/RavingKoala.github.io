@@ -64,12 +64,9 @@ Gestures.GetSetting("Setting"): any // return value
 Gestures.SetSettings(obj)
 Gestures.SetSetting("Setting", "NewValue")
 Gestures.GetSettings(): dictionary // return obj
-Gestures.GetList(): Gesture[] as int[][] // get all gestures
+Gestures.GetList(): Gesture[] as int[][] // get all gestures // TODO
 
 Gestures.SetDataStorage(instanceof DataStorage)
-
-Gestures.EnableDrawing()
-Gestures.DisableDrawing()
 
 Gestures.SetGestureWindow(WINDOW|DOCUMENT|HTMLELEMENT)
 Gestures.New()
@@ -93,4 +90,6 @@ Gestures.GestureExists(Gesture as int[])
 // would also like to go to transparent colors
 // right now most code uses settings so when they live update they can break, check and save them as class properties when they do
 // optional: save events to saved gestures
+// think over what StopDisplaying should do and when
+// think over if drawing module neest a sandbox drawing feedback state
 ```

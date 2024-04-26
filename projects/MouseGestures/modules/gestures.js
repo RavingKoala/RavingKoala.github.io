@@ -2,7 +2,7 @@ import { DataStorage } from "./dataStorage.js"
 import { GestureLocalStorage } from "./gestureLocalStorage.js"
 
 
-export { Gestures, GestureSettings, GestureDirection }
+export { GestureManager, GestureSettings, GestureDirection, GestureListener }
 
 
 //#region types
@@ -850,7 +850,7 @@ const GestureDisplaying = (function() {
 
 //#endregion
 
-const Gestures = (function() {
+const GestureManager = (function() {
     let _drawingEnabled = false
     let _drawing = false
 
@@ -878,7 +878,8 @@ const Gestures = (function() {
 
     let _addInputEventListners = (inputDom) => {
         inputDom.addEventListener("mousedown", (event) => {
-
+            if (event.button !== 0) // left click
+                return
             if (!_drawingEnabled)
                 return
 
@@ -887,13 +888,15 @@ const Gestures = (function() {
         })
 
         inputDom.addEventListener("mousemove", (event) => {
-
+            if (!_drawingEnabled)
+                return
             if (_drawing)
                 _gestureDrawing.OnDraw(event)
         })
 
         inputDom.addEventListener("mouseup", (event) => {
-
+            if (event.button !== 0) // left click
+                return
             if (!_drawingEnabled)
                 return
             
@@ -927,15 +930,6 @@ const Gestures = (function() {
             "Use either DataStorage or use another class that extends from the interface DataStorage!")
         
         _dataStorage = dataStorage
-    }
-
-    let SetGestureWindow = (el) => {
-        // param validation
-
-        // append actionlistners
-        
-        // trigger event
-        
     }
 
     let Exists = (name) => {
@@ -991,9 +985,6 @@ const Gestures = (function() {
         GetSetting: _settingsManager.GetSetting,
         SetSetting: SetSetting,
         SetDataStorage: SetDataStorage,
-        SetGestureWindow: SetGestureWindow,
-        EnableDrawing: _gestureDrawing.Enable,
-        DisableDrawing: _gestureDrawing.Disable,
         StopDisplaying: _gestureDisplaying.Stop,
         Exists: Exists,
         New: New,
@@ -1003,3 +994,92 @@ const Gestures = (function() {
         Forget: Forget,
     }
 })()
+
+const GestureListener = (function(window) {
+    const _settingsManager = GestureSettingsManager
+    const _gestureParsing = GestureParsing
+    _gestureParsing.SetSettingsManager(_settingsManager)
+    let _dataStorage = GestureLocalStorage
+
+    const gestureEventName = "gesture"
+    const invalidGestureEventName = "failedGesture"
+    let _window = window
+
+    let _parsing = false
+
+    let _addWindowEventListners = (window) => {
+        window.addEventListener("mousedown", (event) => {
+            if (event.button !== 2) // right click
+                return
+
+            _parsing = true
+            _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
+        })
+
+        window.addEventListener("mousemove", (event) => {
+            if (_parsing)
+                _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
+        })
+
+        window.addEventListener("mouseup", (event) => {
+            if (event.button !== 2) // right click
+                return
+
+            _parsing = false
+            let gesture = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"))
+            _onGestureEvent(gesture)
+        })
+
+        window.addEventListener("mouseleave", (event) => {
+            _parsing = false
+            _gestureParsing.Cancel()
+        })
+    }
+
+    let Activate = () => {
+        _addWindowEventListners(_window)
+    }
+
+    let _onGestureEvent = (gesture) => {
+        const allGestures = _dataStorage.getAll()
+        // find event
+        const eventEntry = Object.entries(allGestures).find((entry) => gesturesAreEqual(gesture, entry[1]))
+
+        // trigger event
+        if (eventEntry === undefined || eventEntry.length <= 0) {
+            _window.dispatchEvent(new CustomEvent(invalidGestureEventName, { detail: { gesture: gesture } }))
+            return
+        }
+        _window.dispatchEvent(new CustomEvent(gestureEventName, { detail: { name: eventEntry[0], gesture: gesture } }))
+
+        
+        function gesturesAreEqual(arr1, arr2) {
+            if (!Array.isArray(arr1) || !Array.isArray(arr2))
+                return false;
+            if (arr1.length != arr2.length)
+                return false;
+
+            for (var i = 0; i < arr1.length; i++) {
+                if (arr1[i] !== arr2[i])
+                    return false;
+            }
+            return true
+        }
+    }
+
+    let SetGestureWindow = (window) => {
+        if (!(window instanceof HTMLElement))
+            throw new Error("Window must be an HTMLElement")
+
+        _window = window
+    }
+
+    return {
+        SetGestureWindow: SetGestureWindow,
+        GetSettings: _settingsManager.GetSettings,
+        SetSettings: _settingsManager.GetSettings,
+        GetSetting: _settingsManager.GetSetting,
+        SetSetting: _settingsManager.GetSettings,
+        Activate: Activate,
+    }
+})(window)
