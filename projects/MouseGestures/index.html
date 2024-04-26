@@ -64,7 +64,7 @@
         </div>
     </div>
     <script type="module">
-        import { GestureManager, GestureListener } from "./modules/gestures.js"
+        import { GestureManager, GestureListener, GestureEvents } from "./modules/gestures.js"
 
         const ListItemActions = {
             LogTest: () => {console.log("TEST")},
@@ -206,9 +206,9 @@
                 })
             }
 
-            window.addEventListener("gesture", (e) => { ListItemActions[e.detail.name]() })
+            window.addEventListener(GestureEvents.gesture, (e) => { ListItemActions[e.detail.name]() })
 
-            window.addEventListener("failedGesture", (e) => {console.log(e.detail.gesture) })
+            window.addEventListener(GestureEvents.failedGesture, (e) => {console.log(e.detail.gesture) })
                 
 
             GestureListener.Activate()

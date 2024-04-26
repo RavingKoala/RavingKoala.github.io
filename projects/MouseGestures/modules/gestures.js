@@ -2,15 +2,19 @@ import { DataStorage } from "./dataStorage.js"
 import { GestureLocalStorage } from "./gestureLocalStorage.js"
 
 
-export { GestureManager, GestureSettings, GestureDirection, GestureListener }
+export { GestureManager, GestureSettings, GestureDirection, GestureListener, GestureEvents }
 
 
 //#region types
 
+const GestureEvents = {
+    gesture: "gesture",
+    failedGesture: "failedGesture",
+}
+
 /**
  * @typedef {Int} GestureDirection
  */
-
 const GestureDirection = {
     up: 0,
     right: 1,
@@ -177,9 +181,9 @@ const GestureSettings = {
     Sensitivity: 13, // minimum px distance before stroke is counted
     MaxStrokes: 5, // amount of stroke that can be drawn for the gestures (0 = infinite)
     Gridcomplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
+    UseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
-    DrawUseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
     DisplayToColor: "#333",  // str, hexColor
@@ -188,9 +192,11 @@ const GestureSettings = {
     DisplayPause: 1000, // int, miliseconds of delay between finishing the animation, and starting the next
     DisplayPauseOnArrive: false, // true: start pause timer when head reaches the end of the animation segments // false: start pause timer when end of the tail reaches the end
     DisplayTrailLength: 60, // int, px length of the trail
+    DisplayLeaveTrail: true, // leave the trail color behind at after the end of the DisplayTrailLength
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 30, // px of the displayField
     GestureCancelOnMouseLeave: true, // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
+    GestureConcelOnTooManyStrokes: true, // true: if (MaxStrokes === 5 && drawnGesture.length === 6) cancel, false; if (MaxStrokes === 5 && drawnGesture.length === 6) use last 5 strokes
 }
 
 /** ValidationTypes
@@ -218,7 +224,7 @@ const SettingValidation = {
     Gridcomplexity: ValidationTypes.number(null),
     DrawSize: ValidationTypes.number(null),
     DrawColor: ValidationTypes.colorHex(),
-    DrawUseDataEveryNUpdates: ValidationTypes.number(null),
+    UseDataEveryNUpdates: ValidationTypes.number(null),
     DisplaySize: ValidationTypes.number(null),
     DisplayColor: ValidationTypes.colorHex(),
     DisplayToColor: ValidationTypes.colorHex(),
@@ -227,9 +233,11 @@ const SettingValidation = {
     DisplayPause: ValidationTypes.number(null),
     DisplayPauseOnArrive: ValidationTypes.boolean(null),
     DisplayTrailLength: ValidationTypes.number(null),
+    DisplayLeaveTrail: ValidationTypes.boolean(null),
     DisplaySquareOffArea: ValidationTypes.boolean(null),
     DisplayStrokePadding: ValidationTypes.number(null),
     GestureCancelOnMouseLeave: ValidationTypes.boolean(null),
+    GestureConcelOnTooManyStrokes: ValidationTypes.boolean(null),
 }
 
 const GestureSettingsManager = (function() {
@@ -300,7 +308,7 @@ const GestureParsing = (function() {
         if (_lastPos === null)
             _lastPos = vec
 
-        let delayMax = _settingsManager.GetSetting("DrawUseDataEveryNUpdates")
+        let delayMax = _settingsManager.GetSetting("UseDataEveryNUpdates")
         if (delayMax !== 0)
             if (_delayCounter < delayMax){
                 _delayCounter++
@@ -330,7 +338,7 @@ const GestureParsing = (function() {
        _lastPos = vec
     }
 
-    let Finish = (maxStrokes, gridComplexity) => {
+    let Finish = (maxStrokes, gridComplexity, cancelOnTooManyStrokes) => {
         let returnGesture = _gesture
         
         _gesture = []
@@ -338,6 +346,8 @@ const GestureParsing = (function() {
         _deltaActiveDirection = 0
         _lastPos = null
 
+        if (cancelOnTooManyStrokes && returnGesture.length > maxStrokes)
+            return null
         if (maxStrokes !== 0 && returnGesture.length > maxStrokes) // only retrieve the last n strokes (n = maxStrokes)
             returnGesture = returnGesture.slice(Math.max(returnGesture.length - maxStrokes, 0))
         if (gridComplexity !== 0) {
@@ -481,7 +491,7 @@ const GestureDrawing = (function() {
 
     let StopDrawing = () => {
         _isDrawing = false
-        let gestureResult = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"))
+        let gestureResult = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"), false)
         _drawingUi.Clear()
         return gestureResult
     }
@@ -711,13 +721,15 @@ const GestureDisplayingUi = (function() {
         _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
         _outputContext.lineJoin = "round";
         _outputContext.lineCap = "round"
-        _outputContext.beginPath()
-        _outputContext.moveTo(_points[0].x, _points[0].y)
-        for (let i = 1; i <= _currentPointI; i++)
-        _outputContext.lineTo(_points[i].x, _points[i].y)
-        if (!_snakeChunks[0].pos.equals(new Vec2(-1, -1)))
-            _outputContext.lineTo(_snakeChunks[0].pos.x, _snakeChunks[0].pos.y)
-        _outputContext.stroke()
+        if (_settingsManager.GetSetting("DisplayLeaveTrail")) {
+            _outputContext.beginPath()
+            _outputContext.moveTo(_points[0].x, _points[0].y)
+            for (let i = 1; i <= _currentPointI; i++)
+            _outputContext.lineTo(_points[i].x, _points[i].y)
+            if (!_snakeChunks[0].pos.equals(new Vec2(-1, -1)))
+                _outputContext.lineTo(_snakeChunks[0].pos.x, _snakeChunks[0].pos.y)
+            _outputContext.stroke()
+        }
         // draw snake entirely
         _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
         _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
@@ -1001,8 +1013,6 @@ const GestureListener = (function(window, document) {
     _gestureParsing.SetSettingsManager(_settingsManager)
     let _dataStorage = GestureLocalStorage
 
-    const gestureEventName = "gesture"
-    const invalidGestureEventName = "failedGesture"
     let _window = window
 
     let _parsing = false
@@ -1042,10 +1052,10 @@ const GestureListener = (function(window, document) {
                 return
 
             _parsing = false
-            let gesture = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"))
-            if (gesture.length > 0)
-                _preventContextmenu = true
-            _onGestureEvent(gesture)
+            let gesture = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"), _settingsManager.GetSetting("GestureConcelOnTooManyStrokes"))
+            if (gesture !== null)
+                if (gesture.length > 0)
+                    _onGestureEvent(gesture)
         })
     }
 
@@ -1054,16 +1064,18 @@ const GestureListener = (function(window, document) {
     }
 
     let _onGestureEvent = (gesture) => {
+        _preventContextmenu = true
+
         const allGestures = _dataStorage.getAll()
         // find event
         const eventEntry = Object.entries(allGestures).find((entry) => gesturesAreEqual(gesture, entry[1]))
 
         // trigger event
         if (eventEntry === undefined || eventEntry.length <= 0) {
-            _window.dispatchEvent(new CustomEvent(invalidGestureEventName, { detail: { gesture: gesture } }))
+            _window.dispatchEvent(new CustomEvent(GestureEvents.gesture, { detail: { gesture: gesture } }))
             return
         }
-        _window.dispatchEvent(new CustomEvent(gestureEventName, { detail: { name: eventEntry[0], gesture: gesture } }))
+        _window.dispatchEvent(new CustomEvent(GestureEvents.failedGesture, { detail: { name: eventEntry[0], gesture: gesture } }))
 
         
         function gesturesAreEqual(arr1, arr2) {
