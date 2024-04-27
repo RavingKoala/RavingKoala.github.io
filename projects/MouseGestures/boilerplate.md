@@ -5,9 +5,9 @@ GestureSettings = {
     Sensitivity: 13, // minimum px distance before stroke is counted
     MaxStrokes: 5, // amount of stroke that can be drawn for the gestures (0 = infinite)
     GridComplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how often it can go in the same direction (not consecutively)
-    UseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
+    DrawUseDataEveryNUpdates: 6, // int, use draw data every n mousemove updates
     DisplaySize: 15, // px
     DisplayColor: "#618eff", // str, hexColor
     DisplayToColor: "#333",  // str, hexColor
@@ -66,8 +66,8 @@ GestureManager.SetOutputCanvas(instanceof HTMLCanvasElement)
 GestureManager.GetSetting("Setting"): any // return value
 GestureManager.SetSettings(obj)
 GestureManager.SetSetting("Setting", "NewValue")
-GestureManager.GetSettings(): dictionary // return obj
-GestureManager.GetGestures(): Gesture[] as int[][]
+GestureManager.GetSettings(): { settings: value, ...} // return obj
+GestureManager.GetGestures(): { name: Gesture as int[], ...}
 
 GestureManager.SetDataStorage(instanceof DataStorage)
 
