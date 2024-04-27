@@ -79,14 +79,10 @@ Gestures.GestureExists(Gesture as int[])
 
 ```JS
 // TODO:
-// BUG: GestureConcelOnTooManyStrokes doesnt work with Gridcomplexity
 // safely unset actionlistners if input/output doms are overridden.
 // an alternative to the drawing action. (currently any mousebutton)
 // an alternative to the action key that has to be pressed.
 // right now most code uses settings so when they live update they can break, check and save them as class properties when they do.
-// optional: save events to saved gestures.
-// think over what StopDisplaying should do and when.
-// think over if drawing module neest a sandbox drawing feedback state.
 // other contextmenu setting: contextmenuPrevention (could be an enum: always, possibleGesture, gesture, gestureAndCancel, never) prevents opening contextmenu depending on the situation (always,never are obvious, possible gesture is when any strokes have been made > 0, gesture is only when an available gesture has been drawn, gestureAndCancel is like gesture but also when amount of trokes are more than limit (dependant on setting: GestureConcelOnTooManyStrokes))
 // test all settings.
 ```
