@@ -1017,50 +1017,69 @@ const GestureListener = (function(window) {
 
     let _parsing = false
     let _preventContextmenu = false
+    let _eventListenersAdded = false
 
     let _addWindowEventListners = (window) => {
-        window.addEventListener("mousedown", (event) => {
-            if (event.button !== 2) // right click
-                return
-
-            _parsing = true
-            _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
-        })
-
-        window.addEventListener("mousemove", (event) => {
-            if (!_parsing)
-                return
-            if (_settingsManager.GetSetting("GestureCancelOnMouseLeave")) {
-                if (event.clientX < 0 || event.clientX > window.innerWidth
-                    || event.clientY < 0 || event.clientY > window.innerHeight ) {
-                    _parsing = false
-                    _gestureParsing.Cancel()
-                    return
-                }
-            }
-
-            _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
-        })
-        window.addEventListener("contextmenu", (event) => {
-            if (_preventContextmenu)
-                event.preventDefault()
-            _preventContextmenu = false
-        })
-
-        window.addEventListener("mouseup", (event) => {
-            if (event.button !== 2) // right click
-                return
-
-            _parsing = false
-            let gesture = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"), _settingsManager.GetSetting("GestureConcelOnTooManyStrokes"))
-            if (gesture !== null)
-                if (gesture.length > 0)
-                    _onGestureEvent(gesture)
-        })
+        _eventListenersAdded = true
+        window.addEventListener("mousedown", _mousedownHandler)
+        window.addEventListener("mousemove", _mousemoveHandler)
+        window.addEventListener("contextmenu", _contextmenuHandler)
+        window.addEventListener("mouseup", _mouseupHandler)
+    }
+    let _removeWindowEventListners = (window) => {
+        window.removeEventListener("mousedown", _mousedownHandler)
+        window.removeEventListener("mousemove", _mousemoveHandler)
+        window.removeEventListener("contextmenu", _contextmenuHandler)
+        window.removeEventListener("mouseup", _mouseupHandler)
+        _eventListenersAdded = false
     }
 
+    //#region _addWindowEventListners handlers
+    let _mousedownHandler = (event) => {
+        if (event.button !== 2) // right click
+            return
+
+        _parsing = true
+        _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
+    }
+    let _mousemoveHandler = (event) => {
+        if (!_parsing)
+            return
+        if (_settingsManager.GetSetting("GestureCancelOnMouseLeave")) {
+            if (event.clientX < 0 || event.clientX > window.innerWidth
+                || event.clientY < 0 || event.clientY > window.innerHeight) {
+                _parsing = false
+                _gestureParsing.Cancel()
+                return
+            }
+        }
+
+        _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
+    }
+    let _contextmenuHandler = (event) => {
+        if (_preventContextmenu)
+            event.preventDefault()
+        _preventContextmenu = false
+    }
+    let _mouseupHandler = (event) => {
+        if (event.button !== 2) // right click
+            return
+
+        _parsing = false
+        let gesture = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"), _settingsManager.GetSetting("GestureConcelOnTooManyStrokes"))
+        if (gesture !== null)
+            if (gesture.length > 0)
+                _onGestureEvent(gesture)
+    }
+    //#endregion
+
     let Activate = () => {
+        _removeWindowEventListners(_window) // is always safe
         _addWindowEventListners(_window)
+    }
+
+    let Deactivate = () => {
+        _removeWindowEventListners(_window) // is always safe
     }
 
     let _onGestureEvent = (gesture) => {
@@ -1072,10 +1091,10 @@ const GestureListener = (function(window) {
 
         // trigger event
         if (eventEntry === undefined || eventEntry.length <= 0) {
-            _window.dispatchEvent(new CustomEvent(GestureEvents.gesture, { detail: { gesture: gesture } }))
+            _window.dispatchEvent(new CustomEvent(GestureEvents.failedGesture, { detail: { gesture: gesture } }))
             return
         }
-        _window.dispatchEvent(new CustomEvent(GestureEvents.failedGesture, { detail: { name: eventEntry[0], gesture: gesture } }))
+        _window.dispatchEvent(new CustomEvent(GestureEvents.gesture, { detail: { name: eventEntry[0], gesture: gesture } }))
 
         
         function gesturesAreEqual(arr1, arr2) {
@@ -1106,5 +1125,6 @@ const GestureListener = (function(window) {
         GetSetting: _settingsManager.GetSetting,
         SetSetting: _settingsManager.GetSettings,
         Activate: Activate,
+        Deactivate: Deactivate,
     }
 })(window)

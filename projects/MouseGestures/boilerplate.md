@@ -78,8 +78,8 @@ Gestures.GestureExists(Gesture as int[])
 ```
 
 ```JS
-// TODO:
-// safely unset actionlistners if input/output doms are overridden.
+safely unset actionlistners if input/output doms are overridden.// TODO:
+// 
 // other contextmenu setting: contextmenuPrevention (could be an enum: always, possibleGesture, gesture, gestureAndCancel, never) prevents opening contextmenu depending on the situation (always,never are obvious, possible gesture is when any strokes have been made > 0, gesture is only when an available gesture has been drawn, gestureAndCancel is like gesture but also when amount of trokes are more than limit (dependant on setting: GestureConcelOnTooManyStrokes))
 // test all settings.
 ```
