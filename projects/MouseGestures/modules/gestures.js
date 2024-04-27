@@ -111,7 +111,7 @@ class Vec2 {
     }
 
     length() {
-        return 𝙼𝚊𝚝𝚑.𝚜𝚚𝚛𝚝((this.x * this.x + this.y * this.y))
+        return Math.sqrt((this.x * this.x + this.y * this.y))
     }
 
     lengthSq() {
@@ -180,7 +180,7 @@ const GestureDirectionToVec2 = (gesture) => {
 const GestureSettings = {
     Sensitivity: 13, // minimum px distance before stroke is counted
     MaxStrokes: 5, // amount of stroke that can be drawn for the gestures (0 = infinite)
-    Gridcomplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
+    GridComplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how often it can go in the same direction (not consecutively)
     UseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
@@ -189,31 +189,31 @@ const GestureSettings = {
     DisplayToColor: "#333",  // str, hexColor
     DisplayFps: 120, // int (0 = as high as possible)
     DisplaySpeed: 200, // int, px/s
-    DisplayPause: 1000, // int, miliseconds of delay between finishing the animation, and starting the next
+    DisplayPause: 1000, // int, milliseconds of delay between finishing the animation, and starting the next
     DisplayPauseOnArrive: false, // true: start pause timer when head reaches the end of the animation segments // false: start pause timer when end of the tail reaches the end
     DisplayTrailLength: 60, // int, px length of the trail
     DisplayLeaveTrail: true, // leave the trail color behind at after the end of the DisplayTrailLength
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 30, // px of the displayField
     GestureCancelOnMouseLeave: true, // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
-    GestureConcelOnTooManyStrokes: true, // true: if (MaxStrokes === 5 && drawnGesture.length === 6) cancel, false; if (MaxStrokes === 5 && drawnGesture.length === 6) use last 5 strokes
+    GestureCancelOnTooManyStrokes: true, // true: if (MaxStrokes === 5 && drawnGesture.length === 6) cancel, false; if (MaxStrokes === 5 && drawnGesture.length === 6) use last 5 strokes
 }
 
 /** ValidationTypes
  * 
  * Used for setting validation of objects
  *
- * basicValidation means if variables of this type should only be validatied for being this type,
+ * basicValidation means if variables of this type should only be validated for being this type,
  * and if equal to some value.
- * This is for variables with predetermined facts such as size and subvalues.
+ * This is for variables with predetermined facts such as size and sub-values.
  */
 const ValidationTypes = {
-    object: (advancedValiation) => { return { typeof: "object", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    boolean: (advancedValiation) => { return { typeof: "boolean", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    number : (advancedValiation) => { return { typeof: "number", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    bigint : (advancedValiation) => { return { typeof: "bigint", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    string : (advancedValiation) => { return { typeof: "string", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    symbol : (advancedValiation) => { return { typeof: "symbol", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
+    object: (advancedValidation) => { return { typeof: "object", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
+    boolean: (advancedValidation) => { return { typeof: "boolean", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
+    number : (advancedValidation) => { return { typeof: "number", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
+    bigint : (advancedValidation) => { return { typeof: "bigint", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
+    string : (advancedValidation) => { return { typeof: "string", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
+    symbol : (advancedValidation) => { return { typeof: "symbol", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
     function: () => ValidationTypes.object((obj) => Array.isArray(obj)),
     colorHex: () => ValidationTypes.string((str) => /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/.test(str)),
 }
@@ -221,10 +221,10 @@ const ValidationTypes = {
 const SettingValidation = {
     Sensitivity: ValidationTypes.number(null),
     MaxStrokes: ValidationTypes.number(null),
-    Gridcomplexity: ValidationTypes.number(null),
+    GridComplexity: ValidationTypes.number(null),
     DrawSize: ValidationTypes.number(null),
     DrawColor: ValidationTypes.colorHex(),
-    UseDataEveryNUpdates: ValidationTypes.number(null),
+    DrawUseDataEveryNUpdates: ValidationTypes.number(null),
     DisplaySize: ValidationTypes.number(null),
     DisplayColor: ValidationTypes.colorHex(),
     DisplayToColor: ValidationTypes.colorHex(),
@@ -237,7 +237,7 @@ const SettingValidation = {
     DisplaySquareOffArea: ValidationTypes.boolean(null),
     DisplayStrokePadding: ValidationTypes.number(null),
     GestureCancelOnMouseLeave: ValidationTypes.boolean(null),
-    GestureConcelOnTooManyStrokes: ValidationTypes.boolean(null),
+    GestureCancelOnTooManyStrokes: ValidationTypes.boolean(null),
 }
 
 const GestureSettingsManager = (function() {
@@ -256,7 +256,7 @@ const GestureSettingsManager = (function() {
         if (SettingValidation[key].typeof !== typeof value)
             throw new Error("invalid type! " + key + "should be of type: " + SettingValidation[key].typeof)
         if (!SettingValidation[key].basicValidation)
-            if (!SettingValidation[key].advancedValiation(value))
+            if (!SettingValidation[key].advancedValidation(value))
                 throw new Error("value is not valid, please make the format valid!")
 
         _settings[key] = value
@@ -288,7 +288,7 @@ const GestureSettingsManager = (function() {
 
 const GestureParsing = (function() {
     let _activeDirection = null // traveling consecutively in this direction
-    let _deltaActiveDirection = 0 // total distance consecutively traveld in a direction
+    let _deltaActiveDirection = 0 // total distance consecutively traveled in a direction
     let _lastPos = null // vec of last position, updates every UpdateData
     
     let _gesture = [] // list of gesture directions for this gesture
@@ -457,6 +457,8 @@ const GestureDrawing = (function() {
     let SetInputCanvas = (inputDom) => {
         _inputDom = inputDom
 
+        CancelDrawing()
+
         _drawingUi.SetInputCanvas(inputDom)
     }
 
@@ -491,7 +493,7 @@ const GestureDrawing = (function() {
 
     let StopDrawing = () => {
         _isDrawing = false
-        let gestureResult = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"), false)
+        let gestureResult = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("GridComplexity"), false)
         _drawingUi.Clear()
         return gestureResult
     }
@@ -552,7 +554,7 @@ const GestureDisplayingUi = (function() {
 
     let _gestureToPoints = (gestureArr) => {
         const outputDomRect = _outputDom.getBoundingClientRect()
-        let drawradius = _settingsManager.GetSetting("DisplaySize")
+        let drawRadius = _settingsManager.GetSetting("DisplaySize")
         let drawRect = { left: 0, top: 0, width: outputDomRect.width, height: outputDomRect.height }
 
         if (_settingsManager.GetSetting("DisplaySquareOffArea") && outputDomRect.width != outputDomRect.height) {
@@ -565,9 +567,9 @@ const GestureDisplayingUi = (function() {
             }    
         }
 
-        const padding = _settingsManager.GetSetting("DisplayStrokePadding") + (drawradius / 2)
-        drawRect.left += padding + (drawradius % 2 !== 0 ? 0 : 0.5)
-        drawRect.top += padding + (drawradius % 2 !== 0 ? 0 : 0.5)
+        const padding = _settingsManager.GetSetting("DisplayStrokePadding") + (drawRadius / 2)
+        drawRect.left += padding + (drawRadius % 2 !== 0 ? 0 : 0.5)
+        drawRect.top += padding + (drawRadius % 2 !== 0 ? 0 : 0.5)
         drawRect.width -= padding * 2
         drawRect.height -= padding * 2
 
@@ -751,8 +753,8 @@ const GestureDisplayingUi = (function() {
         if (_currentPointI >= _points.length - 1 && _snakeChunks[0].pos.equals(_points[_points.length - 1]) || _snakeChunks[0].pos.equals(new Vec2(-1, -1))) // ending animation
             newPoint = new Vec2(-1, -1)
         else {
-            let direnctionCurrentPath = _points[_currentPointI + 1].clone().sub(_points[_currentPointI]).getDirection()
-            let deltaDistance = GestureDirectionToVec2(direnctionCurrentPath).mult(distance)
+            let directionCurrentPath = _points[_currentPointI + 1].clone().sub(_points[_currentPointI]).getDirection()
+            let deltaDistance = GestureDirectionToVec2(directionCurrentPath).mult(distance)
             if (deltaDistance.lengthSq() > _points[_currentPointI + 1].clone().sub(_snakeChunks[0].pos).lengthSq())
                 newPoint = _points[_currentPointI + 1]
             else
@@ -828,6 +830,8 @@ const GestureDisplaying = (function() {
     let SetOutputCanvas = (outputDom) => {
         if (!(outputDom instanceof HTMLCanvasElement))
             throw new Error("Output DOM Element is not a Canvas!")
+        
+        _displayingUi.Stop()
 
         _displayingUi.SetOutputCanvas(outputDom)
     }
@@ -866,6 +870,8 @@ const GestureManager = (function() {
     let _drawingEnabled = false
     let _drawing = false
 
+    let _inputDom = null
+    let _outputDom = null
     let _activeGesture = []
 
     const _settingsManager = GestureSettingsManager
@@ -877,8 +883,13 @@ const GestureManager = (function() {
         if (!(inputDom instanceof HTMLCanvasElement))
             throw new Error("Input DOM Element is not a Canvas!")
         
-        _addInputEventListners(inputDom)
-        _gestureDrawing.SetInputCanvas(inputDom)
+        if (_inputDom !== null)
+            _removeInputEventListeners(_inputDom)
+
+        _inputDom = inputDom
+
+        _addInputEventListeners(_inputDom)
+        _gestureDrawing.SetInputCanvas(_inputDom)
     }
 
     let SetOutputCanvas = (outputDom) => {
@@ -888,41 +899,50 @@ const GestureManager = (function() {
         _gestureDisplaying.SetOutputCanvas(outputDom)
     }
 
-    let _addInputEventListners = (inputDom) => {
-        inputDom.addEventListener("mousedown", (event) => {
-            if (event.button !== 0) // left click
-                return
-            if (!_drawingEnabled)
-                return
-
-            _drawing = true
-            _gestureDrawing.StartDrawing(event)
-        })
-
-        inputDom.addEventListener("mousemove", (event) => {
-            if (!_drawingEnabled)
-                return
-            if (_drawing)
-                _gestureDrawing.OnDraw(event)
-        })
-
-        inputDom.addEventListener("mouseup", (event) => {
-            if (event.button !== 0) // left click
-                return
-            if (!_drawingEnabled)
-                return
-            
-            _drawing = false
-            _activeGesture = _gestureDrawing.StopDrawing()
-            _gestureDisplaying.Display(_activeGesture)
-            
-        })
-
-        inputDom.addEventListener("mouseleave", (event) => {
-            _drawing = false
-            _gestureDrawing.CancelDrawing()
-        })
+    let _addInputEventListeners = (inputDom) => {
+        inputDom.addEventListener("mousedown", _mousedownHandler)
+        inputDom.addEventListener("mousemove", _mousemoveHandler)
+        inputDom.addEventListener("mouseup", _mouseupHandler)
+        inputDom.addEventListener("mouseleave", _mouseleaveHandler)
     }
+    let _removeInputEventListeners = (inputDom) => {
+        inputDom.removeEventListener("mousedown", _mousedownHandler)
+        inputDom.removeEventListener("mousemove", _mousemoveHandler)
+        inputDom.removeEventListener("mouseup", _mouseupHandler)
+        inputDom.removeEventListener("mouseleave", _mouseleaveHandler)
+    }
+    //#region  window eventListeners handlers
+    let _mousedownHandler = (event) => {
+        if (event.button !== 0) // left click
+            return
+        if (!_drawingEnabled)
+            return
+
+        _drawing = true
+        _gestureDrawing.StartDrawing(event)
+    }
+    let _mousemoveHandler = (event) => {
+        if (!_drawingEnabled)
+            return
+        if (_drawing)
+            _gestureDrawing.OnDraw(event)
+    }
+    let _mouseupHandler = (event) => {
+        if (event.button !== 0) // left click
+            return
+        if (!_drawingEnabled)
+            return
+
+        _drawing = false
+        _activeGesture = _gestureDrawing.StopDrawing()
+        _gestureDisplaying.Display(_activeGesture)
+
+    }
+    let _mouseleaveHandler = (event) => {
+        _drawing = false
+        _gestureDrawing.CancelDrawing()
+    }
+    //#endregion
 
     let SetSettings = (settings) => {
         _settingsManager.SetSettings(settings)
@@ -938,7 +958,7 @@ const GestureManager = (function() {
 
     let SetDataStorage = (dataStorage) => {
         if (!(dataStorage instanceof DataStorage))
-            throw new Error("Param dataStorage is not of type Datastorage, " +
+            throw new Error("Param dataStorage is not of type DataStorage, " +
             "Use either DataStorage or use another class that extends from the interface DataStorage!")
         
         _dataStorage = dataStorage
@@ -1004,6 +1024,7 @@ const GestureManager = (function() {
         Cancel: Cancel,
         Display: Display,
         Forget: Forget,
+        GetGestures: _dataStorage.getAll,
     }
 })()
 
@@ -1017,24 +1038,21 @@ const GestureListener = (function(window) {
 
     let _parsing = false
     let _preventContextmenu = false
-    let _eventListenersAdded = false
 
-    let _addWindowEventListners = (window) => {
-        _eventListenersAdded = true
+    let _addWindowEventListeners = (window) => {
         window.addEventListener("mousedown", _mousedownHandler)
         window.addEventListener("mousemove", _mousemoveHandler)
         window.addEventListener("contextmenu", _contextmenuHandler)
         window.addEventListener("mouseup", _mouseupHandler)
     }
-    let _removeWindowEventListners = (window) => {
+    let _removeWindowEventListeners = (window) => {
         window.removeEventListener("mousedown", _mousedownHandler)
         window.removeEventListener("mousemove", _mousemoveHandler)
         window.removeEventListener("contextmenu", _contextmenuHandler)
         window.removeEventListener("mouseup", _mouseupHandler)
-        _eventListenersAdded = false
     }
 
-    //#region _addWindowEventListners handlers
+    //#region window eventListeners handlers
     let _mousedownHandler = (event) => {
         if (event.button !== 2) // right click
             return
@@ -1066,7 +1084,7 @@ const GestureListener = (function(window) {
             return
 
         _parsing = false
-        let gesture = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"), _settingsManager.GetSetting("GestureConcelOnTooManyStrokes"))
+        let gesture = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("GridComplexity"), _settingsManager.GetSetting("GestureCancelOnTooManyStrokes"))
         if (gesture !== null)
             if (gesture.length > 0)
                 _onGestureEvent(gesture)
@@ -1074,12 +1092,12 @@ const GestureListener = (function(window) {
     //#endregion
 
     let Activate = () => {
-        _removeWindowEventListners(_window) // is always safe
-        _addWindowEventListners(_window)
+        _removeWindowEventListeners(_window) // is always safe
+        _addWindowEventListeners(_window)
     }
 
     let Deactivate = () => {
-        _removeWindowEventListners(_window) // is always safe
+        _removeWindowEventListeners(_window) // is always safe
     }
 
     let _onGestureEvent = (gesture) => {
