@@ -30,52 +30,60 @@ enum GestureDirection = {
     left,
     neutral,
 }
+
+const GestureEvents = {
+    addedGesture: "addedGesture", // details: { name: string, Gesture as int[] }
+    gesture: "gesture", // details: { name: string, Gesture as int[] }
+    failedGesture: "failedGesture",// details: { Gesture as int[] }
+}
 ```
 
 ## Usage
 ```js
 // functions
-GestureManager.SetDrawingCanvas(instanceof HTMLElement)
-GestureManager.SetDisplayingCanvas(instanceof HTMLElement)
-GestureManager.SetGestureWindow(WINDOW|DOCUMENT|HTMLELEMENT)
+GestureManager.SetInputCanvas(instanceof HTMLCanvasElement)
+GestureManager.SetOutputCanvas(instanceof HTMLCanvasElement)
 
-GestureManager.GetList(): Gesture[] as int[][] // get all gestures
+GestureManager.GetGestures(): Gesture[] as int[][]
 
+GestureManager.Exists("name")
 GestureManager.New()
 GestureManager.Save("name")
-GestureManager.Exists("name")
+GestureManager.Cancel()
 GestureManager.Display("name")
 GestureManager.Forget("name")
-
-// Events
-GestureManager.OnListUpdate((event) => { event.data = { Item: Gesture as int[] }})
-GestureManager.OnEntryChange((event) => { event.data = { Item: Gesture as int[] }})
-GestureManager.OnGestureExecuted("name", (event) => {})
 ```
+```js
+GestureListener.Activate() // default activates window
+```
+
 
 ```js
 // functions
-GestureManager.SetDrawingCanvas(instanceof HTMLElement)
-GestureManager.SetDisplayingCanvas(instanceof HTMLElement)
+GestureManager.SetInputCanvas(instanceof HTMLCanvasElement)
+GestureManager.SetOutputCanvas(instanceof HTMLCanvasElement)
 
 GestureManager.GetSetting("Setting"): any // return value
 GestureManager.SetSettings(obj)
 GestureManager.SetSetting("Setting", "NewValue")
 GestureManager.GetSettings(): dictionary // return obj
-GestureManager.GetGestures(): Gesture[] as int[][] // get all gestures // TODO
+GestureManager.GetGestures(): Gesture[] as int[][]
 
 GestureManager.SetDataStorage(instanceof DataStorage)
 
-GestureManager.SetGestureWindow(WINDOW|DOCUMENT|HTMLELEMENT)
+GestureManager.Exists("name")
 GestureManager.New()
 GestureManager.Save("name")
-GestureManager.Exists("name")
+GestureManager.Cancel()
 GestureManager.Display("name")
 GestureManager.StopDisplaying()
 GestureManager.Forget("name")
 GestureManager.GestureExists(Gesture as int[])
 
 
+GestureListener.SetGestureWindow(HTMLELEMENT)
+GestureListener.Activate() // default activates window
+GestureListener.Dectivate() // default activates window
 ```
 
 ```JS

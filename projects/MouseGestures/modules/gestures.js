@@ -2,12 +2,13 @@ import { DataStorage } from "./dataStorage.js"
 import { GestureLocalStorage } from "./gestureLocalStorage.js"
 
 
-export { GestureManager, GestureSettings, GestureDirection, GestureListener, GestureEvents }
+export { GestureEvents, GestureDirection, GestureSettings, GestureManager, GestureListener }
 
 
 //#region types
 
 const GestureEvents = {
+    addedGesture: "addedGesture", // details: { name: string, Gesture as int[] }
     gesture: "gesture",
     failedGesture: "failedGesture",
 }
@@ -866,12 +867,11 @@ const GestureDisplaying = (function() {
 
 //#endregion
 
-const GestureManager = (function() {
+const GestureManager = (function(window) {
     let _drawingEnabled = false
     let _drawing = false
 
     let _inputDom = null
-    let _outputDom = null
     let _activeGesture = []
 
     const _settingsManager = GestureSettingsManager
@@ -982,6 +982,7 @@ const GestureManager = (function() {
 
         _drawingEnabled = false
         _dataStorage.set(name, _activeGesture)
+        window.dispatchEvent(new CustomEvent(GestureEvents.addedGesture, { detail: { name: name, gesture: _activeGesture } }))
         _activeGesture = []
 
     }
@@ -1017,16 +1018,16 @@ const GestureManager = (function() {
         GetSetting: _settingsManager.GetSetting,
         SetSetting: SetSetting,
         SetDataStorage: SetDataStorage,
-        StopDisplaying: _gestureDisplaying.Stop,
         Exists: Exists,
         New: New,
         Save: Save,
         Cancel: Cancel,
         Display: Display,
+        StopDisplaying: _gestureDisplaying.Stop,
         Forget: Forget,
         GetGestures: _dataStorage.getAll,
     }
-})()
+})(window)
 
 const GestureListener = (function(window) {
     const _settingsManager = GestureSettingsManager
