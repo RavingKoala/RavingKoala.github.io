@@ -1007,7 +1007,7 @@ const GestureManager = (function() {
     }
 })()
 
-const GestureListener = (function(window, document) {
+const GestureListener = (function(window) {
     const _settingsManager = GestureSettingsManager
     const _gestureParsing = GestureParsing
     _gestureParsing.SetSettingsManager(_settingsManager)
@@ -1107,4 +1107,4 @@ const GestureListener = (function(window, document) {
         SetSetting: _settingsManager.GetSettings,
         Activate: Activate,
     }
-})(window, document)
+})(window)
