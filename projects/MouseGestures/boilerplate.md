@@ -82,6 +82,7 @@ GestureManager.GestureExists(Gesture as int[])
 
 
 GestureListener.SetGestureWindow(HTMLELEMENT)
+GestureListener.SetDataStorage(instanceof DataStorage)
 GestureListener.Activate() // default activates window
 GestureListener.Dectivate() // default activates window
 ```
