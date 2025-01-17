@@ -2,15 +2,20 @@ import { DataStorage } from "./dataStorage.js"
 import { GestureLocalStorage } from "./gestureLocalStorage.js"
 
 
-export { GestureManager, GestureSettings, GestureDirection, GestureListener }
+export { GestureEvents, GestureDirection, GestureSettings, GestureManager, GestureListener }
 
 
 //#region types
 
+const GestureEvents = {
+    addedGesture: "addedGesture", // details: { name: string, Gesture as int[] }
+    gesture: "gesture",
+    failedGesture: "failedGesture",
+}
+
 /**
  * @typedef {Int} GestureDirection
  */
-
 const GestureDirection = {
     up: 0,
     right: 1,
@@ -39,7 +44,7 @@ const GestureDirection = {
 class Vec2 {
     x = 0
     y = 0
-    
+
     constructor(x, y) {
         this.x = x
         this.y = y
@@ -48,7 +53,7 @@ class Vec2 {
     get() {
         return [this.x, this.y]
     }
-    
+
     add(vec) {
         if (!(vec instanceof Vec2))
             throw new Error("Param vec is not of type Vec2!")
@@ -107,17 +112,24 @@ class Vec2 {
     }
 
     length() {
-        return 𝙼𝚊𝚝𝚑.𝚜𝚚𝚛𝚝((this.x * this.x + this.y * this.y))
+        return Math.sqrt((this.x * this.x + this.y * this.y))
     }
 
     lengthSq() {
         return this.x * this.x + this.y * this.y
     }
-    
+
+    floor() {
+        this.x = Math.floor(this.x)
+        this.y = Math.floor(this.y)
+
+        return this
+    }
+
     getDirection() {
         if (this.x === 0 && this.y === 0)
             return GestureDirection.neutral
-        let thisAbs = this.clone().abs()
+        const thisAbs = this.clone().abs()
         if (thisAbs.x > thisAbs.y)
             if (this.x > 0)
                 return GestureDirection.right
@@ -139,7 +151,7 @@ class Vec2 {
             return this.y * -1
         if (direction === GestureDirection.down && this.y > 0)
             return this.y
-        
+
         return 0;
     }
 
@@ -176,38 +188,40 @@ const GestureDirectionToVec2 = (gesture) => {
 const GestureSettings = {
     Sensitivity: 13, // minimum px distance before stroke is counted
     MaxStrokes: 5, // amount of stroke that can be drawn for the gestures (0 = infinite)
-    Gridcomplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how oftenit can go in the same direction (not consectutively)
+    GridComplexity: 0, // 0 = infinite, 1 = 2 rows,2 cols, 3 = 3 rows, 3 cols, etc // I'ts a value for how often it can go in the same direction (not consecutively)
     DrawSize: 15, // px
     DrawColor: "#618eff", // str, hexColor
     DrawUseDataEveryNUpdates: 4, // int, use draw data every n mousemove updates
-    DisplaySize: 15, // px
+    DisplaySize: 14, // px
     DisplayColor: "#618eff", // str, hexColor
     DisplayToColor: "#333",  // str, hexColor
     DisplayFps: 120, // int (0 = as high as possible)
     DisplaySpeed: 200, // int, px/s
-    DisplayPause: 1000, // int, miliseconds of delay between finishing the animation, and starting the next
+    DisplayPause: 1000, // int, milliseconds of delay between finishing the animation, and starting the next
     DisplayPauseOnArrive: false, // true: start pause timer when head reaches the end of the animation segments // false: start pause timer when end of the tail reaches the end
     DisplayTrailLength: 60, // int, px length of the trail
+    DisplayLeaveTrail: true, // leave the trail color behind at after the end of the DisplayTrailLength
     DisplaySquareOffArea: true, // bool, if displayDOM is not square, make it a square and center area
     DisplayStrokePadding: 30, // px of the displayField
     GestureCancelOnMouseLeave: true, // detect if mouse leaves the window and still use gestures if its outside the window (perhaps make it an enum scope {Element, Document, outside})
+    GestureCancelOnTooManyStrokes: true, // true: if (MaxStrokes === 5 && drawnGesture.length === 6) cancel, false; if (MaxStrokes === 5 && drawnGesture.length === 6) use last 5 strokes
 }
 
 /** ValidationTypes
  * 
  * Used for setting validation of objects
  *
- * basicValidation means if variables of this type should only be validatied for being this type,
+ * basicValidation means if variables of this type should only be validated for being this type,
  * and if equal to some value.
- * This is for variables with predetermined facts such as size and subvalues.
+ * This is for variables with predetermined facts such as size and sub-values.
  */
 const ValidationTypes = {
-    object: (advancedValiation) => { return { typeof: "object", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    boolean: (advancedValiation) => { return { typeof: "boolean", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    number : (advancedValiation) => { return { typeof: "number", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    bigint : (advancedValiation) => { return { typeof: "bigint", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    string : (advancedValiation) => { return { typeof: "string", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
-    symbol : (advancedValiation) => { return { typeof: "symbol", basicValidation: advancedValiation === null, advancedValiation: advancedValiation } },
+    object: (advancedValidation) => { return { typeof: "object", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
+    boolean: (advancedValidation) => { return { typeof: "boolean", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
+    number: (advancedValidation) => { return { typeof: "number", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
+    bigint: (advancedValidation) => { return { typeof: "bigint", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
+    string: (advancedValidation) => { return { typeof: "string", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
+    symbol: (advancedValidation) => { return { typeof: "symbol", basicValidation: advancedValidation === null, advancedValidation: advancedValidation } },
     function: () => ValidationTypes.object((obj) => Array.isArray(obj)),
     colorHex: () => ValidationTypes.string((str) => /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/.test(str)),
 }
@@ -215,7 +229,7 @@ const ValidationTypes = {
 const SettingValidation = {
     Sensitivity: ValidationTypes.number(null),
     MaxStrokes: ValidationTypes.number(null),
-    Gridcomplexity: ValidationTypes.number(null),
+    GridComplexity: ValidationTypes.number(null),
     DrawSize: ValidationTypes.number(null),
     DrawColor: ValidationTypes.colorHex(),
     DrawUseDataEveryNUpdates: ValidationTypes.number(null),
@@ -227,41 +241,43 @@ const SettingValidation = {
     DisplayPause: ValidationTypes.number(null),
     DisplayPauseOnArrive: ValidationTypes.boolean(null),
     DisplayTrailLength: ValidationTypes.number(null),
+    DisplayLeaveTrail: ValidationTypes.boolean(null),
     DisplaySquareOffArea: ValidationTypes.boolean(null),
     DisplayStrokePadding: ValidationTypes.number(null),
     GestureCancelOnMouseLeave: ValidationTypes.boolean(null),
+    GestureCancelOnTooManyStrokes: ValidationTypes.boolean(null),
 }
 
 const GestureSettingsManager = (function() {
-    let _settings = GestureSettings
+    const _settings = GestureSettings
 
-    let GetSetting = (key) => {
+    const GetSetting = (key) => {
         if (!_settings.hasOwnProperty(key))
             throw new Error(`${key} is not a valid setting!`)
 
         return _settings[key]
     }
 
-    let SetSetting = (key, value) => {
+    const SetSetting = (key, value) => {
         if (!_settings.hasOwnProperty(key))
             throw new Error(`${key} is not a valid setting!`)
         if (SettingValidation[key].typeof !== typeof value)
             throw new Error("invalid type! " + key + "should be of type: " + SettingValidation[key].typeof)
         if (!SettingValidation[key].basicValidation)
-            if (!SettingValidation[key].advancedValiation(value))
+            if (!SettingValidation[key].advancedValidation(value))
                 throw new Error("value is not valid, please make the format valid!")
 
         _settings[key] = value
     }
 
-    let GetSettings = () => {
+    const GetSettings = () => {
         return _settings
     }
 
-    let SetSettings = (settings) => {
+    const SetSettings = (settings) => {
         if (!(typeof settings === "object"))
             throw new Error("settings have to be a key-value pair object!")
-        
+
         for (const [key, value] of Object.entries(settings))
             SetSetting(key, value)
     }
@@ -280,38 +296,37 @@ const GestureSettingsManager = (function() {
 
 const GestureParsing = (function() {
     let _activeDirection = null // traveling consecutively in this direction
-    let _deltaActiveDirection = 0 // total distance consecutively traveld in a direction
+    let _deltaActiveDirection = 0 // total distance consecutively traveled in a direction
     let _lastPos = null // vec of last position, updates every UpdateData
-    
+
     let _gesture = [] // list of gesture directions for this gesture
 
     let _settingsManager = null
 
     let _delayCounter = 0
 
-    let SetSettingsManager = (settingsManager) => {
+    const SetSettingsManager = (settingsManager) => {
         _settingsManager = settingsManager
     }
 
-    let UpdateData = (vec) => {
+    const UpdateData = (vec) => {
         if (!(vec instanceof Vec2))
             throw new Error("Param vec is not of type Vec2")
 
         if (_lastPos === null)
             _lastPos = vec
 
-        let delayMax = _settingsManager.GetSetting("DrawUseDataEveryNUpdates")
+        const delayMax = _settingsManager.GetSetting("DrawUseDataEveryNUpdates")
         if (delayMax !== 0)
-            if (_delayCounter < delayMax){
+            if (_delayCounter < delayMax) {
                 _delayCounter++
                 return
-            } else 
+            } else
                 _delayCounter = 0
 
+        const delta = vec.clone().sub(_lastPos)
+        const deltaDirection = delta.getDirection()
 
-        let delta = vec.clone().sub(_lastPos)
-        let deltaDirection = delta.getDirection()
-        
         if (deltaDirection !== _activeDirection || deltaDirection === _gesture[_gesture.length - 1]) {
             // reset
             _activeDirection = deltaDirection
@@ -326,24 +341,26 @@ const GestureParsing = (function() {
                 _lastPos = null
             }
         }
-       
-       _lastPos = vec
+
+        _lastPos = vec
     }
 
-    let Finish = (maxStrokes, gridComplexity) => {
+    const Finish = (maxStrokes, gridComplexity, cancelOnTooManyStrokes) => {
         let returnGesture = _gesture
-        
+
         _gesture = []
         _activeDirection = null
         _deltaActiveDirection = 0
         _lastPos = null
 
+        if (cancelOnTooManyStrokes && returnGesture.length > maxStrokes)
+            return null
         if (maxStrokes !== 0 && returnGesture.length > maxStrokes) // only retrieve the last n strokes (n = maxStrokes)
             returnGesture = returnGesture.slice(Math.max(returnGesture.length - maxStrokes, 0))
         if (gridComplexity !== 0) {
-            let tempGesture = []
-            let min = new Vec2(0, 0), max = new Vec2(0, 0), temp = new Vec2(0, 0)
-            for (let direction of returnGesture.toReversed()) {
+            const tempGesture = []
+            const min = new Vec2(0, 0), max = new Vec2(0, 0), temp = new Vec2(0, 0)
+            for (const direction of returnGesture.toReversed()) {
                 temp.add(GestureDirectionToVec2(direction))
                 if (temp.x > max.x)
                     max.x = temp.x
@@ -364,7 +381,7 @@ const GestureParsing = (function() {
         return returnGesture
     }
 
-    let Cancel = () => {
+    const Cancel = () => {
         _gesture = []
         _activeDirection = null
         _deltaActiveDirection = 0
@@ -386,40 +403,40 @@ const GestureDrawingUi = (function() {
     let _inputContext = null
     let _settingsManager = null
 
-    let SetInputCanvas = (inputDom) => {
+    const SetInputCanvas = (inputDom) => {
         _inputDom = inputDom
         _inputContext = inputDom.getContext("2d")
         Clear()
     }
 
-    let SetSettingsManager = (settingsManager) => {
+    const SetSettingsManager = (settingsManager) => {
         _settingsManager = settingsManager
     }
 
-    let DrawPoint = (vec) => {
+    const DrawPoint = (vec) => {
         if (!(vec instanceof Vec2))
             throw new Error("Param vec is not of type Vec2")
         if (_inputDom === null)
             throw new Error("Input is not set")
-        
+
         if (lastPoint === null)
             lastPoint = vec
 
         _inputContext.beginPath()
         _inputContext.moveTo(lastPoint.x, lastPoint.y)
-        _inputContext.lineWidth = 15
+        _inputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
         _inputContext.lineCap = "round"
         _inputContext.strokeStyle = _settingsManager.GetSetting("DrawColor")
         _inputContext.lineTo(vec.x, vec.y)
         _inputContext.stroke()
-        
+
         lastPoint = vec
     }
 
-    let Clear = () => {
+    const Clear = () => {
         lastPoint = null
-        
-        if(!(_inputDom instanceof HTMLCanvasElement))
+
+        if (!(_inputDom instanceof HTMLCanvasElement))
             throw new Error("Input DOM Element is not a Canvas!")
 
         _inputContext.reset()
@@ -435,58 +452,60 @@ const GestureDrawingUi = (function() {
 
 const GestureDrawing = (function() {
     let _isDrawing = false
-    
+
     let _inputDom = null
-    
+
     const _settingsManager = GestureSettingsManager
     const _gestureParsing = GestureParsing
     _gestureParsing.SetSettingsManager(_settingsManager)
     const _drawingUi = GestureDrawingUi
     _drawingUi.SetSettingsManager(_settingsManager)
 
-    let SetInputCanvas = (inputDom) => {
-        _inputDom = inputDom
+    const SetInputCanvas = (inputDom) => {
+        if (_inputDom !== null)
+            CancelDrawing()
 
+        _inputDom = inputDom
         _drawingUi.SetInputCanvas(inputDom)
     }
 
-    let StartDrawing = (event) => {
+    const StartDrawing = (event) => {
         _isDrawing = true
 
         _drawingUi.Clear()
-    
+
         if (event === undefined || event === null)
-            return 
+            return
         if (!(event instanceof MouseEvent)) {
             console.warn("Param event should be a MouseEvent")
             return
         }
-        
-        var rect = _inputDom.getBoundingClientRect()
-        let newPoint = new Vec2(event.clientX - rect.left, event.clientY - rect.top)
+
+        const rect = _inputDom.getBoundingClientRect()
+        const newPoint = new Vec2(event.clientX - rect.left, event.clientY - rect.top)
 
         _gestureParsing.UpdateData(newPoint)
         _drawingUi.DrawPoint(newPoint)
     }
 
-    let OnDraw = (event) => {
+    const OnDraw = (event) => {
         if (!_isDrawing) return
 
-        var rect = _inputDom.getBoundingClientRect();
-        let newPoint = new Vec2(event.clientX - rect.left, event.clientY - rect.top)
+        const rect = _inputDom.getBoundingClientRect();
+        const newPoint = new Vec2(event.clientX - rect.left, event.clientY - rect.top)
 
         _gestureParsing.UpdateData(newPoint)
         _drawingUi.DrawPoint(newPoint)
     }
 
-    let StopDrawing = () => {
+    const StopDrawing = () => {
         _isDrawing = false
-        let gestureResult = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"))
+        const gestureResult = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("GridComplexity"), false)
         _drawingUi.Clear()
         return gestureResult
     }
 
-    let CancelDrawing = () => {
+    const CancelDrawing = () => {
         _isDrawing = false
         _gestureParsing.Cancel()
         _drawingUi.Clear()
@@ -523,27 +542,25 @@ const GestureDisplayingUi = (function() {
     let _outputContext = null
 
     let _settingsManager = null
-    
-    const requestAnimationFrame =
-        window.requestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.msRequestAnimationFrame
 
-    let SetOutputCanvas = (outputDom) => {
+    const SetOutputCanvas = (outputDom) => {
+        if (_outputDom !== null)
+            _reset()
+
         _outputDom = outputDom
         _outputContext = outputDom.getContext("2d")
-        Reset()
+
+        _reset()
     }
 
-    let SetSettingsManager = (settingsManager) => {
+    const SetSettingsManager = (settingsManager) => {
         _settingsManager = settingsManager
     }
 
-    let _gestureToPoints = (gestureArr) => {
+    const _gestureToPoints = (gestureArr) => {
         const outputDomRect = _outputDom.getBoundingClientRect()
-        let drawradius = _settingsManager.GetSetting("DisplaySize")
-        let drawRect = { left: 0, top: 0, width: outputDomRect.width, height: outputDomRect.height }
+        const drawRadius = _settingsManager.GetSetting("DisplaySize")
+        const drawRect = { left: 0, top: 0, width: outputDomRect.width, height: outputDomRect.height }
 
         if (_settingsManager.GetSetting("DisplaySquareOffArea") && outputDomRect.width != outputDomRect.height) {
             if (outputDomRect.width < outputDomRect.height) {
@@ -552,12 +569,12 @@ const GestureDisplayingUi = (function() {
             } else {
                 drawRect.left = (outputDomRect.width - outputDomRect.height) / 2
                 drawRect.width = outputDomRect.height
-            }    
+            }
         }
 
-        const padding = _settingsManager.GetSetting("DisplayStrokePadding") + (drawradius / 2)
-        drawRect.left += padding + (drawradius % 2 !== 0 ? 0 : 0.5)
-        drawRect.top += padding + (drawradius % 2 !== 0 ? 0 : 0.5)
+        const padding = _settingsManager.GetSetting("DisplayStrokePadding") + (drawRadius / 2)
+        drawRect.left += padding + (drawRadius % 2 !== 0 ? 0 : 0.5)
+        drawRect.top += padding + (drawRadius % 2 !== 0 ? 0 : 0.5)
         drawRect.width -= padding * 2
         drawRect.height -= padding * 2
 
@@ -585,8 +602,8 @@ const GestureDisplayingUi = (function() {
             }
         });
 
-        let cols = xMax - xMin
-        let rows = yMax - yMin
+        const cols = xMax - xMin
+        const rows = yMax - yMin
         if (cols != rows && _settingsManager.GetSetting("DisplaySquareOffArea")) {
             if (cols > rows) {
                 const offset = drawRect.height / cols
@@ -605,7 +622,7 @@ const GestureDisplayingUi = (function() {
             //center
             drawRect.left += drawRect.width / 2
             drawRect.width = 0
-        } else 
+        } else
             xLineSize = drawRect.width / cols
 
         if (rows === 0) {
@@ -617,10 +634,10 @@ const GestureDisplayingUi = (function() {
             yLineSize = drawRect.height / rows
 
 
-        let retArr = []
-        
-        let lastPos = new Vec2(drawRect.left + ((cols - xMax) * xLineSize), drawRect.top + ((rows - yMax) * yLineSize))
-        retArr.push(lastPos.clone())
+        const retArr = []
+
+        const lastPos = new Vec2(drawRect.left + ((cols - xMax) * xLineSize), drawRect.top + ((rows - yMax) * yLineSize))
+        retArr.push(lastPos.clone().floor())
 
         gestureArr.forEach(direction => {
             if (direction === GestureDirection.neutral)
@@ -630,14 +647,14 @@ const GestureDisplayingUi = (function() {
             else
                 lastPos.add(GestureDirectionToVec2(direction).mult(yLineSize))
 
-            retArr.push(lastPos.clone())
+            retArr.push(lastPos.clone().floor())
         })
 
         return retArr
     }
 
-    let Start = (gestureArr) => {
-        Reset()
+    const Start = (gestureArr) => {
+        _reset()
         _isDisplaying = true
 
         _lastUpdateTime = Date.now()
@@ -649,29 +666,26 @@ const GestureDisplayingUi = (function() {
 
         _snakeChunks = []
         const chunks = 1 + (_settingsManager.GetSetting("DisplayTrailLength") / (_settingsManager.GetSetting("DisplaySpeed") * (1000 / _settingsManager.GetSetting("DisplayFps")) / 1000))
-        
-        _snakeChunks.push({ pos: _points[0].clone(), color: _settingsManager.GetSetting("DisplayColor") })
-        for (let index = 1; index < chunks; index++) {
+
+        for (let index = 0; index <= chunks; index++) {
             _snakeChunks.push({ pos: _points[0].clone(), color: _findColor(_settingsManager.GetSetting("DisplayColor"), _settingsManager.GetSetting("DisplayToColor"), (index / chunks)) })
         }
-        _snakeChunks.push({ pos: _points[0].clone(), color: _settingsManager.GetSetting("DisplayToColor") })
-        
         _animate()
     }
 
     // param examples: (fromColorHex = "#00ff00", toColorHex = "#333", colorTransition = 0.8)
     // if (colorTransition === 0) return fromColorHex and if (colorTransition === 1) return toColorHex
-    let _findColor = (fromColorHex, toColorHex, colorTransition) => {
-        let fromColor = hexToRGB(fromColorHex)
-        let toColor = hexToRGB(toColorHex)
+    const _findColor = (fromColorHex, toColorHex, colorTransition) => {
+        const fromColor = hexToRGB(fromColorHex)
+        const toColor = hexToRGB(toColorHex)
 
-        let r = Math.floor((fromColor.r * (1 - colorTransition)) + (toColor.r * colorTransition))
-        let g = Math.floor((fromColor.g * (1 - colorTransition)) + (toColor.g * colorTransition))
-        let b = Math.floor((fromColor.b * (1 - colorTransition)) + (toColor.b * colorTransition))
+        const r = Math.floor((fromColor.r * (1 - colorTransition)) + (toColor.r * colorTransition))
+        const g = Math.floor((fromColor.g * (1 - colorTransition)) + (toColor.g * colorTransition))
+        const b = Math.floor((fromColor.b * (1 - colorTransition)) + (toColor.b * colorTransition))
         let a = Math.ceil((fromColor.a * (1 - colorTransition)) + (toColor.a * colorTransition))
         if (a >= 255)
             a = null
-        
+
         return RGBToHex(r, g, b, a)
 
 
@@ -684,7 +698,7 @@ const GestureDisplayingUi = (function() {
                 return { r: parseInt(hex.substring(1, 3), 16), g: parseInt(hex.substring(3, 5), 16), b: parseInt(hex.substring(5, 7), 16), a: 255 }
             else if (hex.length === 9)
                 return { r: parseInt(hex.substring(1, 3), 16), g: parseInt(hex.substring(3, 5), 16), b: parseInt(hex.substring(5, 7), 16), a: parseInt(hex.substring(7, 9), 16) }
-            
+
             return { r: 0, g: 0, b: 0, a: 255 }
         }
 
@@ -693,10 +707,10 @@ const GestureDisplayingUi = (function() {
         }
     }
 
-    let _animate = () => {
+    const _animate = () => {
         if (!_isDisplaying) return
 
-        let deltaTime = Date.now() - _lastUpdateTime
+        const deltaTime = Date.now() - _lastUpdateTime
 
         if (_settingsManager.GetSetting("DisplayFps") !== 0 && deltaTime < (1000 / _settingsManager.GetSetting("DisplayFps"))) {
             requestAnimationFrame(_animate)
@@ -704,53 +718,58 @@ const GestureDisplayingUi = (function() {
         }
         _lastUpdateTime = Date.now()
 
-        // clear canvas
-        _outputContext.reset()
-        // draw path that snake has passed
-        _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
-        _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
-        _outputContext.lineJoin = "round";
-        _outputContext.lineCap = "round"
-        _outputContext.beginPath()
-        _outputContext.moveTo(_points[0].x, _points[0].y)
-        for (let i = 1; i <= _currentPointI; i++)
-        _outputContext.lineTo(_points[i].x, _points[i].y)
-        if (!_snakeChunks[0].pos.equals(new Vec2(-1, -1)))
-            _outputContext.lineTo(_snakeChunks[0].pos.x, _snakeChunks[0].pos.y)
-        _outputContext.stroke()
-        // draw snake entirely
-        _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
-        _outputContext.lineWidth = _settingsManager.GetSetting("DrawSize")
-        for (let i = _snakeChunks.length - 1; i > 0; i--) {
-            if (_snakeChunks[i - 1].pos.equals(new Vec2(-1, -1)))
-                continue
-            
-            _outputContext.strokeStyle = _snakeChunks[i - 1].color
-            _outputContext.beginPath()
-            _outputContext.moveTo(Math.floor(_snakeChunks[i].pos.x), Math.floor(_snakeChunks[i].pos.y))
-            _outputContext.lineTo(Math.floor(_snakeChunks[i-1].pos.x), Math.floor(_snakeChunks[i-1].pos.y))
-            _outputContext.stroke()
-        }
 
         let distance = (_settingsManager.GetSetting("DisplaySpeed") / 1000) * deltaTime
-
 
         let newPoint
         if (_currentPointI >= _points.length - 1 && _snakeChunks[0].pos.equals(_points[_points.length - 1]) || _snakeChunks[0].pos.equals(new Vec2(-1, -1))) // ending animation
             newPoint = new Vec2(-1, -1)
         else {
-            let direnctionCurrentPath = _points[_currentPointI + 1].clone().sub(_points[_currentPointI]).getDirection()
-            let deltaDistance = GestureDirectionToVec2(direnctionCurrentPath).mult(distance)
+            const directionCurrentPath = _points[_currentPointI + 1].clone().sub(_points[_currentPointI]).getDirection()
+            const deltaDistance = GestureDirectionToVec2(directionCurrentPath).mult(distance)
             if (deltaDistance.lengthSq() > _points[_currentPointI + 1].clone().sub(_snakeChunks[0].pos).lengthSq())
-                newPoint = _points[_currentPointI + 1]
+                newPoint = _points[_currentPointI + 1] // snap to point
             else
-                newPoint = _snakeChunks[0].pos.clone().add(deltaDistance)
+                newPoint = _snakeChunks[0].pos.clone().add(deltaDistance) // continue travel between points
         }
 
         for (let i = _snakeChunks.length - 1; i > 0; i--) {
             _snakeChunks[i].pos = _snakeChunks[i - 1].pos.clone()
         }
         _snakeChunks[0].pos = newPoint
+
+        // clear canvas
+        _outputContext.reset()
+        // draw path that snake has passed
+        _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
+        _outputContext.lineWidth = _settingsManager.GetSetting("DisplaySize")
+        _outputContext.lineJoin = "round"
+        _outputContext.lineCap = "round"
+        if (_settingsManager.GetSetting("DisplayLeaveTrail")) {
+            _outputContext.beginPath()
+            _outputContext.moveTo(_points[0].x, _points[0].y)
+            for (let i = 1; i <= _currentPointI; i++)
+                _outputContext.lineTo(_points[i].x, _points[i].y)
+            if (!_snakeChunks[0].pos.equals(new Vec2(-1, -1)))
+                _outputContext.lineTo(_snakeChunks[0].pos.x, _snakeChunks[0].pos.y)
+            _outputContext.stroke()
+        }
+        // draw snake entirely
+        for (let i = _snakeChunks.length - 1; i > 0; i--) {
+            if (_snakeChunks[i - 1].pos.equals(new Vec2(-1, -1)))
+                continue
+
+            _outputContext.strokeStyle = _settingsManager.GetSetting("DisplayToColor")
+            _outputContext.lineWidth = _settingsManager.GetSetting("DisplaySize")
+            _outputContext.lineJoin = "round"
+            _outputContext.lineCap = "round"
+
+            _outputContext.strokeStyle = _snakeChunks[i].color
+            _outputContext.beginPath()
+            _outputContext.moveTo(Math.floor(_snakeChunks[i].pos.x), Math.floor(_snakeChunks[i].pos.y))
+            _outputContext.lineTo(Math.floor(_snakeChunks[i - 1].pos.x), Math.floor(_snakeChunks[i - 1].pos.y))
+            _outputContext.stroke()
+        }
 
 
         if (_currentPointI >= _points.length - 1) {
@@ -764,11 +783,11 @@ const GestureDisplayingUi = (function() {
             }
 
             _outputContext.reset()
-            
+
             _snakeChunks.forEach((chunk) => {
                 chunk.pos = _points[0].clone()
             })
-            
+
             _currentPointI = 0
             distance = 0
         } else if (_snakeChunks[0].pos.equals(_points[_currentPointI + 1])) { // reached end of gesture direction
@@ -781,22 +800,18 @@ const GestureDisplayingUi = (function() {
 
         requestAnimationFrame(_animate)
     }
-    
-    let Stop = () => {
-        Reset()
+
+    const Stop = () => {
+        _reset()
     }
-    
-    let Reset = () => {
+
+    const _reset = () => {
         _isDisplaying = false
-        
+
         _currentPointI = 0
         _snakeChunks = null
         _points = null
-        
-        _clear()
-    }
 
-    let _clear = () => {
         _outputContext.reset()
     }
 
@@ -809,20 +824,27 @@ const GestureDisplayingUi = (function() {
 })()
 
 const GestureDisplaying = (function() {
+    let _outputDom = null
+
     const _settingsManager = GestureSettingsManager
     const _displayingUi = GestureDisplayingUi
     _displayingUi.SetSettingsManager(_settingsManager)
 
-    let SetOutputCanvas = (outputDom) => {
+    const SetOutputCanvas = (outputDom) => {
         if (!(outputDom instanceof HTMLCanvasElement))
-            throw new Error("Output DOM Element is not a Canvas!")
+            throw new Error("Param outputDom is not a Canvas!")
+        if (_outputDom !== null)
+            Stop()
 
-        _displayingUi.SetOutputCanvas(outputDom)
+        _outputDom = outputDom
+        _displayingUi.SetOutputCanvas(_outputDom)
+
+        Stop()
     }
 
-    let Display = (gesture) => {
+    const Display = (gesture) => {
         _displayingUi.Stop()
-        
+
         if (!Array.isArray(gesture))
             throw new Error("Gesture has to be an Array!")
         if (gesture.length == 0)
@@ -833,8 +855,9 @@ const GestureDisplaying = (function() {
         _displayingUi.Start(gesture)
     }
 
-    let Stop = () => {
-        _displayingUi.Stop()
+    const Stop = () => {
+        if (_outputDom !== null)
+            _displayingUi.Stop()
     }
 
     return {
@@ -850,127 +873,143 @@ const GestureDisplaying = (function() {
 
 //#endregion
 
-const GestureManager = (function() {
+const GestureManager = (function(window) {
     let _drawingEnabled = false
     let _drawing = false
 
+    let _inputDom = null
     let _activeGesture = []
 
     const _settingsManager = GestureSettingsManager
     const _gestureDrawing = GestureDrawing
     const _gestureDisplaying = GestureDisplaying
     let _dataStorage = GestureLocalStorage
-    
-    let SetInputCanvas = (inputDom) => {
+
+    const SetInputCanvas = (inputDom) => {
         if (!(inputDom instanceof HTMLCanvasElement))
-            throw new Error("Input DOM Element is not a Canvas!")
-        
-        _addInputEventListners(inputDom)
-        _gestureDrawing.SetInputCanvas(inputDom)
+            throw new Error("Param inputDom is not a Canvas!")
+
+        if (_inputDom !== null)
+            _removeInputEventListeners(_inputDom)
+
+        _inputDom = inputDom
+
+        _addInputEventListeners(_inputDom)
+        _gestureDrawing.SetInputCanvas(_inputDom)
     }
 
-    let SetOutputCanvas = (outputDom) => {
+    const SetOutputCanvas = (outputDom) => {
         if (!(outputDom instanceof HTMLCanvasElement))
-            throw new Error("Input DOM Element is not a Canvas!")
+            throw new Error("Param outputDom is not a Canvas!")
 
         _gestureDisplaying.SetOutputCanvas(outputDom)
     }
 
-    let _addInputEventListners = (inputDom) => {
-        inputDom.addEventListener("mousedown", (event) => {
-            if (event.button !== 0) // left click
-                return
-            if (!_drawingEnabled)
-                return
-
-            _drawing = true
-            _gestureDrawing.StartDrawing(event)
-        })
-
-        inputDom.addEventListener("mousemove", (event) => {
-            if (!_drawingEnabled)
-                return
-            if (_drawing)
-                _gestureDrawing.OnDraw(event)
-        })
-
-        inputDom.addEventListener("mouseup", (event) => {
-            if (event.button !== 0) // left click
-                return
-            if (!_drawingEnabled)
-                return
-            
-            _drawing = false
-            _activeGesture = _gestureDrawing.StopDrawing()
-            _gestureDisplaying.Display(_activeGesture)
-            
-        })
-
-        inputDom.addEventListener("mouseleave", (event) => {
-            _drawing = false
-            _gestureDrawing.CancelDrawing()
-        })
+    const _addInputEventListeners = (inputDom) => {
+        inputDom.addEventListener("mousedown", _mousedownHandler)
+        inputDom.addEventListener("mousemove", _mousemoveHandler)
+        inputDom.addEventListener("mouseup", _mouseupHandler)
+        inputDom.addEventListener("mouseleave", _mouseleaveHandler)
     }
+    const _removeInputEventListeners = (inputDom) => {
+        inputDom.removeEventListener("mousedown", _mousedownHandler)
+        inputDom.removeEventListener("mousemove", _mousemoveHandler)
+        inputDom.removeEventListener("mouseup", _mouseupHandler)
+        inputDom.removeEventListener("mouseleave", _mouseleaveHandler)
+    }
+    //#region  window eventListeners handlers
+    const _mousedownHandler = (event) => {
+        if (event.button !== 0) // left click
+            return
+        if (!_drawingEnabled)
+            return
 
-    let SetSettings = (settings) => {
+        _drawing = true
+        _gestureDrawing.StartDrawing(event)
+    }
+    const _mousemoveHandler = (event) => {
+        if (!_drawingEnabled)
+            return
+        if (_drawing)
+            _gestureDrawing.OnDraw(event)
+    }
+    const _mouseupHandler = (event) => {
+        if (event.button !== 0) // left click
+            return
+        if (!_drawingEnabled)
+            return
+
+        _drawing = false
+        _activeGesture = _gestureDrawing.StopDrawing()
+        _gestureDisplaying.Display(_activeGesture)
+
+    }
+    const _mouseleaveHandler = (_event) => {
+        _drawing = false
+        _gestureDrawing.CancelDrawing()
+    }
+    //#endregion
+
+    const SetSettings = (settings) => {
         _settingsManager.SetSettings(settings)
         _gestureDrawing.SetSettings(settings)
         _gestureDisplaying.SetSettings(settings)
     }
 
-    let SetSetting = (key, value) => {
+    const SetSetting = (key, value) => {
         _settingsManager.SetSetting(key, value)
         _gestureDrawing.SetSetting(key, value)
         _gestureDisplaying.SetSetting(key, value)
     }
 
-    let SetDataStorage = (dataStorage) => {
+    const SetDataStorage = (dataStorage) => {
         if (!(dataStorage instanceof DataStorage))
-            throw new Error("Param dataStorage is not of type Datastorage, " +
-            "Use either DataStorage or use another class that extends from the interface DataStorage!")
-        
+            throw new Error("Param dataStorage is not of type DataStorage, " +
+                "Use either DataStorage or use another class that extends from the interface DataStorage!")
+
         _dataStorage = dataStorage
     }
 
-    let Exists = (name) => {
+    const Exists = (name) => {
         if (typeof name !== "string")
             throw new Error("param name must be a string!")
 
         return _dataStorage.exists(name)
     }
 
-    let New = () => {
+    const New = () => {
         _drawingEnabled = true
         _gestureDrawing.StartDrawing()
     }
 
-    let Save = (name) => {
+    const Save = (name) => {
         if (typeof name !== "string")
             throw new Error("param name must be a string!")
 
         _drawingEnabled = false
         _dataStorage.set(name, _activeGesture)
+        window.dispatchEvent(new CustomEvent(GestureEvents.addedGesture, { detail: { name: name, gesture: _activeGesture } }))
         _activeGesture = []
 
     }
 
-    let Cancel = () => {
+    const Cancel = () => {
         _drawingEnabled = false
         _activeGesture = []
-        
+
         _gestureDisplaying.Stop()
     }
 
-    let Display = (name) => {
+    const Display = (name) => {
         if (typeof name !== "string")
             throw new Error("param name must be a string!")
 
-        let gesture = _dataStorage.get(name)
+        const gesture = _dataStorage.get(name)
 
         _gestureDisplaying.Display(gesture)
     }
 
-    let Forget = (name) => {
+    const Forget = (name) => {
         if (typeof name !== "string")
             throw new Error("param name must be a string!")
 
@@ -985,94 +1024,111 @@ const GestureManager = (function() {
         GetSetting: _settingsManager.GetSetting,
         SetSetting: SetSetting,
         SetDataStorage: SetDataStorage,
-        StopDisplaying: _gestureDisplaying.Stop,
         Exists: Exists,
         New: New,
         Save: Save,
         Cancel: Cancel,
         Display: Display,
+        StopDisplaying: _gestureDisplaying.Stop,
         Forget: Forget,
+        GetGestures: _dataStorage.getAll,
     }
-})()
+})(window)
 
-const GestureListener = (function(window, document) {
+const GestureListener = (function(window) {
     const _settingsManager = GestureSettingsManager
     const _gestureParsing = GestureParsing
     _gestureParsing.SetSettingsManager(_settingsManager)
-    let _dataStorage = GestureLocalStorage
+    const _dataStorage = GestureLocalStorage
 
-    const gestureEventName = "gesture"
-    const invalidGestureEventName = "failedGesture"
     let _window = window
 
     let _parsing = false
     let _preventContextmenu = false
 
-    let _addWindowEventListners = (window) => {
-        window.addEventListener("mousedown", (event) => {
-            if (event.button !== 2) // right click
-                return
+    const _addWindowEventListeners = (window) => {
+        window.addEventListener("mousedown", _mousedownHandler)
+        window.addEventListener("mousemove", _mousemoveHandler)
+        window.addEventListener("contextmenu", _contextmenuHandler)
+        window.addEventListener("mouseup", _mouseupHandler)
+    }
+    const _removeWindowEventListeners = (window) => {
+        window.removeEventListener("mousedown", _mousedownHandler)
+        window.removeEventListener("mousemove", _mousemoveHandler)
+        window.removeEventListener("contextmenu", _contextmenuHandler)
+        window.removeEventListener("mouseup", _mouseupHandler)
+    }
 
-            _parsing = true
-            _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
-        })
+    //#region window eventListeners handlers
+    const _mousedownHandler = (event) => {
+        if (event.button !== 2) // right click
+            return
 
-        window.addEventListener("mousemove", (event) => {
-            if (!_parsing)
+        _parsing = true
+        _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
+    }
+    const _mousemoveHandler = (event) => {
+        if (!_parsing)
+            return
+        if (_settingsManager.GetSetting("GestureCancelOnMouseLeave")) {
+            if (event.clientX < 0 || event.clientX > window.innerWidth
+                || event.clientY < 0 || event.clientY > window.innerHeight) {
+                _parsing = false
+                _gestureParsing.Cancel()
                 return
-            if (_settingsManager.GetSetting("GestureCancelOnMouseLeave")) {
-                if (event.clientX < 0 || event.clientX > window.innerWidth
-                    || event.clientY < 0 || event.clientY > window.innerHeight ) {
-                    _parsing = false
-                    _gestureParsing.Cancel()
-                    return
-                }
             }
+        }
 
-            _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
-        })
-        window.addEventListener("contextmenu", (event) => {
-            if (_preventContextmenu)
-                event.preventDefault()
-            _preventContextmenu = false
-        })
+        _gestureParsing.UpdateData(new Vec2(event.clientX, event.clientY))
+    }
+    const _contextmenuHandler = (event) => {
+        if (_preventContextmenu)
+            event.preventDefault()
+        _preventContextmenu = false
+    }
+    const _mouseupHandler = (event) => {
+        if (event.button !== 2) // right click
+            return
 
-        window.addEventListener("mouseup", (event) => {
-            if (event.button !== 2) // right click
-                return
-
-            _parsing = false
-            let gesture = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("Gridcomplexity"))
+        _parsing = false
+        const gesture = _gestureParsing.Finish(_settingsManager.GetSetting("MaxStrokes"), _settingsManager.GetSetting("GridComplexity"), _settingsManager.GetSetting("GestureCancelOnTooManyStrokes"))
+        if (gesture !== null)
             if (gesture.length > 0)
-                _preventContextmenu = true
-            _onGestureEvent(gesture)
-        })
+                _onGestureEvent(gesture)
+    }
+    //#endregion
+
+    const Activate = () => {
+        _removeWindowEventListeners(_window) // is always safe
+        _addWindowEventListeners(_window)
     }
 
-    let Activate = () => {
-        _addWindowEventListners(_window)
+    const Deactivate = () => {
+        _removeWindowEventListeners(_window) // is always safe
     }
 
-    let _onGestureEvent = (gesture) => {
+    const _onGestureEvent = (gesture) => {
+        _preventContextmenu = true
+
         const allGestures = _dataStorage.getAll()
         // find event
         const eventEntry = Object.entries(allGestures).find((entry) => gesturesAreEqual(gesture, entry[1]))
 
         // trigger event
         if (eventEntry === undefined || eventEntry.length <= 0) {
-            _window.dispatchEvent(new CustomEvent(invalidGestureEventName, { detail: { gesture: gesture } }))
+            _window.dispatchEvent(new CustomEvent(GestureEvents.failedGesture, { detail: { gesture: gesture } }))
             return
         }
-        _window.dispatchEvent(new CustomEvent(gestureEventName, { detail: { name: eventEntry[0], gesture: gesture } }))
+        _window.dispatchEvent(new CustomEvent(GestureEvents.gesture, { detail: { name: eventEntry[0], gesture: gesture } }))
 
-        
+
         function gesturesAreEqual(arr1, arr2) {
             if (!Array.isArray(arr1) || !Array.isArray(arr2))
                 return false;
             if (arr1.length != arr2.length)
                 return false;
 
-            for (var i = 0; i < arr1.length; i++) {
+            for (let i = 0; i < arr1.length; i++) {
                 if (arr1[i] !== arr2[i])
                     return false;
             }
@@ -1080,7 +1136,7 @@ const GestureListener = (function(window, document) {
         }
     }
 
-    let SetGestureWindow = (window) => {
+    const SetGestureWindow = (window) => {
         if (!(window instanceof HTMLElement))
             throw new Error("Window must be an HTMLElement")
 
@@ -1094,5 +1150,6 @@ const GestureListener = (function(window, document) {
         GetSetting: _settingsManager.GetSetting,
         SetSetting: _settingsManager.GetSettings,
         Activate: Activate,
+        Deactivate: Deactivate,
     }
-})(window, document)
+})(window)
