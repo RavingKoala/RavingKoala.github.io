@@ -1,7 +1,8 @@
 const RecorderEvents = {
 	onReady: "OnReady",
 	onEnded: "OnEnded",
-	onRecordPermsUpdate: "OnRecordPermsUpdate"
+	onRecordPermsUpdate: "OnRecordPermsUpdate",
+    onPlay: "onPlay",
 }
 
 var RecorderSettings = {
@@ -16,16 +17,16 @@ class Recorder {
 	#mediaStream
 	#lastBlobRaw
 	#audioObj
-	constructor (settings) {
+    constructor (settings, audioObject) {
 		this.isRecording = false
 		this.isPlaying = false
 		this.#playASAP = settings.PlayASAP
 		this.#mediaStream
 		this.#lastBlobRaw
-		this.#audioObj = new Audio()
+        this.#audioObj = audioObject
 		this.setVolume(0.5)
 
-		this.#audioObj.onpause = () => {
+		this.#audioObj.onpause = () => {// also gets triggerd by triggers on onended
 			this.isPlaying = false
 			document.dispatchEvent(new Event(RecorderEvents.onEnded))
 		}
@@ -87,6 +88,8 @@ class Recorder {
 	}
 
 	playRecording() { // never call playRecording if settings.PlayASAP === true
+        document.dispatchEvent(new Event(RecorderEvents.onPlay))
+
 		this.isPlaying = true
 		this.#audioObj.play()
 	}

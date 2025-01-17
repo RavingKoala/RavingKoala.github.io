@@ -1,0 +1,178 @@
+.inputNotifier {
+	position: absolute;
+	padding: .6rem .6rem;
+	border: 1px solid transparent;
+	border-radius: 0.25rem;
+	min-width: 200px;
+	max-width: 500px;
+	opacity: 0;
+	transition: opacity .4s cubic-bezier(0, 1, .5, 1);
+}
+
+.inputNotifier.show {
+	opacity: .9;
+}
+
+/* #region relative positions */
+
+.inputNotifier.top,
+.inputNotifier.bottom,
+.inputNotifier.left,
+.inputNotifier.right {}
+
+.inputNotifier.top::before,
+.inputNotifier.bottom::before,
+.inputNotifier.left::before,
+.inputNotifier.right::before {
+	content: "";
+	position: absolute;
+	display: inline-block;
+	width: .4em;
+	height: .4em;
+	z-index: 1;
+	border: solid transparent .4em;
+}
+
+.inputNotifier.top {}
+
+.inputNotifier.top::before {
+	bottom: -.4em;
+	border-bottom-width: 0;
+	border-top-color: inherit;
+}
+
+.inputNotifier.bottom {}
+
+.inputNotifier.bottom::before {
+	top: -.4em;
+	border-top-width: 0;
+	border-bottom-color: inherit;
+}
+
+.inputNotifier.left {}
+
+.inputNotifier.left::before {
+	right: -.4em;
+	border-right-width: 0;
+	border-left-color: inherit;
+}
+
+.inputNotifier.right {}
+
+.inputNotifier.right::before {
+	left: -.4em;
+	border-left-width: 0;
+	border-right-color: inherit;
+}
+
+.inputNotifier.top,
+.inputNotifier.bottom {
+	margin: .4em 0;
+}
+
+.inputNotifier.left,
+.inputNotifier.right {
+	margin: 0 .4em;
+}
+
+.inputNotifier.top::before,
+.inputNotifier.bottom::before {
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.inputNotifier.left::before,
+.inputNotifier.right::before {
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+/* #endregion */
+
+/* #region colors */
+
+.inputNotifier.primary {
+	color: var(--dark-bs-primary);
+	background-color: #cfe2ff;
+	border-color: #b6d4fe;
+}
+
+.dark .inputNotifier.primary {
+	color: var(--dark-bs-primary);
+	background-color: hsl(216, 100%, 9%);
+	border-color: hsl(216, 100%, 15%);
+}
+
+.inputNotifier.secondary {
+	color: var(--dark-bs-secondary);
+	background-color: #e2e3e5;
+	border-color: #d3d6d8;
+}
+
+.dark .inputNotifier.secondary {
+	color: var(--dark-bs-secondary);
+	background-color: hsl(210, 4%, 9%);
+	border-color: hsl(220, 4%, 15%);
+}
+
+.inputNotifier.success {
+	color: #0f5132;
+	background-color: #d1e7dd;
+	border-color: #badbcc;
+}
+
+.dark .inputNotifier.success {
+	color: var(--dark-bs-success);
+	background-color: hsl(140, 100%, 9%);
+	border-color: hsl(140, 100%, 15%);
+}
+
+.inputNotifier.danger {
+	color: #842029;
+	background-color: hsl(355, 70%, 91%);
+	border-color: hsl(354, 72%, 86%);
+}
+
+.dark .inputNotifier.danger {
+	color: var(--dark-bs-danger);
+	background-color: rgb(44, 2, 2);
+	border-color: rgb(73, 4, 4);
+}
+
+.inputNotifier.warning {
+	color: #0f5132;
+	background-color: #d1e7dd;
+	border-color: #badbcc;
+}
+
+.dark .inputNotifier.warning {
+	color: var(--dark-bs-warning);
+	background-color: hsl(45, 100%, 9%);
+	border-color: hsl(45, 100%, 15%);
+}
+
+.inputNotifier.info {
+	color: #055160;
+	background-color: #cff4fc;
+	border-color: #b6effb;
+}
+
+.dark .inputNotifier.info {
+	color: var(--dark-bs-info);
+	background-color: hsl(190, 87%, 9%);
+	border-color: hsl(190, 87%, 15%);
+}
+
+.inputNotifier.light {
+	color: #636464;
+	background-color: #fefefe;
+	border-color: #fdfdfe;
+}
+
+.inputNotifier.dark {
+	color: #141619;
+	background-color: #d3d3d4;
+	border-color: #bcbebf;
+}
+
+/* #endregion */

@@ -9,14 +9,14 @@
 			crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="../../css/bootstrap.dark.css" />
 		<link rel="stylesheet" href="../../css/materialDesign.css" />
+		<link rel="stylesheet" href="../../modules/css/tabs.css" />
 		<link rel="stylesheet" href="css/main.css" />
-		<link rel="stylesheet" href="css/tabs.css" />
 		<link rel="stylesheet" href="css/chart.css" />
+		<script src="../../modules/js/tabs.js"></script>
 		<script src="js/vec.js"></script>
 		<script src="js/MathExtension.js"></script>
 		<script src="js/SVGCreator.js"></script>
 		<script src="js/chart.js"></script>
-
 	</head>
 
 	<body class="dark">
@@ -26,10 +26,11 @@
 					<div class="tab" data-tab-id="exampleChart1">-10 to 0</div>
 					<div class="tab" data-tab-id="exampleChart2">-1 to 1</div>
 					<div class="tab" data-tab-id="exampleChart3">1 to 9</div>
-					<div class="tab" data-tab-id="exampleChart4">0 to 100</div>
+					<div class="tab" data-tab-id="exampleChart4">40 to 220</div>
+                    <div class="tab" data-tab-id="exampleChart5">random points in a plot</div>
 				</div>
 				<div class="tabContent">
-					<div id="exampleChart1" class="content center">
+					<div id="exampleChart1" class="content center chart">
 						<script>
 							console.groupCollapsed("---chart 1---")
 							// test call create chart
@@ -38,7 +39,7 @@
 							console.groupEnd()
 						</script>
 					</div>
-					<div id="exampleChart2" class="content center">
+					<div id="exampleChart2" class="content center chart">
 						<script>
 							console.groupCollapsed("---chart 2---")
 							// test call create chart
@@ -47,7 +48,7 @@
 							console.groupEnd()
 						</script>
 					</div>
-					<div id="exampleChart3" class="content center">
+					<div id="exampleChart3" class="content center chart">
 						<script>
 							console.groupCollapsed("---chart 3---")
 							// test call create chart
@@ -56,7 +57,7 @@
 							console.groupEnd()
 						</script>
 					</div>
-					<div id="exampleChart4" class="content center">
+					<div id="exampleChart4" class="content center chart">
 						<script>
 							console.groupCollapsed("---chart 4---")
 							// test call create chart
@@ -65,10 +66,28 @@
 							console.groupEnd()
 						</script>
 					</div>
+                    <div id="exampleChart5" class="content center chart">
+                        <script>
+                            console.groupCollapsed("---chart 5---")
+                            // test call create chart
+                            let data5 = [
+                                new Vec2(2017, 80),
+                                new Vec2(2018, 54),
+                                new Vec2(2019, 100),
+                                new Vec2(2020, 76),
+                                new Vec2(2021, 93),
+                                new Vec2(2022, 72)
+                            ]
+                            Chart.createChart(data5, "exampleChart5")
+                            console.groupEnd()
+                        </script>
+                    </div>
 				</div>
 			</div>
 		</div>
+		<script>
+			initializeTabs()
+		</script>
 	</body>
-	<script src="js/tabs.js"></script>
 
 </html>

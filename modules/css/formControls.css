@@ -1,0 +1,231 @@
+/* #region Checkbox */
+
+/* html template:
+ * 	<label class="checkboxContainer">
+ * 		sample text 
+ * 		<input type="checkbox">
+ * 		<span class="checkmark"></span>
+ * 	</label>
+ */
+
+.checkboxContainer {
+	display: block;
+	position: relative;
+	padding-left: 1.9em;
+	cursor: pointer;
+	font-size: 24px;
+	line-height: 28px;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.checkboxContainer input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+.checkmark {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 28px;
+	width: 28px;
+	border-radius: 4px;
+	box-sizing: border-box;
+	border: 4px var(--md-primary) solid;
+	overflow: hidden;
+}
+
+.checkboxContainer:hover {
+	background-color: var(--md-surface);
+}
+
+.checkboxContainer input:checked~.checkmark {
+	background-color: var(--md-primary);
+	/* clippath related to 30x30 viewbox*/
+	clip-path: path(evenodd, "M30 0H0V30H30V0ZM14.9168 23.2755L24.0645 9.96559C24.6178 9.16052 24.4137 8.05934 23.6086 7.50604C22.8067 6.95489 21.7102 7.15498 21.1546 7.95384L14.1244 18.0627C13.449 19.0339 12.0829 19.2099 11.1835 18.4416L7.99215 15.7157C7.26565 15.0951 6.17365 15.181 5.55311 15.9075C4.93256 16.634 5.01845 17.726 5.74495 18.3466L11.9696 23.6634C12.8724 24.4346 14.2443 24.254 14.9168 23.2755Z");
+	-webkit-clip-path: path(evenodd, "M30 0H0V30H30V0ZM14.9168 23.2755L24.0645 9.96559C24.6178 9.16052 24.4137 8.05934 23.6086 7.50604C22.8067 6.95489 21.7102 7.15498 21.1546 7.95384L14.1244 18.0627C13.449 19.0339 12.0829 19.2099 11.1835 18.4416L7.99215 15.7157C7.26565 15.0951 6.17365 15.181 5.55311 15.9075C4.93256 16.634 5.01845 17.726 5.74495 18.3466L11.9696 23.6634C12.8724 24.4346 14.2443 24.254 14.9168 23.2755Z");
+}
+
+/* #endregion */
+
+/* #region RadioButton */
+
+/* html template:
+ * 	<label class="radiobuttonContainer">
+ * 		sample text 
+ * 		<input type="radio" name="radio">
+ * 		<span class="radiobutton"></span>
+ * 	</label>
+ */
+
+.radiobuttonContainer {
+	display: block;
+	position: relative;
+	padding-left: 35px;
+	cursor: pointer;
+	font-size: 22px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.radiobuttonContainer input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.radiobutton {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 1.2em;
+	width: 1.2em;
+	border-radius: 50%;
+	box-sizing: border-box;
+	border: 4px var(--md-primary) solid;
+	overflow: hidden;
+}
+
+.radiobuttonContainer:hover input~.radiobutton {
+	background-color: var(--md-surface);
+}
+
+.radiobuttonContainer input:checked~.radiobutton {
+	background-color: var(--md-primary);
+	/* clippath related to 30x30 viewbox*/
+	clip-path: path(evenodd, "M24 15C24 19.9706 19.9706 24 15 24C10.0294 24 6 19.9706 6 15C6 10.0294 10.0294 6 15 6C19.9706 6 24 10.0294 24 15ZM15 27C21.6274 27 27 21.6274 27 15C27 8.37258 21.6274 3 15 3C8.37258 3 3 8.37258 3 15C3 21.6274 8.37258 27 15 27Z");
+	-webkit-clip-path: path(evenodd, "M30 0H0V30H30V0ZM24 15C24 19.9706 19.9706 24 15 24C10.0294 24 6 19.9706 6 15C6 10.0294 10.0294 6 15 6C19.9706 6 24 10.0294 24 15ZM15 27C21.6274 27 27 21.6274 27 15C27 8.37258 21.6274 3 15 3C8.37258 3 3 8.37258 3 15C3 21.6274 8.37258 27 15 27Z");
+}
+
+/* #endregion */
+
+/* #region switch */
+
+/* html template:
+ * 	<label class="switchContainer">
+ * 		sample text 
+ * 		<input type="checkbox">
+ * 		<span class="switch"></span>
+ * 	</label>
+ */
+
+.switchContainer {
+	display: block;
+	position: relative;
+	padding-left: 50px;
+	cursor: pointer;
+	font-size: 22px;
+	line-height: normal;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.switchContainer input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+.switch {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 30px;
+	width: 45px;
+	border-radius: 15px;
+	box-sizing: border-box;
+	border: 4px var(--md-primary) solid;
+	overflow: hidden;
+	background-color: var(--md-primary);
+	/* clippath related to 30x30 viewbox*/
+	clip-path: path(nonzero, "M45 0H0V29H45V0ZM15 26C8.92487 26 4 21.0751 4 15C4 8.92487 8.92487 4 15 4H30C36.0709 4 41 8.92914 41 15C41 21.0709 36.0709 26 30 26H15ZM23 15C23 19.4183 19.4183 23 15 23C10.5817 23 7 19.4183 7 15C7 10.5817 10.5817 7 15 7C19.4183 7 23 10.5817 23 15Z");
+	-webkit-clip-path: path(nonzero, "M45 0H0V29H45V0ZM15 26C8.92487 26 4 21.0751 4 15C4 8.92487 8.92487 4 15 4H30C36.0709 4 41 8.92914 41 15C41 21.0709 36.0709 26 30 26H15ZM23 15C23 19.4183 19.4183 23 15 23C10.5817 23 7 19.4183 7 15C7 10.5817 10.5817 7 15 7C19.4183 7 23 10.5817 23 15Z");
+}
+
+.switchContainer:hover {
+	background-color: var(--md-surface);
+}
+
+.switchContainer input:checked~.switch {
+	/* clippath related to 30x30 viewbox*/
+	clip-path: path(nonzero, "M45 0H0V30H45V0ZM30 23C34.4183 23 38 19.4183 38 15C38 10.5817 34.4183 7 30 7C25.5817 7 22 10.5817 22 15C22 19.4183 25.5817 23 30 23ZM41 15C41 21.0751 36.0751 26 30 26C23.9249 26 19 21.0751 19 15C19 8.92487 23.9249 4 30 4C36.0751 4 41 8.92487 41 15Z");
+	-webkit-clip-path: path(nonzero, "M45 0H0V30H45V0ZM30 23C34.4183 23 38 19.4183 38 15C38 10.5817 34.4183 7 30 7C25.5817 7 22 10.5817 22 15C22 19.4183 25.5817 23 30 23ZM41 15C41 21.0751 36.0751 26 30 26C23.9249 26 19 21.0751 19 15C19 8.92487 23.9249 4 30 4C36.0751 4 41 8.92487 41 15Z");
+}
+
+/* #endregion */
+
+/* #region input[type="text"] */
+
+/* html template:
+ *  <label for="idname">label text</label>    // optional
+ * 	<input type="text" id="idname" name="firstname" placeholder="Placeholder text">
+ *
+ ** NOTE: input's name is only used when submitting a form
+ */
+
+input[type="text"] {
+	width: max(6em, 100%);
+	height: max(1em, 100%);
+	line-height: max(1em, 83%);
+	padding: max(0.05em, 4%) 0.8em;
+	display: inline-block;
+	box-shadow: inset 0 0 0 1px var(--md-surface), 0 0 2px var(--md-primary-text);
+	border: none;
+	background-color: var(--md-surface);
+	border-radius: 0.7em;
+	box-sizing: border-box;
+	color: var(--md-surface-text);
+}
+
+input[type="text"]:focus {
+	box-shadow: inset 0 0 0 0.1rem var(--md-primary);
+}
+
+input[type="text"]:focus-visible {
+	outline: none;
+}
+
+/* #endregion */
+
+/* #region button.send */
+
+/* html template:
+ *	<button class="send">
+		<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+			<path d="M3.20036 2.95668L24 12L3.20036 21.0433C2.38527 21.3977 1.54749 20.5922 1.86963 19.7638L4.28045 13.5645C4.41541 13.2175 4.73197 12.9742 5.10203 12.9331L13.5 12L5.10203 11.0669C4.73197 11.0258 4.41541 10.7825 4.28045 10.4355L1.86963 4.2362C1.54749 3.40783 2.38527 2.60229 3.20036 2.95668Z" fill="currentColor" />
+		</svg>
+	</button>
+ */
+
+.send {
+	display: flex;
+	margin: 0;
+	padding: 0;
+	box-shadow: inset 0 0 0 1px var(--md-surface), 0 0 2px var(--md-primary-text);
+	border: none;
+	background-color: var(--md-surface);
+	border-radius: 0.35em;
+	box-sizing: border-box;
+	cursor: pointer;
+	justify-content: center;
+	align-items: center;
+	color: var(--md-surface-text);
+}
+
+.send:focus {
+	box-shadow: inset 0 0 0 0.1rem var(--md-primary);
+}
+
+.send:focus-visible {
+	outline: none;
+}
+
+/* #endregion */

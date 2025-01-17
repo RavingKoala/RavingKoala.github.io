@@ -7,7 +7,7 @@ const States = {
 }
 
 var VoiceAppSettings = {
-	immediateReview: new Error("immediateReview was never set to 'true' or 'false'"), // bool
+	pauseBeforeReview: new Error("pauseBeforeReview was never set to 'true' or 'false'"), // bool
 	autoContinueAfterPlayed: new Error("autoContinueAfterPlayed was never set to 'true' or 'false'"), // bool
 }
 
@@ -55,10 +55,10 @@ class VoiceAppStateManager {
 			case States.idle:
 				return States.recording
 			case States.recording:
-				if (this.settings.immediateReview)
-					return States.reviewing
-				else
-					return States.hold
+				if (this.settings.pauseBeforeReview)
+                    return States.hold
+                else
+                    return States.reviewing
 			case States.hold:
 				return States.reviewing
 			case States.reviewing:
@@ -85,7 +85,7 @@ class VoiceAppUIStateManager {
 				this.#changeUI("./resources/SVGs/RecordButton.svg", "Start recording")
 				break
 			case States.recording:
-				let actionbuttonURI = this.settings.immediateReview ? "./resources/SVGs/PlayButton.svg" : "./resources/SVGs/PauseButton.svg"
+                let actionbuttonURI = this.settings.pauseBeforeReview ? "./resources/SVGs/PauseButton.svg" : "./resources/SVGs/PlayButton.svg"
 				this.#changeUI(actionbuttonURI, "Recording")
 				break
 			case States.hold:
@@ -100,7 +100,7 @@ class VoiceAppUIStateManager {
 	}
 
 	#changeUI(actionBtnURI, labelText) {
-		getContent(actionBtnURI, (result) => {
+		getContent(actionBtnURI).then((result) => {
 			this.actionButtonDOM.innerHTML = result
 		})
 		this.textfieldDOM.innerHTML = labelText
@@ -115,7 +115,7 @@ class VoiceAppRecorderStateManager {
 		this.#voiceAppSettings = voiceAppSettings
 
 		var settings = RecorderSettings
-		settings.PlayASAP = voiceAppSettings.immediateReview
+		settings.PlayASAP = !voiceAppSettings.pauseBeforeReview
 
 		this.#Rec = recorder
 	}
@@ -133,10 +133,10 @@ class VoiceAppRecorderStateManager {
 				this.#Rec.stopRecording()
 				break
 			case States.reviewing:
-				if (this.#voiceAppSettings.immediateReview)
-					this.#Rec.stopRecording() // Automatically call playRecording on ready
+				if (this.#voiceAppSettings.pauseBeforeReview)
+                    this.#Rec.playRecording()
 				else
-					this.#Rec.playRecording()
+                    this.#Rec.stopRecording() // Automatically call playRecording on ready
 				break
 			default:
 				break

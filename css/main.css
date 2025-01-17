@@ -24,13 +24,25 @@
 .container {
 	background-color: var(--surface-color);
 	padding: 10vh 10vw;
-	margin: 0 20vw;
+	margin: 0;
 }
 
-
 .items {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr)
+	display: flex;
+	flex-direction: column;
+}
+
+@media (min-width: 660px) {
+	.container {
+		background-color: var(--surface-color);
+		padding: 10vh 10vw;
+		margin: 0 min(20vw, 0);
+	}
+
+	.items {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr)
+	}
 }
 
 /*** Objects ***/
@@ -49,7 +61,8 @@ body {
 	display: flex;
 	justify-content: center;
 	padding: none;
-	margin: none;
+	margin: 0;
+	padding: 0;
 }
 a {
 	color: inherit;
@@ -69,23 +82,32 @@ h1 {
 	font-size: 48px;
 }
 
+@media (max-width: 660px) {
+	h1 {
+		font-size: 36px;
+	}
+}
+
+
 .title {
 	display: flex;
 	align-content: center;
 }
 
-button {
+a {
 	border: none;
 	border-radius: 15px;
-	padding: 0.8em 1.6em;
 	margin: 1em;
+	padding: 0.8em 1.6em;
+    text-align: center;
 	box-shadow: inset -4px -6px 10px rgba(0, 0, 0, 0.47), inset 6px 5px 6px rgba(255, 255, 255, 0.32);
 	font-size: 24px;
 	white-space: nowrap;
 	cursor: pointer;
+    text-decoration: none;
 }
 
-button:active {
+a:active {
 	box-shadow: inset 4px 6px 10px rgba(0, 0, 0, 0.47), inset -6px -5px 6px rgba(255, 255, 255, 0.32);
 }
 

@@ -11,19 +11,5 @@
 - tablet size
 - phone size
 
-
-### Add selector for mic
-- dropdown like with
-
-### Popup panel
-- fade in blur backbround
-- panel with custom sizes in the top
-- fill panel with includecontent
-
-### Add settings menu
-- keyboard shortcut 
-
-### Add info panel
-#### info
-#### help
-#### shortcuts
+### Additions
+- dropdown for mic selection

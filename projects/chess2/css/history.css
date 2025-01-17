@@ -1,0 +1,100 @@
+.historyBoard {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	border-radius: 14px;
+	min-height: 260px;
+	max-height: 500px;
+	width: 290px;
+	gap: 0.6em;
+	padding: 23px;
+	background-color: var(--md-surface);
+}
+
+.historyBoard.hide {
+	display: none;
+}
+
+.historyBoard .history {
+	font-family: 'Fira Sans';
+	width: 100%;
+	height: min(600px, auto);
+	display: grid;
+	grid-template-columns: 38px 1fr 1fr;
+	grid-template-rows: 40px;
+	grid-auto-rows: 34px;
+	overflow-y: auto;
+}
+
+.historyBoard .history .colName {
+	font-size: 1.4em;
+	font-weight: 600;
+	text-align: center;
+	line-height: 40px;
+	border-bottom: var(--md-surface-text) solid 2px;
+}
+
+.historyBoard .history .colName:not(:first-child) {
+	box-shadow: inset 2px 0 var(--md-surface);
+}
+
+.historyBoard .rowNum,
+.historyBoard .moveVal {
+	text-align: center;
+	line-height: 34px;
+	font-weight: 500;
+	font-size: 1.2em;
+}
+
+.historyBoard .rowNum {
+	box-shadow: inset 0 -2px var(--md-surface);
+}
+
+.historyBoard .moveVal {
+	box-shadow: inset 2px -2px var(--md-surface);
+}
+
+.historyBoard .inputContainer {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 0.6em;
+	width: 100%;
+	height: 2.4em;
+}
+
+.historyBoard .inputContainer .send {
+	width: 38px;
+	height: 38px;
+	user-select: unset;
+}
+
+/* scrollbar */
+:root {
+	--history-scrollbar-color: rgba(128, 128, 128, 0.1);
+	--history-scrollbar-color-hover: rgba(128, 128, 128, 0.16);
+	--history-scrollbar-color-active: rgba(128, 128, 128, 0.2);
+	--history-scrollbar-bg-color: rgba(128, 128, 128, 0.2);
+	--history-scrollbar-bg-color-active: rgba(128, 128, 128, 0.25);
+	--history-scrollbar-width: 4px;
+}
+
+.history::-webkit-scrollbar {
+	background-color: var(--history-scrollbar-color);
+	width: var(--history-scrollbar-width);
+}
+
+.history::-webkit-scrollbar:hover {
+	background-color: var(--history-scrollbar-color-hover);
+}
+
+.history::-webkit-scrollbar:active {
+	background-color: var(--history-scrollbar-color-active);
+}
+
+.history::-webkit-scrollbar-thumb {
+	background-color: var(--history-scrollbar-bg-color);
+}
+
+.history::-webkit-scrollbar-thumb-active {
+	background-color: var(--history-scrollbar-bg-color-active);
+}

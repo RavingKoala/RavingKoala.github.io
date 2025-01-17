@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse gestures demo</title>
+    <link rel="shortcut icon" href="resources/icons/favicon.ico" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/gestures.css">
+</head>
+<body>
+    <div class="container-sm">
+        <h1>Mouse Gestures demo</h1>
+        <div class="row">
+            <div  style="width: 18rem;">
+                <p class="hidden">Input</p>
+                <canvas id="inputField" class="card" height="250" width="250"></canvas>
+            </div>
+            <div style="width: 18rem;">
+                <p class="hidden">current:</p>
+                <canvas id="resultView" class="card" height="250" width="250"></canvas>
+            </div>
+        </div>
+        
+        <br>
+        
+        <button id="Edit" type="button" class="btn btn-primary disabled">Edit</button>
+        <button id="Save" type="button" class="btn btn-primary disabled">Save</button>
+        <button id="Cancel" type="button" class="btn btn-primary disabled">Cancel</button>
+        <button id="Remove" type="button" class="btn btn-danger disabled">Remove</button>
+        
+        <hr>
+        
+        <h2>List of actions:</h2>
+        <div id="actionsList" class="list-group">
+            <button type="button" class="list-group-item list-group-item-action" data-gesture-name="LogTest">
+                log "TEST" in console
+            </button>
+            <button type="button" class="list-group-item list-group-item-action" data-gesture-name="HistoryBack">
+                Previous page in history
+            </button>
+            <button type="button" class="list-group-item list-group-item-action" data-gesture-name="HistoryForward">
+                Next page in history
+            </button>
+            <button type="button" class="list-group-item list-group-item-action" data-gesture-name="ScrollBottom">
+                Scroll to bottom
+            </button>
+            <button type="button" class="list-group-item list-group-item-action" data-gesture-name="ScrollTop">
+                Scroll to top
+            </button>
+        </div>
+        
+        <hr>
+
+        <h2>List of saved gestures:</h2>
+        <div id="gesturesList" class="list-group">
+
+        </div>
+    </div>
+    <script type="module">
+        import { GestureManager, GestureListener, GestureEvents } from "./modules/gestures.js"
+
+        const ListItemActions = {
+            LogTest: () => {console.log("TEST")},
+            HistoryBack: () => {history.back()},
+            HistoryForward: () => {history.forward()},
+            ScrollBottom: () => {
+                if (document.body)
+                    document.body.scrollTop = document.body.scrollHeight
+                if (document.documentElement)
+                    document.documentElement.scrollTop = document.documentElement.scrollHeight
+            },
+            ScrollTop: () => {
+                if (document.body)
+                    document.body.scrollTop = 0
+                if (document.documentElement)
+                    document.documentElement.scrollTop = 0
+            },
+        }
+
+        const inputCanvas = document.getElementById("inputField")
+        const outputCanvas = document.getElementById("resultView")
+        
+        const actionsList = document.getElementById("actionsList")
+        const gesturesList = document.getElementById("gesturesList")
+
+        const EditButton = document.getElementById("Edit")
+        const SaveButton = document.getElementById("Save")
+        const CancelButton = document.getElementById("Cancel")
+        const RemoveButton = document.getElementById("Remove")
+        
+        GestureManager.SetInputCanvas(inputCanvas)
+        GestureManager.SetOutputCanvas(outputCanvas)
+        
+        let selectedListItem
+        let state = null
+
+        const toViewState = () => {
+            EditButton.classList.remove("disabled")
+            SaveButton.classList.add("disabled")
+            CancelButton.classList.add("disabled")
+
+            state = "view"
+        }
+
+        const toEditState = () => {
+            EditButton.classList.add("disabled")
+            SaveButton.classList.remove("disabled")
+            CancelButton.classList.remove("disabled")
+
+            state = "edit"
+        }
+        
+        const addSelectItemActionListner = (el) => {
+            if (!(el instanceof HTMLElement))
+                return
+
+            el.addEventListener('mousedown', (event) => {
+                if (state === "edit")
+                    return
+
+                if (selectedListItem instanceof HTMLElement)
+                    selectedListItem.classList.remove("active")
+
+                el.classList.add("active")
+                selectedListItem = el
+
+                if (GestureManager.Exists(el.dataset.gestureName)) {
+                    GestureManager.Display(el.dataset.gestureName)
+                    RemoveButton.classList.remove("disabled")
+                } else {
+                    GestureManager.StopDisplaying()
+                    RemoveButton.classList.add("disabled")
+                }
+
+                toViewState()
+            })
+        }
+
+        ;(function() {
+            var supportsCanvas = !!document.createElement("canvas").getContext
+            supportsCanvas && (window.onload = onLoad)
+
+            function onLoad() {
+                actionsList.childNodes.forEach(el => { addSelectItemActionListner(el) })
+                gesturesList.childNodes.forEach(el => { addSelectItemActionListner(el) })
+                actionsList.childNodes.forEach(el => {
+                    if (!(el instanceof HTMLElement))
+                        return
+
+                    if (GestureManager.Exists(el.dataset.gestureName))
+                        gesturesList.appendChild(el)
+                })
+
+                EditButton.addEventListener("click", (event) => {
+                    if (!(selectedListItem instanceof HTMLElement))
+                        return
+
+                    GestureManager.New()
+
+                    toEditState()
+                })
+                SaveButton.addEventListener("click", (event) => {
+                    if (!(selectedListItem instanceof HTMLElement))
+                        return
+
+                    if (selectedListItem.parentElement === actionsList)
+                        gesturesList.appendChild(selectedListItem)
+
+                    RemoveButton.classList.remove("disabled")
+
+                    GestureManager.Save(selectedListItem.dataset.gestureName)
+
+                    toViewState()
+                })
+                CancelButton.addEventListener("click", (event) => {
+                    if (!(selectedListItem instanceof HTMLElement))
+                        return
+
+                    GestureManager.Cancel()
+                    if (selectedListItem.parentElement === gesturesList) {
+                        GestureManager.Display(selectedListItem.dataset.gestureName)
+                    }
+
+                    toViewState()
+                })
+                RemoveButton.addEventListener("click", (event) => {
+                    if (!(selectedListItem instanceof HTMLElement))
+                        return
+
+                    if (selectedListItem.parentElement === gesturesList)
+                        actionsList.appendChild(selectedListItem)
+
+                    RemoveButton.classList.add("disabled")
+
+                    GestureManager.Forget(selectedListItem.dataset.gestureName)
+                    GestureManager.StopDisplaying()
+
+                    toViewState()
+                })
+            }
+
+            window.addEventListener(GestureEvents.gesture, (e) => { ListItemActions[e.detail.name]() })
+
+            window.addEventListener(GestureEvents.failedGesture, (e) => {console.log(e.detail.gesture) })
+                
+
+            GestureListener.Activate()
+
+
+            // testing setting live changes
+            let using = 0
+            let values = [20, 50]
+            setInterval(() => {
+                GestureManager.SetSetting("DisplayStrokePadding", values[using])
+                // console.log("settings update");
+                using++
+                if (using >= values.length)
+                    using = 0
+            }, 5000)
+        })()
+    </script>
+
+</body>
+</html>
