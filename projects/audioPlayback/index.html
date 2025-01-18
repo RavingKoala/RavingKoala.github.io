@@ -55,11 +55,9 @@
                 </div>
             </div>
         </div>
-        <popup src="./popups/Settings.html" id="settingsPopup"></popup>
-        <popup src="./popups/Info.html" id="infoPopup"></popup>
 		<div id="player" class="surface">
-			<div id="actionButton">
-				<include src="./resources/SVGs/RecordButton.svg" />
+            <div id="actionButton">
+                <include src="./resources/SVGs/RecordButton.svg" />
 			</div>
 			<span class="textfield">Start recording</span>
 			<div id="waveforms">
@@ -81,6 +79,15 @@
 		</div>
 		<!-- #endregion -->
 		
+        <div id="historyboard" class="hide">
+            <div id="historyList">
+                
+            </div>
+        </div>
+
+        <popup src="./popups/Settings.html" id="settingsPopup"></popup>
+        <popup src="./popups/Info.html" id="infoPopup"></popup>
+        
 		<script>
             // content update
 			replaceIncludes()
@@ -117,7 +124,9 @@
                 statusManager.setSoundImage(e.detail.volume > 0 ? SoundStates.Sound : SoundStates.NoSound)
             })
 			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
-            
+            // document.addEventListener(HistoryEvents.PlayAudio, (e) => {
+            //     voiceApp.transitionState(States.reviewing)
+            // })
             shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, new ShortcutMod(true), KeyActions.keyDown), () => { volume.addVolume(0.1) })
             shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, new ShortcutMod(true), KeyActions.keyDown), () => { volume.subVolume(0.1) })
             shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), () => { volume.addVolume(0.05) })
