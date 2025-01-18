@@ -8,32 +8,48 @@ const States = {
 
 var VoiceAppSettings = {
 	pauseBeforeReview: new Error("pauseBeforeReview was never set to 'true' or 'false'"), // bool
-	autoContinueAfterPlayed: new Error("autoContinueAfterPlayed was never set to 'true' or 'false'"), // bool
+	manualContinue: new Error("autoContinueAfterPlayed was never set to 'true' or 'false'"), // bool
 }
 
 class VoiceApp {
 	State
 	UIManager
-	RecorderManager
+	MediaManager
+    AudioPlayer
+    AudioVisualizer
 
-	constructor (actionButtonDOM, textfieldDOM, recorder, settings) {
+    constructor (actionButtonDOM, textfieldDOM, recorder, audioPlayer, audioVisualizer, settings) {
 		this.State = new VoiceAppStateManager(settings)
 		this.UIManager = new VoiceAppUIStateManager(actionButtonDOM, textfieldDOM, settings)
 
-		this.RecorderManager = new VoiceAppRecorderStateManager(recorder, settings)
+		this.MediaManager = new VoiceAppMediaStateManager(recorder, audioPlayer, settings)
 
-		if (settings.autoContinueAfterPlayed == true)
-			document.addEventListener(RecorderEvents.onEnded, () => { this.transitionState(States.idle) })
+        if (!settings.manualContinue)
+			document.addEventListener(RecorderEvents.onEnded, () => { 
+                this.transitionState(States.idle)
+            })
+
+        document.addEventListener(RecorderEvents.onFinished, (e) => {
+            audioPlayer.play(e.detail.audioBlobURI)
+        })
+        document.addEventListener(AudioPlayerEvents.onPlay, (e) => {
+            audioVisualizer.startAnimation()
+        })
+        document.addEventListener(AudioPlayerEvents.onEnded, (e) => {
+            if (!settings.manualContinue)
+                this.nextState()
+            audioVisualizer.stopAnimtaion()
+        })
 	}
 
 	nextState() {
 		let nextState = this.State.getNextState()
 		this.transitionState(nextState)
 	}
-
+    
 	transitionState(state) {
 		this.State.currentState = state
-		this.RecorderManager.changeState(state)
+		this.MediaManager.changeState(state)
 		this.UIManager.changeState(state)
 	}
 }
@@ -107,36 +123,35 @@ class VoiceAppUIStateManager {
 	}
 }
 
-class VoiceAppRecorderStateManager {
+class VoiceAppMediaStateManager {
 	#voiceAppSettings
-	#Rec
+    #Rec
+    #Audio
 
-	constructor (recorder, voiceAppSettings) {
+	constructor (recorder, audioPlayer, voiceAppSettings) {
 		this.#voiceAppSettings = voiceAppSettings
 
-		var settings = RecorderSettings
-		settings.PlayASAP = !voiceAppSettings.pauseBeforeReview
-
 		this.#Rec = recorder
+        this.#Audio = audioPlayer
 	}
 
 	changeState(state) {
 		switch (state) {
 			case States.idle:
 				if (!this.#Rec.isEnded)
-					this.#Rec.stopPlaying()
+                    this.#Audio.stop()
 				break
 			case States.recording:
-				this.#Rec.startRecording()
+				this.#Rec.start()
 				break
 			case States.hold:
-				this.#Rec.stopRecording()
+				this.#Rec.stop()
 				break
 			case States.reviewing:
 				if (this.#voiceAppSettings.pauseBeforeReview)
-                    this.#Rec.playRecording()
+                    this.#Audio.play()
 				else
-                    this.#Rec.stopRecording() // Automatically call playRecording on ready
+                    this.#Rec.stop() // Automatically call playRecording on ready
 				break
 			default:
 				break

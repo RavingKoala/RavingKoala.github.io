@@ -16,7 +16,7 @@ body {
 	border-radius: 60px;
 }
 
-#player>* {
+#player > * {
 	margin: 2rem;
 }
 
@@ -28,6 +28,9 @@ body {
 	height: 100px;
 	width: 100px;
 	color: var(--md-primary);
+    border-radius: 50%;
+    background-color: var(--md-surface);
+    margin: 5px;
 }
 
 .textfield {
@@ -40,6 +43,12 @@ body {
 	font-size: 1.2em;
 }
 
+@media screen and (max-width: 1000px) {
+    #player .textfield {
+
+    }
+}
+
 #waveforms svg {
 	height: 80px;
 	width: 120px;
@@ -49,12 +58,22 @@ body {
 /* #endregion */
 
 /* #region Requirements panel */
-#status {
+#topBar {
+    justify-content: space-between;
+    width: calc(100vw - 4rem);
+}
+
+#topBar {
 	position: absolute;
-	display: flex;
-	flex-direction: row;
 	top: 2rem;
 	left: 2rem;
+}
+
+#topBar,
+#nav-left,
+#nav-right {
+    display: flex;
+	flex-direction: row;
 }
 
 #volumeControl {
@@ -63,16 +82,12 @@ body {
 	align-items: center;
 }
 
-#status svg,
-#actionButton svg {
-	border-radius: 50%;
-	background-color: var(--md-surface);
-	margin: 5px;
-}
-
-#status svg {
+#topBar svg {
+    background-color: var(--md-surface);
+    border-radius: 50%;
 	height: 76px;
 	width: 76px;
+    margin: 5px;
 }
 
 /* #endregion */
@@ -163,14 +178,7 @@ body {
 /* #region settings */
 /** settings button **/
 #settings {
-	position: absolute;
-	top: 2rem;
-	right: 2rem;
-	height: 66px;
-	width: 66px;
 	color: var(--md-primary);
-	border-radius: 50%;
-	background-color: var(--md-surface);
 }
 
 /** settings panel **/
@@ -184,14 +192,7 @@ body {
 /* #region Info */
 /** Info button **/
 #info {
-	position: absolute;
-	bottom: 2rem;
-	right: 2rem;
-	height: 66px;
-	width: 66px;
 	color: var(--md-primary);
-	border-radius: 50%;
-	background-color: var(--md-surface);
 }
 
 /** Info panel **/

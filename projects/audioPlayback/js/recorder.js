@@ -1,30 +1,22 @@
 const RecorderEvents = {
-	onReady: "OnReady",
-	onEnded: "OnEnded",
+	onFinished: "OnFinished",
 	onRecordPermsUpdate: "OnRecordPermsUpdate",
-    onPlay: "onPlay",
 }
-
-var RecorderSettings = {
-	PlayASAP: new Error("PlayASAP was never set to 'true' or 'false'"), // bool
-}
-
 class Recorder {
 	isRecording
-	isPlaying
-	#playASAP
 	#audioRecorder
 	#mediaStream
 	#lastBlobRaw
-	#audioObj
-    constructor (settings, audioObject) {
+    #lastReadyRecordingBlobURI
+    #audioObj
+
+    constructor (audioObject) {
 		this.isRecording = false
-		this.isPlaying = false
-		this.#playASAP = settings.PlayASAP
-		this.#mediaStream
+        this.#audioRecorder
+        this.#mediaStream
 		this.#lastBlobRaw
+        this.#lastReadyRecordingBlobURI
         this.#audioObj = audioObject
-		this.setVolume(0.5)
 
 		this.#audioObj.onpause = () => {// also gets triggerd by triggers on onended
 			this.isPlaying = false
@@ -32,69 +24,56 @@ class Recorder {
 		}
 
 		this.requestPerms()
-	}
+    }
+
+    async requestPerms() {
+        await window.navigator.mediaDevices.getUserMedia(
+            { audio: true }
+        ).then((stream) => {
+            this.#mediaStream = stream
+
+            document.dispatchEvent(new CustomEvent(RecorderEvents.onRecordPermsUpdate, { detail: { isRecAllowed: true } }))
+        }).catch((e) => {
+            console.error(e)
+
+            document.dispatchEvent(new CustomEvent(RecorderEvents.onRecordPermsUpdate, { detail: { isRecAllowed: false } }))
+        })
+    }
 
 	processData(audioClip) {
 		this.#lastBlobRaw = []
 		this.#lastBlobRaw.push(audioClip.data)
 		const audioBlob = new Blob(this.#lastBlobRaw, { type: "audio/ogg" })
 		const url = window.URL.createObjectURL(audioBlob)
-		this.#audioObj.src = url
 		// Tear down after recording.
 		this.#audioRecorder.stream.getTracks().forEach(t => t.stop())
 		this.#audioRecorder = null
-		if (this.#playASAP)
-			this.playRecording()
+
+        document.dispatchEvent(new CustomEvent(RecorderEvents.onFinished, { detail: { "audioBlobURI": url } }))
 	}
 
-	async requestPerms() {
-		await window.navigator.mediaDevices.getUserMedia(
-			{ audio: true }
-		).then((stream) => {
-			this.#mediaStream = stream
-
-			document.dispatchEvent(new CustomEvent(RecorderEvents.onRecordPermsUpdate, { detail: { 'IsRecAllowed': true } }))
-		}).catch((e) => {
-			console.error(e)
-
-			document.dispatchEvent(new CustomEvent(RecorderEvents.onRecordPermsUpdate, { detail: { 'IsRecAllowed': false } }))
-		})
-	}
-
-	setVolume(value) {
-		this.#audioObj.volume = value
-	}
-
-	setupRecorder() {
+	setup() {
 		this.#audioRecorder = new MediaRecorder(this.#mediaStream)
 
 		this.#audioRecorder.ondataavailable = (data) => {
 			this.processData(data)
-
-			document.dispatchEvent(new Event(RecorderEvents.onReady))
 		}
 	}
 
-	async startRecording() {
+	async start() {
 		await this.requestPerms()
-		this.setupRecorder()
+		this.setup()
 		this.#audioRecorder.start()
 		this.isRecording = true
 	}
 
-	stopRecording() {
+	stop() {
 		this.#audioRecorder.stop()
 		this.isRecording = false
 	}
 
-	playRecording() { // never call playRecording if settings.PlayASAP === true
-        document.dispatchEvent(new Event(RecorderEvents.onPlay))
-
-		this.isPlaying = true
-		this.#audioObj.play()
-	}
-
-	stopPlaying() {
-		this.#audioObj.pause()
-	}
+    // gets the last completed recording as blob URI
+    getLastRecording() {
+        return this.#lastReadyRecordingBlobURI
+    }
 }

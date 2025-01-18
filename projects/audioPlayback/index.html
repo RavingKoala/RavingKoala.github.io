@@ -19,13 +19,44 @@
 		<script src="../../modules/js/shortcutManager.js"></script>
 		<script src="./js/statusManager.js"></script>
 		<script src="./js/recorder.js"></script>
+        <script src="./js/audioPlayer.js"></script>
 		<script src="./js/volumeManager.js"></script>
 		<script src="./js/voiceApp.js"></script>
 		<script src="./js/audioVisualizer.js"></script>
+        <script src="./js/HistoryManager.js"></script>
 	</head>
 
 	<body class="dark mt-6">
 		<!-- #region main -->
+        <div id="topBar">
+            <div id="nav-left">
+                <div id="volumeControl" class="active">
+                    <div id="audio" class="success-text">
+                        <include src="./resources/SVGs/Sound.svg"></include>
+                    </div>
+                    <div id="sliderContainer">
+                        <div class="sliderRange">
+                            <div class="activeVolume">
+                                <div class="thumb"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="microphone" class="danger-text">
+                    <include src="./resources/SVGs/NoMic.svg"></include>
+                </div>
+            </div>
+            <div id="nav-right">
+                <div id="settings">
+                    <include src="./resources/SVGs/SettingsButton.svg"></include>
+                </div>
+                <div id="info">
+                    <include src="./resources/SVGs/InfoButton.svg"></include>
+                </div>
+            </div>
+        </div>
+        <popup src="./popups/Settings.html" id="settingsPopup"></popup>
+        <popup src="./popups/Info.html" id="infoPopup"></popup>
 		<div id="player" class="surface">
 			<div id="actionButton">
 				<include src="./resources/SVGs/RecordButton.svg" />
@@ -49,39 +80,7 @@
 			</div>
 		</div>
 		<!-- #endregion -->
-		<!-- #region status bar -->
-		<div id="status">
-			<div id="volumeControl" class="active">
-				<div id="audio" class="success-text">
-					<include src="./resources/SVGs/Sound.svg"></include>
-				</div>
-				<div id="sliderContainer">
-					<div class="sliderRange">
-						<div class="activeVolume">
-							<div class="thumb"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div id="microphone" class="danger-text">
-				<include src="./resources/SVGs/NoMic.svg"></include>
-			</div>
-		</div>
-		<!-- #endregion -->
-		<!-- #region settings -->
-		<div id="settings">
-			<include src="./resources/SVGs/SettingsButton.svg"></include>
-		</div>
-		<!-- #endregion -->
-		<!-- #region info -->
-		<div id="info">
-			<include src="./resources/SVGs/InfoButton.svg"></include>
-		</div>
-		<!-- #endregion -->
-		<!-- #region popups -->
-		<popup src="./popups/Settings.html" id="settingsPopup"></popup>
-		<popup src="./popups/Info.html" id="infoPopup"></popup>
-		<!-- #endregion -->
+		
 		<script>
             // content update
 			replaceIncludes()
@@ -89,57 +88,42 @@
             // audioObj (replacement for <audio> needed for playing audio)
             var audioObject = new Audio()
 
-			// settings
-			var VASettings = VoiceAppSettings
-			VASettings.pauseBeforeReview = LocalDataStorage.exists("pauseBeforeReview") ? LocalDataStorage.get("pauseBeforeReview") === "true" : false
-			VASettings.autoContinueAfterPlayed = LocalDataStorage.exists("autoContinueAfterPlayed") ? LocalDataStorage.get("autoContinueAfterPlayed") === "true" : true
-			var RSettings = RecorderSettings
-			RSettings.PlayASAP = !VASettings.pauseBeforeReview
-
-			// ShortcutManager
-			var shortcutManager = new ShortcutManager()
-
-			// StatusStateManager
-			var audioReqDOM = document.getElementById("audio")
-			var micReqDOM = document.getElementById("microphone")
-			var statusManager = new StatusStateManager(audioReqDOM, micReqDOM)
+            var audioReqDOM = document.getElementById("audio")
+            var micReqDOM = document.getElementById("microphone")
+            var actionButtonDOM = document.getElementById("actionButton")
+            var textfieldDOM = document.querySelector("span.textfield")
+            var volumeSlider = document.getElementById("sliderContainer")
+            var soundwavesSVG = document.getElementById("soundwaves")
+            
+            // settings
+            var VASettings = VoiceAppSettings
+            VASettings.pauseBeforeReview = LocalDataStorage.exists("pauseBeforeReview") ? LocalDataStorage.get("pauseBeforeReview") === "true" : false
+            VASettings.manualContinue = LocalDataStorage.exists("manualContinue") ? LocalDataStorage.get("manualContinue") === "true" : false
+            
+            var shortcutManager = new ShortcutManager()
+            var statusManager = new StatusStateManager(audioReqDOM, micReqDOM)
+            var recorder = new Recorder(audioObject)
+            var audioPlayer = new AudioPlayer(audioObject)
+            var audioVisualizer = new AudioVisualizer(soundwavesSVG, audioObject)
+            var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, audioPlayer, audioVisualizer, VASettings)
+            var volume = new VolumeManager(volumeSlider)
+            var historyManager = new HistoryManager()
+            
 			document.addEventListener(RecorderEvents.onRecordPermsUpdate, (e) => {
-				statusManager.setMicImage(e.detail.IsRecAllowed ? MicStates.Mic : MicStates.NoMic)
+				statusManager.setMicImage(e.detail.isRecAllowed ? MicStates.Mic : MicStates.NoMic)
 			})
-
-			// Recorder
-			var recorder = new Recorder(RSettings, audioObject)
-			document.addEventListener(VolumeEvents.volumeChanged, (e) => {
-				recorder.setVolume(e.detail.volume)
-				statusManager.setSoundImage(e.detail.volume > 0 ? SoundStates.Sound : SoundStates.NoSound)
-			})
-			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, new ShortcutMod(true), KeyActions.keyDown), () => { volume.addVolume(0.1) })
-			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, new ShortcutMod(true), KeyActions.keyDown), () => { volume.subVolume(0.1) })
-			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), () => { volume.addVolume(0.05) })
-			shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, undefined, KeyActions.keyDown), () => { volume.subVolume(0.05) })
-
-			// VoiceApp
-			var actionButtonDOM = document.getElementById("actionButton")
-			var textfieldDOM = document.querySelector("span.textfield")
-			var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, VASettings)
+            document.addEventListener(VolumeEvents.volumeChanged, (e) => {
+                audioPlayer.setVolume(e.detail.volume)
+                statusManager.setSoundImage(e.detail.volume > 0 ? SoundStates.Sound : SoundStates.NoSound)
+            })
 			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
+            
+            shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, new ShortcutMod(true), KeyActions.keyDown), () => { volume.addVolume(0.1) })
+            shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, new ShortcutMod(true), KeyActions.keyDown), () => { volume.subVolume(0.1) })
+            shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), () => { volume.addVolume(0.05) })
+            shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, undefined, KeyActions.keyDown), () => { volume.subVolume(0.05) })
 			shortcutManager.addShortcut(new Shortcut(KeyCodes.Space, undefined, KeyActions.press), () => { voiceApp.nextState() })
 
-			// VolumeManager
-			var volumeSlider = document.querySelector("#sliderContainer")
-			var volume = new VolumeManager(volumeSlider)
-
-            // AudioVisualizer
-            var soundwavesSVG = document.querySelector("#soundwaves")
-            var audioVisualizer = new AudioVisualizer(soundwavesSVG, audioObject)
-			    // document.addEventListener(RecorderEvents.onReady, (e) => {})
-            document.addEventListener(RecorderEvents.onPlay, (e) => {
-                console.log("play called")
-                audioVisualizer.startAnimation()
-            })
-            document.addEventListener(RecorderEvents.onEnded, (e) => {
-                audioVisualizer.stopAnimtaion()
-            })
 
 			// Settings
 			var settingsBtn = document.getElementById("settings")
@@ -147,9 +131,9 @@
 				.then((settingsPopup) => {
 					settingsBtn.addEventListener("click", () => { settingsPopup.classList.add("show") })
 					shortcutManager.addShortcut(new Shortcut(KeyCodes.KeyT, new ShortcutMod(undefined, true), KeyActions.keyDown), () => { settingsPopup.classList.add("show") })
-					shortcutManager.addShortcut(new Shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), () => { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)
-					shortcutManager.addShortcut(new Shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), () => { settingsPopup.classList.remove("show"); document.location.reload(true) }, true)
-					settingsPopup.querySelector(".overlay").addEventListener("click", () => { settingsPopup.classList.remove("show"); document.location.reload(true) })
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), () => { settingsPopup.classList.remove("show"); document.location.reload(false) }, true)
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), () => { settingsPopup.classList.remove("show"); document.location.reload(false) }, true)
+					settingsPopup.querySelector(".overlay").addEventListener("click", () => { settingsPopup.classList.remove("show"); document.location.reload(false) })
 
 					Object.keys(VASettings).forEach((key) => {
 						let inputSetting = settingsPopup.querySelector(".option input#" + key)
