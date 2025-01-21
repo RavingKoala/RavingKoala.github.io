@@ -81,7 +81,19 @@
 		
         <div id="historyboard" class="hide">
             <div id="historyList">
-                
+                <template id="historyItemTemplate">
+                    <div class="historyItem">
+                        <div class="playButton">
+                            <include src="./resources/SVGs/PlayButton.svg"></include>
+                        </div>
+                        <div class="NameBox">
+                            <input type="text" data-audio-uri id="nameBoxInput" value="Recording 1">
+                        </div>
+                        <div class="downloadButton">
+                            <include src="./resources/SVGs/DownloadButton.svg"></include>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
 
@@ -99,6 +111,7 @@
             var micReqDOM = document.getElementById("microphone")
             var actionButtonDOM = document.getElementById("actionButton")
             var textfieldDOM = document.querySelector("span.textfield")
+            var historyBoardDOM = document.getElementById("historyboard")
             var volumeSlider = document.getElementById("sliderContainer")
             var soundwavesSVG = document.getElementById("soundwaves")
             
@@ -106,6 +119,8 @@
             var VASettings = VoiceAppSettings
             VASettings.pauseBeforeReview = LocalDataStorage.exists("pauseBeforeReview") ? LocalDataStorage.get("pauseBeforeReview") === "true" : false
             VASettings.manualContinue = LocalDataStorage.exists("manualContinue") ? LocalDataStorage.get("manualContinue") === "true" : false
+            HSettings = HistorySettings
+
             
             var shortcutManager = new ShortcutManager()
             var statusManager = new StatusStateManager(audioReqDOM, micReqDOM)
@@ -114,7 +129,7 @@
             var audioVisualizer = new AudioVisualizer(soundwavesSVG, audioObject)
             var voiceApp = new VoiceApp(actionButtonDOM, textfieldDOM, recorder, audioPlayer, audioVisualizer, VASettings)
             var volume = new VolumeManager(volumeSlider)
-            var historyManager = new HistoryManager()
+            var historyManager = new HistoryManager(historyBoardDOM, audioPlayer, HSettings)
             
 			document.addEventListener(RecorderEvents.onRecordPermsUpdate, (e) => {
 				statusManager.setMicImage(e.detail.isRecAllowed ? MicStates.Mic : MicStates.NoMic)
@@ -123,10 +138,14 @@
                 audioPlayer.setVolume(e.detail.volume)
                 statusManager.setSoundImage(e.detail.volume > 0 ? SoundStates.Sound : SoundStates.NoSound)
             })
-			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
+            document.addEventListener(RecorderEvents.onFinished, (e) => {
+                historyManager.addHistoryEntry(e.detail.audioBlobURI)
+            })
             // document.addEventListener(HistoryEvents.PlayAudio, (e) => {
             //     voiceApp.transitionState(States.reviewing)
             // })
+
+			actionButtonDOM.addEventListener("click", () => { voiceApp.nextState() })
             shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, new ShortcutMod(true), KeyActions.keyDown), () => { volume.addVolume(0.1) })
             shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, new ShortcutMod(true), KeyActions.keyDown), () => { volume.subVolume(0.1) })
             shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), () => { volume.addVolume(0.05) })

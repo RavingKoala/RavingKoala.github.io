@@ -12,10 +12,10 @@ class Recorder {
 
     constructor (audioObject) {
 		this.isRecording = false
-        this.#audioRecorder
-        this.#mediaStream
-		this.#lastBlobRaw
-        this.#lastReadyRecordingBlobURI
+        this.#audioRecorder = null
+        this.#mediaStream = null
+		this.#lastBlobRaw = []
+        this.#lastReadyRecordingBlobURI = null
         this.#audioObj = audioObject
 
 		this.#audioObj.onpause = () => {// also gets triggerd by triggers on onended
@@ -67,7 +67,8 @@ class Recorder {
 		this.isRecording = true
 	}
 
-	stop() {
+	stop() { 
+        if (this.#audioRecorder !== null)
 		this.#audioRecorder.stop()
 		this.isRecording = false
 	}

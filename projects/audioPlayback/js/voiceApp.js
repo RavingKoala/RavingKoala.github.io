@@ -21,21 +21,19 @@ class VoiceApp {
     constructor (actionButtonDOM, textfieldDOM, recorder, audioPlayer, audioVisualizer, settings) {
 		this.State = new VoiceAppStateManager(settings)
 		this.UIManager = new VoiceAppUIStateManager(actionButtonDOM, textfieldDOM, settings)
-
 		this.MediaManager = new VoiceAppMediaStateManager(recorder, audioPlayer, settings)
 
-        if (!settings.manualContinue)
-			document.addEventListener(RecorderEvents.onEnded, () => { 
-                this.transitionState(States.idle)
-            })
+        this.AudioPlayer = audioPlayer
+        this.AudioVisualizer = audioVisualizer
+        
 
         document.addEventListener(RecorderEvents.onFinished, (e) => {
             audioPlayer.play(e.detail.audioBlobURI)
         })
-        document.addEventListener(AudioPlayerEvents.onPlay, (e) => {
+        document.addEventListener(AudioPlayerEvents.onPlay, () => {
             audioVisualizer.startAnimation()
         })
-        document.addEventListener(AudioPlayerEvents.onEnded, (e) => {
+        document.addEventListener(AudioPlayerEvents.onEnded, () => {
             if (!settings.manualContinue)
                 this.nextState()
             audioVisualizer.stopAnimtaion()
@@ -52,6 +50,11 @@ class VoiceApp {
 		this.MediaManager.changeState(state)
 		this.UIManager.changeState(state)
 	}
+
+    playRecording(audioURI) {
+        this.AudioPlayer.play(audioURI)
+        this.transitionState(States.reviewing)
+    }
 }
 
 class VoiceAppStateManager {
@@ -136,6 +139,8 @@ class VoiceAppMediaStateManager {
 	}
 
 	changeState(state) {
+        console.log("doing state", state);
+        
 		switch (state) {
 			case States.idle:
 				if (!this.#Rec.isEnded)
@@ -149,7 +154,7 @@ class VoiceAppMediaStateManager {
 				break
 			case States.reviewing:
 				if (this.#voiceAppSettings.pauseBeforeReview)
-                    this.#Audio.play()
+                    this.#Audio.play(this.#Rec.getLastRecording())
 				else
                     this.#Rec.stop() // Automatically call playRecording on ready
 				break

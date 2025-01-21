@@ -22,27 +22,31 @@ class AudioPlayer {
         this.#audioObj.volume = value
     }
 
-    forcePlay(blobURI) {
-        reset()
+    async forcePlay(blobURI) {
+        await reset()
 
-        this.play(blobURI)
+        await this.play(blobURI)
     }
 
-    play(blobURI) {
+    async play(blobURI) {
+        // if (this.isPlaying) {
+        //     await this.reset()
+        // }
+        
         document.dispatchEvent(new CustomEvent(AudioPlayerEvents.onPlay, { details: { 'AudioBlobURI': blobURI } }))
 
         this.#audioObj.src = blobURI
 
         this.isPlaying = true
-        this.#audioObj.play()
+        await this.#audioObj.play()
     }
 
-    stop() {
-        this.#audioObj.pause()
+    async stop() {
+        await this.#audioObj.pause()
     }
 
-    reset(){
-        stop()
+    async reset(){
+        await this.stop()
         this.#audioObj.src = ""
     }
 
