@@ -29,9 +29,9 @@ class AudioPlayer {
     }
 
     async play(blobURI) {
-        // if (this.isPlaying) {
-        //     await this.reset()
-        // }
+        if (this.isPlaying) {
+            await this.reset()
+        }
         
         document.dispatchEvent(new CustomEvent(AudioPlayerEvents.onPlay, { details: { 'AudioBlobURI': blobURI } }))
 

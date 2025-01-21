@@ -11,11 +11,10 @@ class HistoryManager {
     #audioPlayer
     #historyBoardDOM
     #history
-    constructor (historyBoardDOM, audioPlayer, settings) {
-        this.State = new HistoryStateManager(settings)
-        this.UIManager = new HistoryUIStateManager(actionButtonDOM, settings)
-        this.MediaManager = new HistoryMediaStateManager(audioPlayer, settings)
+    #currentState
 
+    constructor (historyBoardDOM, audioPlayer, settings) {
+        this.#currentState = States.idle
         this.entryCounter = 0
         this.#audioPlayer = audioPlayer
         this.#historyBoardDOM = historyBoardDOM
@@ -25,61 +24,66 @@ class HistoryManager {
     #createHistoryEntryDom(blobURI, id) {
         let historyEntryDOM = document.getElementById('historyItemTemplate').content.cloneNode(true);
 
-
-
         var inputbox = historyEntryDOM.querySelector("#nameBoxInput")
-        inputbox.value = `Reinputboxcording ${id}`
+        inputbox.value = `Recording ${id}`
         inputbox.id = `recording${id}`
         inputbox.dataset.audioUri = blobURI
-
-        // add event listeners
-        // var playButton = historyEntryDOM.getElementById("playButton")
-        // playButton.addEventListener("click", () => {
-        //     
-        // })
 
         return historyEntryDOM
     }
     
     addHistoryEntry(blobURI) {
-        this.#history.push(blobURI)
-        
         let domElement = this.#createHistoryEntryDom(blobURI, this.entryCounter)
         this.#historyBoardDOM.querySelector("#historyList").prepend(domElement)
+        domElement = this.#historyBoardDOM.querySelector("#historyList .historyItem:first-child")
+        domElement.querySelector(".playButton").addEventListener("click", (e) => {
+            this.playEntry(domElement)
+        })
+        domElement.querySelector(".downloadButton").addEventListener("click", (e) => {
+            this.downloadEntry(domElement)
+        })
+        
+        for (let node of domElement.querySelectorAll("include")) {
+            let file = node.getAttribute("src")
+            replaceNodeWithContent(node, file)
+        }
 
+        if (this.#historyBoardDOM.classList.contains("hide"))
+            this.#historyBoardDOM.classList.remove("hide")
+        
         this.entryCounter++
     }
-
-    playEntry(indexOrID) {
-
+    
+    playEntry(entryDOM) {
+        let audioBlobUri = entryDOM.querySelector(".nameBox input").dataset.audioUri
+        this.#audioPlayer.play(audioBlobUri)
     }
 
     //TODO: check if function is useful
-    deleteEntry(indexOrID) {
-
+    deleteEntry(entryDOM) {
+        
     }
 
-    downloadEntry(indexOrID) {
+    downloadEntry(entryDOM) {
+        let infoInput = entryDOM.querySelector(".nameBox input")
+        let audioURI = infoInput.dataset.audioUri
+        let filename = `${infoInput.value}.mp3`
 
+        const downloadLink = document.createElement('a');
+
+        downloadLink.id = infoInput.id
+        downloadLink.href = audioURI
+        downloadLink.download = filename
+
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+
+        document.body.removeChild(downloadLink);
     }
 
-    //TODO: check if function is useful
-    #getHistory() {
-        return this.#history
-    }
-
-}
-
-class HistoryStateManager {
-    currentState
-
-    constructor (settings) {
-        this.currentState = States.idle
-    }
-
-    getNextState(state) {
+    #getNextState(state) {
         if (!state)
-            state = this.currentState
+            state = this.#currentState
 
         switch (state) {
             case States.idle:
@@ -90,25 +94,27 @@ class HistoryStateManager {
                 throw Error("Unknown State")
         }
     }
-}
-
-class HistoryUIStateManager {
-    actionButtonDOM
-
-
-    constructor (actionButtonDOM, textfieldDOM, settings) {
-        this.actionButtonDOM = actionButtonDOM
-        this.textfieldDOM = textfieldDOM
-        this.settings = settings
-    }
 
     changeState(state) {
+        if (!state)
+            state = this.#currentState
+
         switch (state) {
             case States.idle:
                 this.#changeUI("./resources/SVGs/PlayButton.svg", "Recording")
                 break
             case States.reviewing:
                 this.#changeUI("./resources/SVGs/FullstopButton.svg", "Reviewing")
+                break
+            default:
+                break
+        }
+
+        switch (state) {
+            case States.idle:
+                this.#audioPlayer.stop()
+            case States.reviewing:
+                this.#audioPlayer.play() // Automatically call playRecording on ready
                 break
             default:
                 break
@@ -120,27 +126,5 @@ class HistoryUIStateManager {
             this.actionButtonDOM.innerHTML = result
         })
         this.textfieldDOM.innerHTML = labelText
-    }
-}
-
-
-
-class HistoryMediaStateManager {
-    #Audio
-
-    constructor (audioPlayer) {
-        this.#Audio = audioPlayer
-    }
-
-    changeState(state) {
-        switch (state) {
-            case States.idle:
-                this.#Audio.stop()
-            case States.reviewing:
-                this.#Audio.play() // Automatically call playRecording on ready
-                break
-            default:
-                break
-        }
     }
 }
