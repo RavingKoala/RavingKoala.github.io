@@ -10,34 +10,41 @@ class HistoryManager {
     static entryCounter
     #audioPlayer
     #historyBoardDOM
-    #history
-    #currentState
 
     constructor (historyBoardDOM, audioPlayer, settings) {
-        this.#currentState = States.idle
         this.entryCounter = 0
         this.#audioPlayer = audioPlayer
         this.#historyBoardDOM = historyBoardDOM
-        this.#history = [] // contains blob URIs
+
+        document.addEventListener(AudioPlayerEvents.onEnded, () => {
+            for (var historyItem of this.#historyBoardDOM.querySelectorAll(".historyItem")) {
+                if (!settings.manualContinue)
+                    this.changeState(historyItem, States.idle)
+            }
+        })
     }
 
     #createHistoryEntryDom(blobURI, id) {
-        let historyEntryDOM = document.getElementById('historyItemTemplate').content.cloneNode(true);
+        let historyEntryTemplate = document.getElementById('historyItemTemplate').content.cloneNode(true);
 
-        var inputbox = historyEntryDOM.querySelector("#nameBoxInput")
+        var historyEntryDOM = historyEntryTemplate.querySelector(".historyItem")
+        historyEntryDOM.dataset.state = States.idle
+        historyEntryDOM.dataset.audioUri = blobURI
+
+        var inputbox = historyEntryTemplate.querySelector("#nameBoxInput")
         inputbox.value = `Recording ${id}`
         inputbox.id = `recording${id}`
-        inputbox.dataset.audioUri = blobURI
 
-        return historyEntryDOM
+        return historyEntryTemplate
     }
     
     addHistoryEntry(blobURI) {
         let domElement = this.#createHistoryEntryDom(blobURI, this.entryCounter)
         this.#historyBoardDOM.querySelector("#historyList").prepend(domElement)
         domElement = this.#historyBoardDOM.querySelector("#historyList .historyItem:first-child")
-        domElement.querySelector(".playButton").addEventListener("click", (e) => {
-            this.playEntry(domElement)
+        domElement.querySelector(".historyActionButton").addEventListener("click", (e) => {
+            let state = this.#getNextState(domElement, domElement.dataset.state)
+            this.changeState(domElement, state)
         })
         domElement.querySelector(".downloadButton").addEventListener("click", (e) => {
             this.downloadEntry(domElement)
@@ -53,11 +60,6 @@ class HistoryManager {
         
         this.entryCounter++
     }
-    
-    playEntry(entryDOM) {
-        let audioBlobUri = entryDOM.querySelector(".nameBox input").dataset.audioUri
-        this.#audioPlayer.play(audioBlobUri)
-    }
 
     //TODO: check if function is useful
     deleteEntry(entryDOM) {
@@ -65,8 +67,8 @@ class HistoryManager {
     }
 
     downloadEntry(entryDOM) {
+        let audioURI = entryDOM.dataset.audioUri
         let infoInput = entryDOM.querySelector(".nameBox input")
-        let audioURI = infoInput.dataset.audioUri
         let filename = `${infoInput.value}.mp3`
 
         const downloadLink = document.createElement('a');
@@ -77,13 +79,12 @@ class HistoryManager {
 
         document.body.appendChild(downloadLink);
         downloadLink.click();
-
         document.body.removeChild(downloadLink);
     }
 
-    #getNextState(state) {
+    #getNextState(entryDOM, state) {
         if (!state)
-            state = this.#currentState
+            state = entryDOM.dataset.state
 
         switch (state) {
             case States.idle:
@@ -95,36 +96,30 @@ class HistoryManager {
         }
     }
 
-    changeState(state) {
+    changeState(entryDOM, state) {
         if (!state)
-            state = this.#currentState
-
-        switch (state) {
-            case States.idle:
-                this.#changeUI("./resources/SVGs/PlayButton.svg", "Recording")
-                break
-            case States.reviewing:
-                this.#changeUI("./resources/SVGs/FullstopButton.svg", "Reviewing")
-                break
-            default:
-                break
-        }
-
+            state = entryDOM.dataset.state
+        
         switch (state) {
             case States.idle:
                 this.#audioPlayer.stop()
+                this.#changeUI(entryDOM, "./resources/SVGs/PlayButton.svg")
+                break
             case States.reviewing:
-                this.#audioPlayer.play() // Automatically call playRecording on ready
+                let audioBlobUri = entryDOM.dataset.audioUri
+                this.#audioPlayer.play(audioBlobUri)
+                this.#changeUI(entryDOM, "./resources/SVGs/FullstopButton.svg")
                 break
             default:
                 break
         }
+
+        entryDOM.dataset.state = state
     }
 
-    #changeUI(actionBtnURI, labelText) {
+    #changeUI(entryDOM, actionBtnURI) {
         getContent(actionBtnURI).then((result) => {
-            this.actionButtonDOM.innerHTML = result
+            entryDOM.querySelector(".historyActionButton").innerHTML = result
         })
-        this.textfieldDOM.innerHTML = labelText
     }
 }

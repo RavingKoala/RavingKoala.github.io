@@ -94,7 +94,7 @@ body {
     display: none;
 }
 
-.playButton, .downloadButton {
+.historyActionButton, .downloadButton {
 	cursor: pointer;
     background-color: var(--md-surface);
     border-radius: 50%;

@@ -39,12 +39,12 @@ class VoiceApp {
                 audioPlayer.play(e.detail.audioBlobURI)
         })
         document.addEventListener(AudioPlayerEvents.onPlay, () => {
-            audioVisualizer.startAnimation()
+            this.#audioVisualizer.startAnimation()
         })
         document.addEventListener(AudioPlayerEvents.onEnded, () => {
             if (!settings.manualContinue)
-                this.nextState()
-            audioVisualizer.stopAnimtaion()
+                this.transitionState(States.idle)
+            this.#audioVisualizer.stopAnimtaion()
         })
     }
 
@@ -94,23 +94,11 @@ class VoiceApp {
                 this.#changeUI("./resources/SVGs/PlayButton.svg", "Ready")
                 break
             case States.reviewing:
-                this.#changeUI("./resources/SVGs/FullstopButton.svg", "Reviewing")
-                break
-            default:
-                break
-        }
-        switch (state) {
-            case States.idle:
-                break
-            case States.recording:
-                break
-            case States.hold:
-                break
-            case States.reviewing:
                 if (this.#settings.pauseBeforeReview)
                     this.#audioPlayer.play(this.#recorder.getLastRecording())
                 else
                     this.#recorder.stop() // Automatically call playRecording on ready
+                this.#changeUI("./resources/SVGs/FullstopButton.svg", "Reviewing")
                 break
             default:
                 break

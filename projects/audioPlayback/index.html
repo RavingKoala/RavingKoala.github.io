@@ -82,12 +82,12 @@
         <div id="historyboard" class="hide">
             <div id="historyList">
                 <template id="historyItemTemplate">
-                    <div class="historyItem">
-                        <div class="playButton">
+                    <div class="historyItem" data-audio-uri data-state>
+                        <div class="historyActionButton">
                             <include src="./resources/SVGs/PlayButton.svg"></include>
                         </div>
                         <div class="nameBox">
-                            <input type="text" data-audio-uri id="nameBoxInput" value="Recording 1">
+                            <input type="text" id="nameBoxInput" value="Recording 1">
                         </div>
                         <div class="downloadButton">
                             <include src="./resources/SVGs/DownloadButton.svg"></include>
