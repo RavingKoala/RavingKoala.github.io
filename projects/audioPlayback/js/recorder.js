@@ -43,7 +43,7 @@ class Recorder {
 	processData(audioClip) {
 		this.#lastBlobRaw = []
 		this.#lastBlobRaw.push(audioClip.data)
-		const audioBlob = new Blob(this.#lastBlobRaw, { type: "audio/mp3" })
+		const audioBlob = new Blob(this.#lastBlobRaw, { type: "audio/wav" })
 		const url = window.URL.createObjectURL(audioBlob)
 		// Tear down after recording.
 		this.#audioRecorder.stream.getTracks().forEach(t => t.stop())

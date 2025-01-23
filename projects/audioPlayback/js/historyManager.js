@@ -69,7 +69,9 @@ class HistoryManager {
     downloadEntry(entryDOM) {
         let audioURI = entryDOM.dataset.audioUri
         let infoInput = entryDOM.querySelector(".nameBox input")
-        let filename = `${infoInput.value}.mp3`
+        let filename = `${infoInput.value}.wav`
+
+        // const audioFile = new File([audioURI], filename, {type: "audio/wav"})
 
         const downloadLink = document.createElement('a');
 

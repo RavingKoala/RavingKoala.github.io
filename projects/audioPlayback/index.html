@@ -150,7 +150,7 @@
             shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, new ShortcutMod(true), KeyActions.keyDown), () => { volume.subVolume(0.1) })
             shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowUp, undefined, KeyActions.keyDown), () => { volume.addVolume(0.05) })
             shortcutManager.addShortcut(new Shortcut(KeyCodes.ArrowDown, undefined, KeyActions.keyDown), () => { volume.subVolume(0.05) })
-			shortcutManager.addShortcut(new Shortcut(KeyCodes.Space, undefined, KeyActions.press), () => { voiceApp.nextState() })
+			shortcutManager.addShortcut(new Shortcut(KeyCodes.Enter, undefined, KeyActions.press), () => { voiceApp.nextState() })
 
 
 			// Settings
@@ -158,10 +158,11 @@
 			includePopup("settingsPopup")
 				.then((settingsPopup) => {
 					settingsBtn.addEventListener("click", () => { settingsPopup.classList.add("show") })
-					shortcutManager.addShortcut(new Shortcut(KeyCodes.KeyT, new ShortcutMod(undefined, true), KeyActions.keyDown), () => { settingsPopup.classList.add("show") })
-					shortcutManager.addShortcut(new Shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), () => { settingsPopup.classList.remove("show"); document.location.reload(false) }, true)
-					shortcutManager.addShortcut(new Shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), () => { settingsPopup.classList.remove("show"); document.location.reload(false) }, true)
-					settingsPopup.querySelector(".overlay").addEventListener("click", () => { settingsPopup.classList.remove("show"); document.location.reload(false) })
+                    const funcExitAndReload = () => { if (settingsPopup.classList.contains("show")) settingsPopup.classList.remove("show"); document.location.reload(false) }
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.KeyT, new ShortcutMod(undefined, true), KeyActions.keyDown), funcExitAndReload, true)
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Enter, undefined, KeyActions.keyDown), funcExitAndReload, true)
+					shortcutManager.addShortcut(new Shortcut(KeyCodes.Escape, undefined, KeyActions.keyDown), funcExitAndReload, true)
+					settingsPopup.querySelector(".overlay").addEventListener("click", funcExitAndReload, true)
 
 					Object.keys(VASettings).forEach((key) => {
 						let inputSetting = settingsPopup.querySelector(".option input#" + key)
