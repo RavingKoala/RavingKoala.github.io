@@ -46,7 +46,7 @@ class VolumeManager {
 		// update
 		this.#volume = value
 		this.updateSlider(value)
-		document.dispatchEvent(new CustomEvent(VolumeEvents.volumeChanged, { detail: { 'volume': value } }))
+		document.dispatchEvent(new CustomEvent(VolumeEvents.volumeChanged, { detail: { volume: value } }))
 	}
 
 	addVolume(value) {

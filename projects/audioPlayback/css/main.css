@@ -9,14 +9,15 @@ body {
 	justify-content: space-evenly;
 	align-items: center;
 
-	margin: 9rem auto 0 auto;
-	padding: 2rem;
-	max-width: 830px;
+    width: min(80vw, 800px);
+    min-height: 240px;
+
+	margin: 5rem auto 0;
 
 	border-radius: 60px;
 }
 
-#player>* {
+#player > * {
 	margin: 2rem;
 }
 
@@ -28,12 +29,14 @@ body {
 	height: 100px;
 	width: 100px;
 	color: var(--md-primary);
+    border-radius: 50%;
+    background-color: var(--md-surface);
 }
 
 .textfield {
 	display: flex;
 	align-items: center;
-	min-width: 386px;
+	min-width: min(300px, 40%);
 	padding: 1.5rem;
 	border: solid 6px var(--md-primary);
 	border-radius: 2rem;
@@ -46,15 +49,105 @@ body {
 	color: var(--md-primary);
 }
 
+@media screen and (max-width: 860px) {
+    #player {
+        flex-direction: column-reverse;
+    }
+
+    #player>* {
+        width: 80%;
+    }
+
+    #actionButton {
+        display: flex;
+        justify-content: center;
+    }
+
+    #actionButton svg {
+        width: calc(100px + 40%);
+        Height: calc(100px + 40%);
+    }
+
+    .textfield {
+        justify-content: center;
+    }
+
+    #waveforms {
+        display: none;
+    }
+}
+
+/* #endregion */
+
+/* #region History panel */
+#historyboard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 4rem auto 0 auto;
+    width: min(80vw, 1100px);
+    border-radius: 50px;
+    background-color: var(--md-surface);
+}
+
+#historyboard.hide {
+    display: none;
+}
+
+.historyActionButton, .downloadButton {
+	cursor: pointer;
+    background-color: var(--md-surface);
+    border-radius: 50%;
+}
+
+#historyboard svg {
+    color: var(--md-primary);
+    width: 64px;
+    height: 64px;
+    
+}
+
+#historyList {
+    margin: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+}
+
+.historyItem {
+    display: grid;
+    grid-template-columns: 64px auto 64px;
+    gap: 1rem;
+    min-width: 100%;
+    padding: 1rem;
+    border-radius: 18px;
+    background-color: var(--md-surface);
+}
+
+@media screen and (max-width: 1020px) {
+    #historyList {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* #endregion */
 
 /* #region Requirements panel */
-#status {
-	position: absolute;
-	display: flex;
+#topBar {
+    justify-content: space-between;
+    width: calc(100vw - 4rem);
+}
+
+#topBar {
+    margin: 2rem;
+}
+
+#topBar,
+#nav-left,
+#nav-right {
+    display: flex;
 	flex-direction: row;
-	top: 2rem;
-	left: 2rem;
 }
 
 #volumeControl {
@@ -63,16 +156,12 @@ body {
 	align-items: center;
 }
 
-#status svg,
-#actionButton svg {
-	border-radius: 50%;
-	background-color: var(--md-surface);
-	margin: 5px;
-}
-
-#status svg {
+#topBar svg {
+    background-color: var(--md-surface);
+    border-radius: 50%;
 	height: 76px;
 	width: 76px;
+    margin: 5px;
 }
 
 /* #endregion */
@@ -84,6 +173,8 @@ body {
 
 #sliderContainer {
 	display: flex;
+    position: absolute;
+    transform: translateY(81px);
 	overflow: hidden;
 	margin: 0;
 	border-radius: 6px;
@@ -163,14 +254,7 @@ body {
 /* #region settings */
 /** settings button **/
 #settings {
-	position: absolute;
-	top: 2rem;
-	right: 2rem;
-	height: 66px;
-	width: 66px;
 	color: var(--md-primary);
-	border-radius: 50%;
-	background-color: var(--md-surface);
 }
 
 /** settings panel **/
@@ -184,14 +268,7 @@ body {
 /* #region Info */
 /** Info button **/
 #info {
-	position: absolute;
-	bottom: 2rem;
-	right: 2rem;
-	height: 66px;
-	width: 66px;
 	color: var(--md-primary);
-	border-radius: 50%;
-	background-color: var(--md-surface);
 }
 
 /** Info panel **/

@@ -149,7 +149,7 @@ class Chess {
 
 		this.endMove()
 
-		document.dispatchEvent(new CustomEvent(Chess.events.onJailPicked, { detail: { "piece": tempPiece, "to": code } }))
+		document.dispatchEvent(new CustomEvent(Chess.events.onJailPicked, { detail: { piece: tempPiece, to: code } }))
 	}
 
 	onMultiMove(origin, to) {
@@ -165,7 +165,7 @@ class Chess {
 		let hints = piece.getMultiMoveHints(this.#board, to)
 		this.#chessUI.hintSquares(to, hints, origin)
 
-		document.dispatchEvent(new CustomEvent(Chess.events.onMultiMove, { detail: { "piece": piece, "origin": origin, "to": to } }))
+		document.dispatchEvent(new CustomEvent(Chess.events.onMultiMove, { detail: { piece: piece, origin: origin, to: to } }))
 	}
 
 	onDragCancel() {
@@ -381,7 +381,7 @@ class Chess {
 		if (!this.#isSaving)
 			this.endMove()
 
-		document.dispatchEvent(new CustomEvent(Chess.events.onMove, { detail: { "piece": piece, "previousPos": from, "currentPos": to } }))
+		document.dispatchEvent(new CustomEvent(Chess.events.onMove, { detail: { piece: piece, previousPos: from, currentPos: to } }))
 	}
 
 	#take(from, to) {
@@ -404,7 +404,7 @@ class Chess {
 		if (this.#pickingPiece === null && !this.#isSaving)
 			this.endMove()
 
-		document.dispatchEvent(new CustomEvent(Chess.events.onTake, { detail: { "piece": piece, "pieceTaken": pieceTaken, "previousPos": from, "currentPos": to } }))
+		document.dispatchEvent(new CustomEvent(Chess.events.onTake, { detail: { piece: piece, pieceTaken: pieceTaken, previousPos: from, currentPos: to } }))
 	}
 
 	#change(code, func) {
