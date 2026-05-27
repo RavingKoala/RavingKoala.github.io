@@ -119,8 +119,8 @@
             var VASettings = VoiceAppSettings
             VASettings.pauseBeforeReview = LocalDataStorage.exists("pauseBeforeReview") ? LocalDataStorage.get("pauseBeforeReview") === "true" : false
             VASettings.manualContinue = LocalDataStorage.exists("manualContinue") ? LocalDataStorage.get("manualContinue") === "true" : false
-            HSettings = HistorySettings
-
+            var HSettings = HistorySettings
+            HSettings.manualContinue = VASettings.manualContinue
             
             var shortcutManager = new ShortcutManager()
             var statusManager = new StatusStateManager(audioReqDOM, micReqDOM)

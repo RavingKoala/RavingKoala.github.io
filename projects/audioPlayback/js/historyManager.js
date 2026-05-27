@@ -3,7 +3,7 @@ const HistoryEvents = {
 }
 
 var HistorySettings = {
-    //// PlayASAP: new Error("PlayASAP was never set to 'true' or 'false'"), // bool
+    manualContinue: new Error("PlayASAP was never set to 'true' or 'false'"), // bool
 }
 
 class HistoryManager {
