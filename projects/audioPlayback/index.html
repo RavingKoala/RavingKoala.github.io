@@ -23,7 +23,7 @@
 		<script src="./js/volumeManager.js"></script>
 		<script src="./js/voiceApp.js"></script>
 		<script src="./js/audioVisualizer.js"></script>
-        <script src="./js/HistoryManager.js"></script>
+        <script src="./js/historyManager.js"></script>
 	</head>
 
 	<body class="dark mt-6">
@@ -119,8 +119,8 @@
             var VASettings = VoiceAppSettings
             VASettings.pauseBeforeReview = LocalDataStorage.exists("pauseBeforeReview") ? LocalDataStorage.get("pauseBeforeReview") === "true" : false
             VASettings.manualContinue = LocalDataStorage.exists("manualContinue") ? LocalDataStorage.get("manualContinue") === "true" : false
-            HSettings = HistorySettings
-
+            var HSettings = HistorySettings
+            HSettings.manualContinue = VASettings.manualContinue
             
             var shortcutManager = new ShortcutManager()
             var statusManager = new StatusStateManager(audioReqDOM, micReqDOM)
